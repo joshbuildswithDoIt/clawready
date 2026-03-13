@@ -3,6 +3,9 @@
 ## Product Name (working)
 **ClawReady** — "Your OpenClaw, ready to work."
 
+## Positioning
+"Helping businesses create digital age native micro-SaaS products to maximize their value creation."
+
 ## What We Sell
 Done-for-you OpenClaw setup for non-technical users who bought (or want to buy) hardware but don't know how to get started.
 
