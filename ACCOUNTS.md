@@ -23,7 +23,7 @@
   - This lets Calendly collect payment at booking time
 
 ## 3. Domain (Optional but recommended)
-- **Suggested:** clawready.com or getclawready.com
+- **Suggested:** clawreadynow.com or getclawreadynow.com
 - **Where:** Namecheap, Cloudflare, or Google Domains
 - **Cost:** ~$10-15/year
 - Can connect custom domain to Netlify after deployment
