@@ -1,2 +1,5 @@
 .stripe-backup-code
 .netlify-site-id
+
+# Local Netlify folder
+.netlify
