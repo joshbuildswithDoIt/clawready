@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OpenClaw for Accountants: Automating a Small CPA Practice — ClawReady</title>
-  <meta name="description" content="How OpenClaw automates document chasing, deadline tracking, and client management for CPA firms. Real ROI: 130x return for a 3-person firm.">
+  <meta name="description" content="How OpenClaw automates document chasing, deadline tracking, and client communication for CPA firms. Real ROI numbers for a 3-person practice.">
   <meta property="og:title" content="OpenClaw for Accountants: Automating a Small CPA Practice">
-  <meta property="og:description" content="You didn't become an accountant to chase documents. Here's how an AI agent handles the 80% so you can focus on the 20%.">
+  <meta property="og:description" content="You didn't become an accountant to chase documents. Here's how AI handles the repetitive 80% of practice management.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-for-accountants">
   <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-for-accountants">
@@ -20,7 +20,7 @@
       --accent: #e74c3c;
       --accent-hover: #c0392b;
       --green: #27ae60;
-      --yellow: #f39c12;
+      --blue: #3498db;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -64,61 +64,84 @@
     .article-body li { margin-bottom: 8px; }
 
     .article-body table {
-      width: 100%; border-collapse: collapse; margin: 20px 0 24px; font-size: 0.9rem;
+      width: 100%; border-collapse: collapse; margin: 20px 0 24px;
+      font-size: 0.9rem;
     }
     .article-body th {
       background: var(--surface); padding: 10px 14px; text-align: left;
       border-bottom: 2px solid var(--border); font-weight: 600; font-size: 0.85rem;
       color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;
     }
-    .article-body td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .article-body td {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+    }
     .article-body tr:hover td { background: rgba(255,255,255,0.02); }
 
     /* Workflow cards */
-    .workflow-card {
+    .workflow {
       background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
       padding: 24px; margin: 16px 0;
     }
-    .workflow-card h3 { margin-top: 0; }
-    .workflow-card .problem {
-      background: rgba(231,76,60,0.08); border-radius: 8px;
-      padding: 12px 16px; margin-bottom: 16px; font-size: 0.95rem;
+    .workflow h3 { margin-top: 0; }
+    .workflow .problem {
+      background: rgba(231,76,60,0.08); border-left: 3px solid var(--accent);
+      padding: 12px 16px; margin: 12px 0; border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
     }
-    .workflow-card .problem strong { color: var(--accent); }
-    .workflow-card .time-saved {
+    .workflow .problem strong { color: var(--accent); }
+    .workflow .solution {
+      background: rgba(39,174,96,0.08); border-left: 3px solid var(--green);
+      padding: 12px 16px; margin: 12px 0; border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+    }
+    .workflow .solution strong { color: var(--green); }
+    .workflow .time-saved {
       display: inline-block; background: rgba(39,174,96,0.15); color: var(--green);
       padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
-      margin-top: 12px;
+      margin-top: 8px;
     }
 
     /* Reminder sequence */
-    .reminder-seq {
-      border-left: 2px solid var(--accent); padding-left: 16px; margin: 12px 0;
+    .reminder-seq { list-style: none; margin-left: 0; padding-left: 0; }
+    .reminder-seq li {
+      padding: 10px 16px; border-left: 2px solid var(--border); margin-left: 8px; margin-bottom: 0;
+      font-size: 0.9rem; color: var(--muted); position: relative;
     }
-    .reminder-seq .step { margin-bottom: 10px; font-size: 0.9rem; }
-    .reminder-seq .step strong { color: var(--accent); }
+    .reminder-seq li::before {
+      content: ""; width: 10px; height: 10px; background: var(--accent); border-radius: 50%;
+      position: absolute; left: -6px; top: 14px;
+    }
+    .reminder-seq li strong { color: var(--text); }
 
     /* ROI box */
     .roi-box {
       background: var(--surface); border: 2px solid var(--green); border-radius: 12px;
-      padding: 24px; margin: 20px 0; text-align: center;
+      padding: 28px; margin: 24px 0; text-align: center;
     }
-    .roi-box .roi-number { font-size: 2rem; font-weight: 800; color: var(--green); }
-    .roi-box .roi-label { font-size: 0.9rem; color: var(--muted); }
+    .roi-box .roi-number { font-size: 2.5rem; font-weight: 800; color: var(--green); }
+    .roi-box .roi-label { color: var(--muted); font-size: 1rem; margin-top: 4px; }
+    .roi-box .roi-detail { font-size: 0.9rem; color: var(--muted); margin-top: 12px; }
 
     /* KKOS section */
-    .kkos-box {
-      background: rgba(243,156,18,0.06); border: 1px solid rgba(243,156,18,0.25);
-      border-radius: 12px; padding: 24px; margin: 20px 0;
+    .kkos-card {
+      background: rgba(52,152,219,0.08); border: 1px solid rgba(52,152,219,0.3);
+      border-radius: 12px; padding: 24px; margin: 16px 0;
     }
-    .kkos-box h3 { color: var(--yellow); margin-top: 0; }
+    .kkos-card h3 { color: var(--blue); margin-top: 0; }
 
     /* Limitations */
-    .limit-item {
-      background: var(--surface); border-left: 3px solid var(--accent);
-      padding: 12px 18px; margin: 8px 0; border-radius: 0 8px 8px 0;
-      font-size: 0.95rem;
+    .limitation {
+      padding: 10px 0; border-bottom: 1px solid var(--border);
     }
+    .limitation strong { color: var(--accent); }
+
+    /* Path cards */
+    .path-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px; margin: 12px 0;
+    }
+    .path-card h3 { margin-top: 0; }
+    .path-card .price { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
 
     .article-cta {
       background: var(--surface); border: 2px solid var(--accent); border-radius: 12px;
@@ -142,7 +165,7 @@
     @media (max-width: 600px) {
       .article-body table { font-size: 0.8rem; }
       .article-body th, .article-body td { padding: 8px 10px; }
-      .workflow-card { padding: 16px; }
+      .workflow, .path-card { padding: 16px; }
     }
   </style>
 </head>
@@ -163,104 +186,121 @@
     <div class="article-header">
       <span class="tag">🧾 Accounting</span>
       <h1>OpenClaw for Accountants: Automating a Small CPA Practice</h1>
-      <p class="subtitle">You didn't become an accountant to chase documents. But here you are — 47 emails about missing W-2s and that one guy who swears he already uploaded everything. (He didn't.)</p>
-      <div class="meta">14 min read · March 2026 · By the ClawReady team</div>
+      <p class="subtitle">You didn't become an accountant to chase documents. Here's how an AI agent handles the repetitive 80% of practice management — so you can focus on the work that actually requires a CPA license.</p>
+      <div class="meta">15 min read · March 2026 · By the ClawReady team</div>
     </div>
 
     <div class="article-body">
 
-      <p>OpenClaw is an open-source AI agent that runs 24/7 on your own hardware. For a small CPA firm, it can automate the repetitive 80% of practice management — document chasing, deadline tracking, client communication, and workflow triage — so you can focus on the 20% that actually requires a CPA license.</p>
+      <p>47 emails about missing W-2s. 12 clients who haven't sent their K-1s. That one guy who swears he already uploaded everything (he didn't). What if an AI agent handled all of that? Not someday. Today.</p>
+
+      <p>OpenClaw is an open-source AI agent that runs 24/7 on your own hardware. For a small CPA firm, it automates document chasing, deadline tracking, client communication, and workflow triage.</p>
 
       <h2>What OpenClaw Can Do for Your Practice</h2>
 
       <!-- Workflow 1: Document Chase -->
-      <div class="workflow-card">
+      <div class="workflow">
         <h3>1. Document Chase Automation</h3>
         <div class="problem">
-          <strong>The problem:</strong> You need 15 documents from each client. You send a list. They send 3. You send a reminder. They send 2 more. You send another reminder. They send 1 from 2019 by accident. Repeat until April 14.
+          <strong>The problem:</strong> You need 15 documents from each client. They send 3. You remind them. They send 2 more. Another reminder. They send 1 from 2019 by accident. Repeat until April 14.
         </div>
-        <p><strong>What OpenClaw does:</strong></p>
-        <ul>
-          <li>Maintains a per-client document checklist (W-2s, 1099s, K-1s, prior returns, bank statements)</li>
-          <li>Tracks what's been received, what's outstanding, who needs a phone call</li>
-          <li>Generates a daily digest: "5 clients complete, 8 need reminders, 2 need escalation"</li>
+        <div class="solution">
+          <strong>What OpenClaw does:</strong>
+          <ul style="margin-top: 8px;">
+            <li>Maintains a per-client document checklist (W-2s, 1099s, K-1s, prior returns, bank statements)</li>
+            <li>Tracks what's received, what's outstanding, and who needs a phone call</li>
+            <li>Generates a daily digest: "5 clients complete, 8 need reminders, 2 need escalation"</li>
+          </ul>
+        </div>
+        <p style="margin-top: 12px; margin-bottom: 4px; font-size: 0.9rem; color: var(--muted);"><strong>Automated reminder sequence:</strong></p>
+        <ul class="reminder-seq">
+          <li><strong>Day 7:</strong> "Hey [name], just checking in — still need your W-2 and 1099-INT."</li>
+          <li><strong>Day 14:</strong> "Friendly reminder — we're missing 3 documents for your return."</li>
+          <li><strong>Day 21:</strong> "We need these by [date] to file on time. Here's exactly what's outstanding."</li>
+          <li><strong>Day 28:</strong> "Last call before we file an extension."</li>
         </ul>
-        <p><strong>Automated reminder sequence:</strong></p>
-        <div class="reminder-seq">
-          <div class="step"><strong>Day 7:</strong> "Hey [name], just checking in — still need your W-2 and 1099-INT."</div>
-          <div class="step"><strong>Day 14:</strong> "Friendly reminder — we're missing 3 documents for your return."</div>
-          <div class="step"><strong>Day 21:</strong> "We need these by [date] to file on time. Here's exactly what's outstanding."</div>
-          <div class="step"><strong>Day 28:</strong> "Last call before we file an extension."</div>
-        </div>
-        <span class="time-saved">⏱️ 4–8 hours/week saved during tax season ($200–400/week)</span>
+        <span class="time-saved">⏱ 4–8 hours/week saved during tax season</span>
       </div>
 
       <!-- Workflow 2: Deadline Calendar -->
-      <div class="workflow-card">
+      <div class="workflow">
         <h3>2. Tax Deadline Calendar</h3>
         <div class="problem">
-          <strong>The problem:</strong> Between individual returns (4/15), S-Corp and partnership returns (3/15), extensions, quarterly estimates (4 dates × n clients), and state-specific deadlines — you're tracking hundreds of dates across dozens of clients.
+          <strong>The problem:</strong> Individual returns (4/15), S-Corp and partnership returns (3/15), extensions, quarterly estimates (4 dates × n clients), state-specific deadlines — hundreds of dates across dozens of clients.
         </div>
-        <ul>
-          <li>Master deadline calendar with all federal and state deadlines</li>
-          <li>Per-client tracking with extension status</li>
-          <li>Alerts at 30/14/7/3/1 days before each deadline</li>
-          <li>Auto-flags clients whose documents aren't received by extension cutoff</li>
-          <li>Weekly report: "These returns are due in the next 14 days"</li>
-          <li>State-specific deadlines (Ohio CAT, municipal income tax, etc.)</li>
-        </ul>
-        <p style="font-size: 0.9rem; color: var(--muted);"><strong>What this prevents:</strong> Missing a deadline. Which prevents: malpractice claims, client loss, and panic.</p>
+        <div class="solution">
+          <strong>What OpenClaw does:</strong>
+          <ul style="margin-top: 8px;">
+            <li>Master deadline calendar with all federal and state deadlines</li>
+            <li>Per-client tracking with extension status</li>
+            <li>Alerts at 30/14/7/3/1 days before each deadline</li>
+            <li>Auto-flags clients whose documents aren't received by the extension cutoff</li>
+            <li>Weekly report: "These returns are due in the next 14 days"</li>
+            <li>State-specific deadlines (Ohio CAT, municipal income tax, etc.)</li>
+          </ul>
+        </div>
+        <p style="margin-top: 12px; font-size: 0.9rem;"><strong>What this prevents:</strong> Missing a deadline → malpractice claims, client loss, and panic.</p>
       </div>
 
-      <!-- Workflow 3: Onboarding -->
-      <div class="workflow-card">
+      <!-- Workflow 3: Client Onboarding -->
+      <div class="workflow">
         <h3>3. Client Onboarding</h3>
         <div class="problem">
-          <strong>The problem:</strong> New client walks in. You need engagement letter signed, prior returns gathered, entity documents collected, billing set up. 45 minutes of admin before you even look at a number.
+          <strong>The problem:</strong> New client walks in. Engagement letter, prior returns, entity documents, tax history review, billing setup. 45 minutes of admin before you even look at a number.
         </div>
-        <ul>
-          <li>Generates customized onboarding checklist by engagement type (individual, S-Corp, partnership, nonprofit, trust)</li>
-          <li>Sends welcome packet automatically (engagement letter, document request, firm policies)</li>
-          <li>Tracks onboarding progress and flags incomplete clients at 7/14/21 days</li>
-          <li>Populates your CRM or practice management system with client details</li>
-        </ul>
+        <div class="solution">
+          <strong>What OpenClaw does:</strong>
+          <ul style="margin-top: 8px;">
+            <li>Generates customized checklist by engagement type (individual, S-Corp, partnership, nonprofit, trust)</li>
+            <li>Sends welcome packet automatically (engagement letter, document request, firm policies)</li>
+            <li>Tracks onboarding progress — flags incomplete clients at 7/14/21 days</li>
+            <li>Populates your CRM or practice management system</li>
+          </ul>
+        </div>
       </div>
 
       <!-- Workflow 4: Entity Compliance -->
-      <div class="workflow-card">
+      <div class="workflow">
         <h3>4. Entity Compliance Management</h3>
         <div class="problem">
-          <strong>The problem:</strong> Your business clients have LLCs, S-Corps, trusts. Each needs annual meeting minutes, registered agent renewals, state filings, S-Corp reasonable compensation reviews, and BOI reports. Multiply by 30 clients and it's a compliance nightmare.
+          <strong>The problem:</strong> Business clients have LLCs, S-Corps, trusts. Each needs annual meeting minutes, registered agent renewals, state filings, S-Corp compensation reviews, and BOI reports. Multiply by 30 clients.
         </div>
-        <ul>
-          <li>Tracks every entity for every client: type, state, formation date, fiscal year</li>
-          <li>Annual meeting minute reminders (with 7 entity-specific templates)</li>
-          <li>Registered agent renewal alerts</li>
-          <li>State annual report filing deadlines by entity and state</li>
-          <li>S-Corp reasonable compensation review reminders</li>
-          <li>BOI report tracking and filing reminders</li>
-          <li>Quarterly compliance report for each client</li>
-        </ul>
+        <div class="solution">
+          <strong>What OpenClaw does:</strong>
+          <ul style="margin-top: 8px;">
+            <li>Tracks every entity for every client: type, state, formation date, fiscal year</li>
+            <li>Annual meeting minute reminders (with templates for 7 entity types)</li>
+            <li>Registered agent renewal + state annual report filing alerts</li>
+            <li>S-Corp reasonable compensation review reminders (annually)</li>
+            <li>BOI report tracking and filing reminders</li>
+            <li>Quarterly compliance report for each client</li>
+          </ul>
+        </div>
       </div>
 
-      <!-- Workflow 5: Practice Management -->
-      <div class="workflow-card">
+      <!-- Workflow 5: Revenue & Practice Mgmt -->
+      <div class="workflow">
         <h3>5. Revenue & Practice Management</h3>
-        <ul>
-          <li>Tracks billable hours and WIP by client</li>
-          <li>Flags engagements that are over-budget or stale</li>
-          <li>Generates collection reminders for unpaid invoices</li>
-          <li>Monthly practice metrics: revenue, AR aging, utilization rate, effective hourly rate</li>
-          <li>Client profitability ranking (who's worth your time, who's not)</li>
-        </ul>
+        <div class="solution">
+          <strong>What OpenClaw does:</strong>
+          <ul style="margin-top: 8px;">
+            <li>Tracks billable hours and WIP by client</li>
+            <li>Flags engagements that are over-budget or stale</li>
+            <li>Generates collection reminders for unpaid invoices</li>
+            <li>Monthly practice metrics: revenue, AR aging, utilization rate, effective hourly rate</li>
+            <li>Client profitability ranking (who's worth your time, who's not)</li>
+          </ul>
+        </div>
       </div>
 
-      <h2>Real Numbers: ROI for a 3-Person CPA Firm</h2>
-      <p>2 CPAs and 1 admin, 150 individual + 40 business clients.</p>
+      <h2>Real Numbers: ROI for a 3-Person Firm</h2>
+      <p>2 CPAs + 1 admin, 150 individual + 40 business clients.</p>
 
       <h3>Without OpenClaw</h3>
       <table>
-        <thead><tr><th>Task</th><th>Hours/Week (Tax Season)</th><th>Hours/Week (Off-Season)</th></tr></thead>
+        <thead>
+          <tr><th>Task</th><th>Tax Season (hrs/wk)</th><th>Off-Season (hrs/wk)</th></tr>
+        </thead>
         <tbody>
           <tr><td>Document chasing</td><td>8</td><td>2</td></tr>
           <tr><td>Deadline tracking</td><td>3</td><td>1</td></tr>
@@ -273,9 +313,11 @@
 
       <h3>With OpenClaw</h3>
       <table>
-        <thead><tr><th>Task</th><th>Hours/Week (Tax Season)</th><th>Hours/Week (Off-Season)</th></tr></thead>
+        <thead>
+          <tr><th>Task</th><th>Tax Season (hrs/wk)</th><th>Off-Season (hrs/wk)</th></tr>
+        </thead>
         <tbody>
-          <tr><td>Document chasing</td><td>1 (review)</td><td>0.5</td></tr>
+          <tr><td>Document chasing</td><td>1 (review agent's work)</td><td>0.5</td></tr>
           <tr><td>Deadline tracking</td><td>0.5 (review alerts)</td><td>0.5</td></tr>
           <tr><td>Client onboarding</td><td>0.5</td><td>0.5</td></tr>
           <tr><td>Compliance tracking</td><td>0.5</td><td>0.5</td></tr>
@@ -284,46 +326,62 @@
         </tbody>
       </table>
 
+      <p><strong>Time saved:</strong> 14 hours/week during tax season, 5.5 hours/week off-season.</p>
+
       <div class="roi-box">
         <div class="roi-number">130x ROI</div>
-        <div class="roi-label">$78,000/year in recovered billable time · Cost: $30–50/month</div>
-        <p style="margin-top: 8px; font-size: 0.9rem; color: var(--muted);">14 hours/week saved during tax season at $150/hr effective rate. Not a typo.</p>
+        <div class="roi-label">~$78,000/year in recovered billable time</div>
+        <div class="roi-detail">At $150/hr effective rate · OpenClaw cost: $30–50/month</div>
       </div>
 
-      <!-- KKOS Section -->
-      <div class="kkos-box">
-        <h3>⚖️ The KKOS Framework Connection</h3>
-        <p>If you serve clients who follow the KKOS (Kohler) framework — entity structuring, Trifecta (LLC + S-Corp + trust), Solo 401k, SDIRA — OpenClaw becomes even more valuable:</p>
+      <h2>The KKOS Framework Connection</h2>
+
+      <div class="kkos-card">
+        <h3>For Practices Using Kohler Frameworks</h3>
+        <p>If you serve clients who follow the KKOS framework — entity structuring, Trifecta (LLC + S-Corp + Trust), Solo 401k, SDIRA — OpenClaw becomes even more valuable:</p>
         <ul>
-          <li>Entity compliance tracking across the Trifecta structure</li>
-          <li>Annual meeting minute generation for each entity in the stack</li>
-          <li>S-Corp reasonable compensation review reminders</li>
-          <li>Tax election deadline tracking (Form 2553, fiscal year changes)</li>
-          <li>Retirement contribution deadline reminders (Solo 401k, SDIRA)</li>
-          <li>Trump Account (home office deduction) documentation tracking</li>
+          <li><strong>Entity compliance tracking</strong> across the Trifecta structure</li>
+          <li><strong>Annual meeting minute generation</strong> for each entity in the stack</li>
+          <li><strong>S-Corp reasonable compensation</strong> review reminders</li>
+          <li><strong>Tax election deadline tracking</strong> (Form 2553, fiscal year changes)</li>
+          <li><strong>Retirement contribution deadline</strong> reminders (Solo 401k, SDIRA)</li>
+          <li><strong>Trump Account</strong> (home office deduction) documentation tracking</li>
         </ul>
-        <p style="margin-bottom: 0; font-size: 0.9rem;">If you're a Main Street Professional or thinking about certification, an OpenClaw agent pre-configured for KKOS workflows is a massive competitive advantage.</p>
+        <p style="margin-top: 12px; font-size: 0.9rem; color: var(--muted);">If you're a Main Street Professional or thinking about certification, an OpenClaw agent pre-configured for KKOS workflows is a massive competitive advantage.</p>
       </div>
 
       <h2>What OpenClaw CAN'T Do (Be Honest)</h2>
 
-      <div class="limit-item">❌ <strong>File tax returns.</strong> It prepares data, chases documents, tracks deadlines — but a human CPA reviews and files.</div>
-      <div class="limit-item">❌ <strong>Give tax advice.</strong> It can surface relevant rules and flag items, but professional judgment stays with you.</div>
-      <div class="limit-item">❌ <strong>Replace professional software.</strong> Complements Drake, Lacerte, UltraTax — doesn't replace them.</div>
-      <div class="limit-item">❌ <strong>Handle complex judgment calls.</strong> Related-party transactions, aggressive positions, audit defense — these need a human.</div>
+      <div class="limitation">
+        <p>❌ <strong>File tax returns.</strong> OpenClaw prepares data, chases documents, and tracks deadlines — but a human CPA reviews and files.</p>
+      </div>
+      <div class="limitation">
+        <p>❌ <strong>Give tax advice.</strong> It can surface relevant rules and flag items for review, but professional judgment stays with you.</p>
+      </div>
+      <div class="limitation">
+        <p>❌ <strong>Replace professional software.</strong> It complements your existing tax prep software (Drake, Lacerte, UltraTax), not replaces it.</p>
+      </div>
+      <div class="limitation">
+        <p>❌ <strong>Handle complex judgment calls.</strong> Related-party transactions, aggressive deduction positions, audit defense — these need a human.</p>
+      </div>
 
       <p style="margin-top: 16px;">Think of OpenClaw as your best-ever admin assistant — tireless, accurate, available 24/7, and costs less than a part-time hire.</p>
 
       <h2>Getting Started</h2>
 
-      <div class="workflow-card">
-        <h3>Option 1: DIY (Free + Your Time)</h3>
+      <div class="path-card">
+        <h3>Option 1: DIY</h3>
+        <div class="price">Free + Your Time</div>
         <p>Install OpenClaw on a Mac Mini or VPS. Install the <code>small-cpa-firm</code> ClawHub skill for pre-built accounting workflows.</p>
-        <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 0;"><strong>Cost:</strong> $30–50/month · <strong>Time:</strong> 4–8 hours setup + 2–4 hours customizing</p>
+        <ul>
+          <li>Cost: $30–50/month (hosting + API)</li>
+          <li>Time: 4–8 hours setup + 2–4 hours to customize</li>
+        </ul>
       </div>
 
-      <div class="workflow-card" style="border-color: var(--accent);">
-        <h3>Option 2: ClawReady VIP Setup ($299)</h3>
+      <div class="path-card" style="border-color: var(--accent);">
+        <h3>Option 2: ClawReady VIP Setup</h3>
+        <div class="price">$299 (one-time)</div>
         <p>We set up OpenClaw specifically for your accounting practice:</p>
         <ul>
           <li>Practice management workflows configured</li>
@@ -333,20 +391,21 @@
           <li><code>small-cpa-firm</code> skill installed and customized</li>
           <li>30-minute walkthrough + 1 month support</li>
         </ul>
-        <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 0;"><strong>Cost:</strong> $299 one-time + $30–50/month · <strong>Time:</strong> Zero. Running in 2–3 days.</p>
+        <p style="margin-top: 8px; font-size: 0.9rem; color: var(--muted);">Running in 2–3 days. $299 one-time + $30–50/month ongoing.</p>
       </div>
 
-      <div class="workflow-card">
-        <h3>Option 3: Lobster Condo ($55/month)</h3>
-        <p style="margin-bottom: 0;">Dedicated hardware in our managed facility. Zero maintenance. 24/7 uptime with monitoring. Founding member rate includes ClawReady setup.</p>
+      <div class="path-card">
+        <h3>Option 3: Lobster Condo</h3>
+        <div class="price">$55/month (founding member rate)</div>
+        <p>Dedicated hardware in our managed facility. Zero maintenance. 99.5% uptime, monitoring, and updates handled. Includes ClawReady setup.</p>
       </div>
 
       <!-- CTA -->
       <div class="article-cta">
-        <h2>Ready to Automate Your Practice?</h2>
-        <p>Stop chasing documents. Let an AI agent handle the admin so you can focus on what you actually went to school for.</p>
+        <h2>Ready to Stop Chasing Documents?</h2>
+        <p>ClawReady's VIP Setup ($299) gets your accounting practice automated in 2–3 days. Document chase, deadlines, compliance — all handled.</p>
         <a href="https://calendly.com/grofresh2018/clawready" class="cta-btn">Book a VIP Setup ($299) →</a>
-        <p style="margin-top: 16px; font-size: 0.9rem; color: var(--muted);">Or install the free <code>small-cpa-firm</code> skill from ClawHub and get started yourself.</p>
+        <p style="margin-top: 16px; font-size: 0.9rem; color: var(--muted);">Or install the free <code>small-cpa-firm</code> skill from ClawHub and configure it yourself.</p>
         <a href="https://lobstercondo.net" class="cta-btn" style="background: var(--green); margin-top: 12px;">Lobster Condo — Managed Hosting from $55/mo →</a>
       </div>
 
