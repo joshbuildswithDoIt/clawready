@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Mac Mini OpenClaw Setup Guide: Local Models + Cloud Fallback — ClawReady</title>
+  <meta name="description" content="Step-by-step guide to running OpenClaw 24/7 on a Mac Mini with local models and cloud fallback. Cut your API bill by 80%.">
+  <meta property="og:title" content="The Mac Mini OpenClaw Setup Guide: Local Models + Cloud Fallback">
+  <meta property="og:description" content="The Mac Mini is the default hardware for 24/7 OpenClaw. Here's how to set it up with hybrid model routing.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/mac-mini-setup-guide">
+  <link rel="canonical" href="https://clawreadynow.com/blog/mac-mini-setup-guide">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --accent: #e74c3c;
+      --accent-hover: #c0392b;
+      --green: #27ae60;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .container { max-width: 740px; margin: 0 auto; padding: 0 24px; }
+
+    nav { padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
+    nav .nav-inner { max-width: 740px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+    nav a { color: var(--text); text-decoration: none; }
+    nav .logo { font-weight: 800; font-size: 1.2rem; }
+    nav .logo span { color: var(--accent); }
+    nav .nav-links a { color: var(--muted); margin-left: 24px; font-size: 0.95rem; transition: color 0.2s; }
+    nav .nav-links a:hover { color: var(--text); }
+
+    .article-header { padding: 40px 0 30px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
+    .article-header .tag {
+      display: inline-block; background: rgba(231,76,60,0.15); color: var(--accent);
+      padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+      margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .article-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800;
+      letter-spacing: -0.02em; margin-bottom: 12px;
+    }
+    .article-header .subtitle { font-size: 1.1rem; color: var(--muted); margin-bottom: 16px; }
+    .article-header .meta { font-size: 0.85rem; color: #555; }
+
+    .article-body h2 {
+      font-size: 1.5rem; font-weight: 700; margin: 40px 0 16px;
+      padding-top: 20px; border-top: 1px solid var(--border);
+      letter-spacing: -0.01em;
+    }
+    .article-body h3 { font-size: 1.15rem; font-weight: 600; margin: 24px 0 10px; }
+    .article-body p { margin-bottom: 16px; color: var(--text); }
+    .article-body strong { color: #fff; }
+    .article-body ul, .article-body ol { margin: 0 0 16px 24px; }
+    .article-body li { margin-bottom: 8px; }
+
+    .article-body table {
+      width: 100%; border-collapse: collapse; margin: 20px 0 24px;
+      font-size: 0.9rem;
+    }
+    .article-body th {
+      background: var(--surface); padding: 10px 14px; text-align: left;
+      border-bottom: 2px solid var(--border); font-weight: 600; font-size: 0.85rem;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .article-body td {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+    }
+    .article-body tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Step cards */
+    .step-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px; margin: 20px 0;
+    }
+    .step-card h3 { margin-top: 0; }
+    .step-num {
+      display: inline-block; background: var(--accent); color: white;
+      width: 32px; height: 32px; border-radius: 50%; text-align: center;
+      line-height: 32px; font-weight: 700; font-size: 0.9rem; margin-right: 10px;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: #111; border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px 20px; margin: 12px 0 16px; overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.85rem; line-height: 1.5; color: #c8d6e5;
+    }
+    .code-block .comment { color: #636e72; }
+    .code-block .cmd { color: var(--green); }
+
+    /* Buying guide highlight */
+    .pick-highlight {
+      background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3);
+      border-radius: 8px; padding: 14px 18px; margin: 12px 0; font-size: 0.95rem;
+    }
+    .pick-highlight strong { color: var(--green); }
+
+    /* Cost breakdown */
+    .cost-summary {
+      background: var(--surface); border: 2px solid var(--green); border-radius: 12px;
+      padding: 24px; margin: 20px 0;
+    }
+    .cost-summary .total { font-size: 1.3rem; font-weight: 700; color: var(--green); margin-top: 12px; }
+
+    /* Troubleshooting */
+    .troubleshoot {
+      background: var(--surface); border-left: 3px solid var(--accent);
+      padding: 14px 18px; margin: 10px 0; border-radius: 0 8px 8px 0;
+    }
+    .troubleshoot .problem { font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .troubleshoot .fix { color: var(--muted); font-size: 0.95rem; }
+
+    .article-cta {
+      background: var(--surface); border: 2px solid var(--accent); border-radius: 12px;
+      padding: 32px; text-align: center; margin: 40px 0;
+    }
+    .article-cta h2 { font-size: 1.4rem; margin-bottom: 12px; }
+    .article-cta p { color: var(--muted); margin-bottom: 20px; }
+    .cta-btn {
+      display: inline-block; background: var(--accent); color: white;
+      padding: 14px 36px; border-radius: 8px; text-decoration: none;
+      font-size: 1rem; font-weight: 700; transition: background 0.2s;
+    }
+    .cta-btn:hover { background: var(--accent-hover); }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 24px 0;
+      text-align: center; color: var(--muted); font-size: 0.85rem;
+    }
+    footer a { color: var(--muted); }
+
+    @media (max-width: 600px) {
+      .article-body table { font-size: 0.8rem; }
+      .article-body th, .article-body td { padding: 8px 10px; }
+      .step-card { padding: 16px; }
+      .code-block { font-size: 0.75rem; padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">🦞 Claw<span>Ready</span></a>
+      <div class="nav-links">
+        <a href="/">Services</a>
+        <a href="/blog">Blog</a>
+        <a href="https://calendly.com/grofresh2018/clawready">Book a Call</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="tag">🖥️ Setup Guide</span>
+      <h1>The Mac Mini OpenClaw Setup Guide: Local Models + Cloud Fallback</h1>
+      <p class="subtitle">The Mac Mini is the community standard for running OpenClaw 24/7. This guide gets you from unboxing to running — with local models that cut your API bill by 80%.</p>
+      <div class="meta">15 min read · March 2026 · By the ClawReady team</div>
+    </div>
+
+    <div class="article-body">
+
+      <p>It's quiet, sips power, runs macOS (which means iMessage), and Apple Silicon handles local model inference surprisingly well. By the end of this guide, you'll have a 24/7 agent that costs $5–15/month in API fees instead of $50–150.</p>
+
+      <h2>What You Need</h2>
+
+      <h3>Hardware</h3>
+      <ul>
+        <li><strong>Mac Mini with Apple Silicon</strong> (M1, M2, M3, or M4)</li>
+        <li><strong>16GB RAM minimum</strong> (24GB+ recommended for larger local models)</li>
+        <li><strong>Ethernet cable</strong> (don't rely on WiFi for 24/7 operation)</li>
+        <li><strong>UPS recommended</strong> (~$50 battery backup prevents dirty shutdowns during power blips)</li>
+      </ul>
+
+      <h3>Buying Guide (March 2026)</h3>
+
+      <table>
+        <thead>
+          <tr><th>Model</th><th>RAM</th><th>Used Price</th><th>New Price</th><th>Local Models</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>M1 Mac Mini</td><td>16GB</td><td>$350–450</td><td>N/A</td><td>7B models</td></tr>
+          <tr><td>M2 Mac Mini</td><td>16GB</td><td>$400–500</td><td>N/A</td><td>7B models</td></tr>
+          <tr><td>M2 Mac Mini</td><td>24GB</td><td>$500–650</td><td>N/A</td><td>13B models ⭐</td></tr>
+          <tr><td>M4 Mac Mini</td><td>16GB</td><td>N/A</td><td>$500–600</td><td>7B models</td></tr>
+          <tr><td>M4 Mac Mini</td><td>24GB</td><td>N/A</td><td>$600–700</td><td>13B models ⭐</td></tr>
+          <tr><td>M2 Pro</td><td>32GB</td><td>$750–900</td><td>N/A</td><td>30B models</td></tr>
+          <tr><td>M4 Pro</td><td>48GB</td><td>N/A</td><td>$1,400</td><td>70B models</td></tr>
+        </tbody>
+      </table>
+
+      <div class="pick-highlight">
+        <strong>🟢 Best budget pick:</strong> Used M1 16GB (~$400). Handles cloud APIs perfectly and can run small local models.
+      </div>
+      <div class="pick-highlight">
+        <strong>⭐ Best overall pick:</strong> M2 or M4 with 24GB (~$600). Runs 13B models smoothly — covers most tasks without API costs.
+      </div>
+
+      <h2><span class="step-num">1</span> Prepare Your Mac Mini</h2>
+
+      <div class="step-card">
+        <h3>Initial Setup</h3>
+        <ol>
+          <li><strong>Connect via ethernet</strong> — plug directly into your router. WiFi drops kill your agent.</li>
+          <li><strong>Enable auto-login</strong> — System Settings → Users & Groups → Auto Login → your account</li>
+          <li><strong>Disable sleep</strong> — System Settings → Energy Saver → Prevent automatic sleeping</li>
+          <li><strong>Enable SSH</strong> — System Settings → General → Sharing → Remote Login → ON</li>
+          <li><strong>Set a static IP</strong> (or reserve one in your router's DHCP settings)</li>
+        </ol>
+      </div>
+
+      <h3>Enable Headless Operation</h3>
+      <p>Your Mac Mini will run without a monitor, keyboard, or mouse. Prevent display-related issues:</p>
+
+      <div class="code-block">
+        <span class="comment"># Prevent sleeping when display is off</span><br>
+        <span class="cmd">sudo pmset -a displaysleep 0 sleep 0 disksleep 0</span><br><br>
+        <span class="comment"># Auto-restart after power failure</span><br>
+        <span class="cmd">sudo pmset -a autorestart 1</span>
+      </div>
+
+      <h3>Install Prerequisites</h3>
+
+      <div class="code-block">
+        <span class="comment"># Install Homebrew</span><br>
+        <span class="cmd">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span><br><br>
+        <span class="comment"># Install Node.js</span><br>
+        <span class="cmd">brew install node</span><br><br>
+        <span class="comment"># Verify</span><br>
+        <span class="cmd">node --version</span>  <span class="comment"># Should be v20+ or v22+</span>
+      </div>
+
+      <h2><span class="step-num">2</span> Install OpenClaw</h2>
+
+      <div class="code-block">
+        <span class="comment"># Install OpenClaw globally</span><br>
+        <span class="cmd">npm install -g openclaw</span><br><br>
+        <span class="comment"># Run the setup wizard</span><br>
+        <span class="cmd">openclaw setup</span>
+      </div>
+
+      <p>The wizard will ask for:</p>
+      <ul>
+        <li><strong>AI provider</strong> — pick Anthropic (Claude) for best agent performance</li>
+        <li><strong>API key</strong> — get one from console.anthropic.com</li>
+        <li><strong>Default model</strong> — start with Sonnet (best price/performance)</li>
+        <li><strong>Messaging channel</strong> — WhatsApp, Telegram, Discord, or iMessage</li>
+      </ul>
+
+      <h3>Configure as Service (Auto-Start on Boot)</h3>
+
+      <div class="code-block">
+        <span class="comment"># Start OpenClaw gateway as a service</span><br>
+        <span class="cmd">openclaw gateway start</span><br><br>
+        <span class="comment"># Verify</span><br>
+        <span class="cmd">openclaw gateway status</span>
+      </div>
+
+      <p>OpenClaw will now start automatically when your Mac boots and restart if it crashes.</p>
+
+      <h2><span class="step-num">3</span> Install Ollama (Local Models)</h2>
+
+      <p>This is where the Mac Mini really shines. Local models = <strong>$0 API costs</strong>.</p>
+
+      <div class="code-block">
+        <span class="comment"># Install Ollama</span><br>
+        <span class="cmd">brew install ollama</span><br><br>
+        <span class="comment"># Start Ollama service</span><br>
+        <span class="cmd">brew services start ollama</span><br><br>
+        <span class="comment"># Pull a model (Qwen 2.5 7B — excellent for agent tasks)</span><br>
+        <span class="cmd">ollama pull qwen2.5:7b</span><br><br>
+        <span class="comment"># Test it</span><br>
+        <span class="cmd">ollama run qwen2.5:7b "Hello, are you working?"</span>
+      </div>
+
+      <h3>Recommended Models by RAM</h3>
+
+      <table>
+        <thead>
+          <tr><th>Your RAM</th><th>Model</th><th>Pull Command</th><th>Quality</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>8GB</td><td>Qwen 2.5 3B</td><td><code>ollama pull qwen2.5:3b</code></td><td>Basic tasks</td></tr>
+          <tr><td>16GB</td><td>Qwen 2.5 7B</td><td><code>ollama pull qwen2.5:7b</code></td><td>Good for most tasks</td></tr>
+          <tr><td>24GB</td><td>Qwen 2.5 14B</td><td><code>ollama pull qwen2.5:14b</code></td><td>Strong reasoning</td></tr>
+          <tr><td>32GB</td><td>Qwen 3.5 32B</td><td><code>ollama pull qwen3.5:32b</code></td><td>Near-Sonnet quality</td></tr>
+          <tr><td>48GB+</td><td>Llama 3 70B</td><td><code>ollama pull llama3:70b</code></td><td>Premium, free</td></tr>
+        </tbody>
+      </table>
+
+      <h2><span class="step-num">4</span> Configure Hybrid Model Routing</h2>
+
+      <p>The magic setup: <strong>local model for easy tasks, cloud API for hard tasks.</strong> This typically cuts monthly API costs by 70–80%.</p>
+
+      <ul>
+        <li><strong>Default model:</strong> Ollama (local) — handles greetings, quick lookups, simple tasks</li>
+        <li><strong>Complex tasks:</strong> Claude Sonnet (cloud) — reasoning, coding, long-form writing</li>
+        <li><strong>Heavy lifting:</strong> Claude Opus (cloud) — only when you explicitly need the best</li>
+      </ul>
+
+      <h3>What This Looks Like in Practice</h3>
+
+      <table>
+        <thead>
+          <tr><th>Task</th><th>Model Used</th><th>Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>"Good morning"</td><td>Qwen 2.5 7B (local)</td><td><strong style="color: var(--green);">$0</strong></td></tr>
+          <tr><td>"What's on my calendar?"</td><td>Qwen 2.5 7B (local)</td><td><strong style="color: var(--green);">$0</strong></td></tr>
+          <tr><td>"Summarize this article"</td><td>Qwen 2.5 7B (local)</td><td><strong style="color: var(--green);">$0</strong></td></tr>
+          <tr><td>"Write a business proposal"</td><td>Claude Sonnet (cloud)</td><td>~$0.03</td></tr>
+          <tr><td>"Review this contract"</td><td>Claude Sonnet (cloud)</td><td>~$0.05</td></tr>
+          <tr><td>"Build a pricing strategy"</td><td>Claude Opus (cloud)</td><td>~$0.15</td></tr>
+          <tr><td>Heartbeat checks</td><td>Qwen 2.5 7B (local)</td><td><strong style="color: var(--green);">$0</strong></td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Result:</strong> 80% of messages hit the local model ($0). Only the complex 20% use cloud API. Monthly bill: <strong>$10–20 instead of $80–150.</strong></p>
+
+      <h2><span class="step-num">5</span> Set Up Messaging Channels</h2>
+
+      <div class="step-card">
+        <h3>📱 iMessage (Mac-Only Feature)</h3>
+        <p>The killer feature that makes Mac Mini the preferred hardware. iMessage integration only works on macOS. Text your agent like you'd text a friend — it reads and sends iMessages directly through the Messages app.</p>
+      </div>
+
+      <div class="step-card">
+        <h3>💬 WhatsApp</h3>
+        <p>Scan a QR code to link your WhatsApp. Your agent can then receive and respond to WhatsApp messages.</p>
+      </div>
+
+      <div class="step-card">
+        <h3>✈️ Telegram</h3>
+        <p>Create a bot via @BotFather, get a token, plug it into OpenClaw config. Most reliable channel — doesn't require QR re-linking.</p>
+      </div>
+
+      <div class="step-card">
+        <h3>🎮 Discord</h3>
+        <p>Create a bot in the Discord Developer Portal, add it to your server, configure the token.</p>
+      </div>
+
+      <h2><span class="step-num">6</span> Customize Your Agent</h2>
+
+      <h3>SOUL.md — Your Agent's Personality</h3>
+
+      <div class="code-block">
+        <span class="comment"># SOUL — My AI Assistant</span><br><br>
+        <span class="comment">## Identity</span><br>
+        - Name: [Your agent's name]<br>
+        - Role: Personal assistant + [your use case]<br>
+        - Tone: [Casual / Professional / Mixed]<br><br>
+        <span class="comment">## Boundaries</span><br>
+        - Never: share passwords, make purchases without asking<br>
+        - Always: ask before anything irreversible
+      </div>
+
+      <h3>HEARTBEAT.md — What Your Agent Does When Idle</h3>
+      <p>Configure idle behavior so your agent works while you sleep — research, monitoring, documentation, anything you define.</p>
+
+      <h3>Memory Architecture</h3>
+      <p>Create a <code>memory/</code> folder for persistent knowledge: key facts, projects, contacts, preferences. Your agent remembers everything between conversations.</p>
+
+      <h2><span class="step-num">7</span> Security Hardening</h2>
+
+      <p><strong>Don't skip this.</strong> A misconfigured agent is an open door.</p>
+
+      <ol>
+        <li><strong>API key security</strong> — store in <code>.env</code> file, never in committed code</li>
+        <li><strong>Firewall</strong> — enable macOS firewall (System Settings → Network → Firewall)</li>
+        <li><strong>SSH keys</strong> — disable password auth, use SSH keys only</li>
+        <li><strong>Router</strong> — don't expose ports to the internet unless using a tunnel (Cloudflare, Tailscale)</li>
+        <li><strong>Updates</strong> — keep macOS, Node.js, and OpenClaw current</li>
+      </ol>
+
+      <h2>Monthly Cost Breakdown</h2>
+
+      <div class="cost-summary">
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Monthly Cost</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Electricity (~10W average)</td><td>~$1.50</td></tr>
+            <tr><td>Internet (existing connection)</td><td>$0 incremental</td></tr>
+            <tr><td>API fees (hybrid routing)</td><td>$5–20</td></tr>
+            <tr><td>Hardware (amortized 2 years)</td><td>$17–30</td></tr>
+          </tbody>
+        </table>
+        <div class="total">Total: $24–52/month</div>
+        <p style="margin-top: 8px; font-size: 0.9rem; color: var(--muted);">Compare to managed hosting ($30–40/mo) — similar cost, but you get local models, iMessage, and full control.</p>
+      </div>
+
+      <h2>Troubleshooting</h2>
+
+      <div class="troubleshoot">
+        <div class="problem">Agent not responding after reboot</div>
+        <div class="fix">Check that OpenClaw gateway is running: <code>openclaw gateway status</code>. If not: <code>openclaw gateway restart</code>.</div>
+      </div>
+
+      <div class="troubleshoot">
+        <div class="problem">WhatsApp disconnected</div>
+        <div class="fix">WhatsApp links expire periodically. Re-scan the QR code via <code>openclaw setup</code> or the web UI.</div>
+      </div>
+
+      <div class="troubleshoot">
+        <div class="problem">Ollama model slow</div>
+        <div class="fix">Check Activity Monitor for memory pressure. If yellow/red, you need a smaller model or more RAM.</div>
+      </div>
+
+      <div class="troubleshoot">
+        <div class="problem">High API costs despite routing</div>
+        <div class="fix">Check your model config — make sure the local model is set as <strong>default</strong>, not just available.</div>
+      </div>
+
+      <div class="troubleshoot">
+        <div class="problem">Mac Mini runs hot</div>
+        <div class="fix">Normal under load. Ensure good ventilation. If sustained >95°C, check for runaway processes.</div>
+      </div>
+
+      <h2>Next Level: Multiple Agents</h2>
+
+      <p>Once comfortable with one agent, you can run multiple:</p>
+      <ul>
+        <li><strong>Main agent</strong> — your personal assistant</li>
+        <li><strong>Work agent</strong> — handles business tasks with different permissions</li>
+        <li><strong>Sub-agents</strong> — spawned by your main agent for parallel work</li>
+      </ul>
+      <p>A Mac Mini with 24GB RAM can comfortably run 2–3 agents simultaneously.</p>
+
+      <!-- CTA -->
+      <div class="article-cta">
+        <h2>Don't Want to Do This Yourself?</h2>
+        <p><strong>ClawReady Pro Setup ($199)</strong> — We do everything in this guide for you, plus security hardening, model routing optimization, and a 30-minute walkthrough. Running in a day, not a weekend.</p>
+        <a href="https://calendly.com/grofresh2018/clawready" class="cta-btn">Book a Pro Setup ($199) →</a>
+        <p style="margin-top: 20px;">Or skip the hardware entirely:</p>
+        <a href="https://lobstercondo.net" class="cta-btn" style="background: var(--green); margin-top: 8px;">Lobster Condo — Dedicated Hosting from $20/mo →</a>
+        <p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">A dedicated Mac Mini in our facility with 99.5%+ uptime, monitoring, and zero maintenance.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      © 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/blog/mac-mini-setup-guide">This Article</a>
+    </div>
+  </footer>
+
+</body>
+</html>

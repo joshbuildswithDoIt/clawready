@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClawReady Blog — OpenClaw Guides, Costs & Setup Tips</title>
+  <meta name="description" content="Practical guides for running OpenClaw: real costs, security, optimization, and setup walkthroughs from pros who do this every day.">
+  <meta property="og:title" content="ClawReady Blog — OpenClaw Guides, Costs & Setup Tips">
+  <meta property="og:description" content="Practical guides for running OpenClaw: real costs, security, optimization, and setup walkthroughs.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://clawreadynow.com/blog">
+  <link rel="canonical" href="https://clawreadynow.com/blog">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --accent: #e74c3c;
+      --accent-hover: #c0392b;
+      --green: #27ae60;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+    /* Nav */
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a { color: var(--text); text-decoration: none; }
+    nav .logo { font-weight: 800; font-size: 1.2rem; }
+    nav .logo span { color: var(--accent); }
+    nav .nav-links a {
+      color: var(--muted);
+      margin-left: 24px;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    nav .nav-links a:hover { color: var(--text); }
+
+    /* Header */
+    .blog-header {
+      text-align: center;
+      padding: 40px 0 50px;
+    }
+    .blog-header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .blog-header h1 span { color: var(--accent); }
+    .blog-header p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Article Cards */
+    .articles { display: flex; flex-direction: column; gap: 20px; padding-bottom: 60px; }
+    .article-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, transform 0.2s;
+      display: block;
+    }
+    .article-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .article-card .tag {
+      display: inline-block;
+      background: rgba(231, 76, 60, 0.15);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .article-card h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .article-card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .article-card .meta {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    /* Tools section */
+    .tools-section {
+      padding: 40px 0 60px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .tools-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+    }
+    .tools-section p {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .tool-card {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 28px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .tool-card:hover { border-color: var(--green); }
+    .tool-card .tool-emoji { font-size: 2rem; margin-bottom: 8px; }
+    .tool-card h3 { font-size: 1rem; margin-bottom: 4px; }
+    .tool-card p { font-size: 0.85rem; color: var(--muted); }
+
+    /* CTA */
+    .blog-cta {
+      text-align: center;
+      padding: 50px 0 70px;
+      border-top: 1px solid var(--border);
+    }
+    .blog-cta h2 { font-size: 1.6rem; margin-bottom: 12px; }
+    .blog-cta p { color: var(--muted); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 14px 36px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: var(--accent-hover); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 600px) {
+      .article-card { padding: 20px; }
+      .article-card h2 { font-size: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="container">
+      <a href="/" class="logo">🦞 Claw<span>Ready</span></a>
+      <div class="nav-links">
+        <a href="/">Services</a>
+        <a href="/blog" style="color: var(--text);">Blog</a>
+        <a href="https://calendly.com/grofresh2018/clawready">Book a Call</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="blog-header">
+      <h1>The <span>ClawReady</span> Blog</h1>
+      <p>Practical guides for running OpenClaw — real costs, security, optimization, and setup walkthroughs from pros who do this every day.</p>
+    </div>
+
+    <div class="articles">
+
+      <a href="/blog/openclaw-cost-breakdown" class="article-card">
+        <span class="tag">💰 Costs</span>
+        <h2>How Much Does OpenClaw Actually Cost? A Brutally Honest Breakdown</h2>
+        <p>You've heard OpenClaw is free. The software is — but running it costs real money. Here's the actual breakdown, from hardware to API bills to the hidden costs nobody talks about.</p>
+        <div class="meta">10 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/openclaw-security-mistakes" class="article-card">
+        <span class="tag">🔒 Security</span>
+        <h2>7 OpenClaw Security Mistakes That Could Expose Your Entire Digital Life</h2>
+        <p>Your OpenClaw agent has access to your messages, email, calendar, and files. One misconfiguration and you're wide open. Here are the 7 mistakes we see most — and how to fix them.</p>
+        <div class="meta">12 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/cost-optimization" class="article-card">
+        <span class="tag">⚡ Optimization</span>
+        <h2>Cut Your OpenClaw API Bill by 60%: The Complete Optimization Guide</h2>
+        <p>Most OpenClaw users are burning 2-5x more on API costs than they need to. Local models, smart routing, caching — here's how to slash your bill without losing capability.</p>
+        <div class="meta">14 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/selfhost-vs-managed" class="article-card">
+        <span class="tag">🏠 Hosting</span>
+        <h2>Self-Host vs. Managed OpenClaw: Which Is Right for You?</h2>
+        <p>The real tradeoffs between running your own hardware, using cloud VPS, and paying for managed setup. Honest comparison with actual cost math.</p>
+        <div class="meta">11 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/mac-mini-setup-guide" class="article-card">
+        <span class="tag">🍎 Setup Guide</span>
+        <h2>The Mac Mini OpenClaw Setup Guide: Local Models + Cloud Fallback</h2>
+        <p>Step-by-step from unboxing to running agent. Hardware buying guide, Ollama setup, hybrid model routing, iMessage integration, security hardening, cost breakdown.</p>
+        <div class="meta">15 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/openclaw-small-business" class="article-card">
+        <span class="tag">🏢 Business</span>
+        <h2>OpenClaw for Small Business: Is It Worth It in 2026?</h2>
+        <p>ROI calculator, 5 real use cases, industry breakdowns (property management, CPA, e-commerce, gyms, restaurants), and an honest "when NOT to use it" section.</p>
+        <div class="meta">13 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/openclaw-for-accountants" class="article-card">
+        <span class="tag">📊 Industry</span>
+        <h2>OpenClaw for Accountants: Automating a Small CPA Practice</h2>
+        <p>6 specific CPA workflows you can automate today. Document chase, deadline management, entity compliance, meeting prep. Real ROI math for a 3-person firm.</p>
+        <div class="meta">14 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/replaced-6-apps" class="article-card">
+        <span class="tag">🔥 Popular</span>
+        <h2>I Replaced 6 Apps with OpenClaw (and Saved $127/month)</h2>
+        <p>Calendly, Notion, Zapier, Grammarly, Monday+Todoist, ChatGPT Plus — all replaced by one OpenClaw agent. Here's exactly how, with real cost math.</p>
+        <div class="meta">12 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/lobster-condo-vs-cloud" class="article-card">
+        <span class="tag">🦞 Hosting</span>
+        <h2>Lobster Condo vs. Cloud Hosting: Why Physical Hardware Matters</h2>
+        <p>5 reasons physical beats cloud for AI agents. Noisy neighbors, no local models, no ownership, trust gap — and an honest "who should stay on cloud" section.</p>
+        <div class="meta">12 min read · March 2026</div>
+      </a>
+
+      <a href="/blog/is-openclaw-safe" class="article-card">
+        <span class="tag">🛡️ Security</span>
+        <h2>Is OpenClaw Safe? An Honest Security Assessment</h2>
+        <p>Real risks vs. FUD. 10-point security checklist, provider data policies, what can actually go wrong, and how to protect yourself.</p>
+        <div class="meta">15 min read · March 2026</div>
+      </a>
+
+    </div>
+
+    <!-- Interactive Tool -->
+    <div class="tools-section">
+      <h2>🧮 Interactive Tools</h2>
+      <p>Free calculators to help you plan your OpenClaw setup.</p>
+      <a href="/blog/cost-calculator" class="tool-card">
+        <div class="tool-emoji">💰</div>
+        <h3>OpenClaw Cost Calculator</h3>
+        <p>Estimate your monthly costs in 60 seconds</p>
+      </a>
+    </div>
+
+    <!-- CTA -->
+    <div class="blog-cta">
+      <h2>Done reading? Let us set it up for you.</h2>
+      <p>Skip the tutorials. Get your OpenClaw agent running today with a ClawReady setup.</p>
+      <a href="https://calendly.com/grofresh2018/clawready" class="cta-btn">Book Your Setup Call →</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      © 2026 ClawReady · <a href="/" style="color: var(--muted);">Home</a> · <a href="/blog" style="color: var(--muted);">Blog</a>
+    </div>
+  </footer>
+
+</body>
+</html>
