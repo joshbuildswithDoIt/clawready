@@ -4,33 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Is OpenClaw Safe? An Honest Security Assessment — ClawReady</title>
-  <meta name="description" content="Honest security assessment of OpenClaw: real risks, FUD debunked, 10-point security checklist. From the team that secures OpenClaw setups professionally.">
+  <meta name="description" content="An honest look at OpenClaw security: what's actually safe, what's risky, and what's FUD. Plus a 10-point security checklist.">
   <meta property="og:title" content="Is OpenClaw Safe? An Honest Security Assessment">
-  <meta property="og:description" content="You're giving an AI agent access to your messages and data. Is this safe? The honest answer depends on how you set it up.">
+  <meta property="og:description" content="You're about to give an AI agent access to your messages and business. Is this safe? The honest answer depends on your setup.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://clawreadynow.com/blog/is-openclaw-safe">
   <link rel="canonical" href="https://clawreadynow.com/blog/is-openclaw-safe">
   <style>
-    :root {
-      --bg: #0a0a0a;
-      --surface: #141414;
-      --border: #2a2a2a;
-      --text: #e8e8e8;
-      --muted: #888;
-      --accent: #e74c3c;
-      --accent-hover: #c0392b;
-      --green: #27ae60;
-      --yellow: #f39c12;
-    }
+    :root { --bg: #0a0a0a; --surface: #141414; --border: #2a2a2a; --text: #e8e8e8; --muted: #888; --accent: #e74c3c; --accent-hover: #c0392b; --green: #27ae60; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
     .container { max-width: 740px; margin: 0 auto; padding: 0 24px; }
-
     nav { padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
     nav .nav-inner { max-width: 740px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
     nav a { color: var(--text); text-decoration: none; }
@@ -38,344 +22,181 @@
     nav .logo span { color: var(--accent); }
     nav .nav-links a { color: var(--muted); margin-left: 24px; font-size: 0.95rem; transition: color 0.2s; }
     nav .nav-links a:hover { color: var(--text); }
-
     .article-header { padding: 40px 0 30px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
-    .article-header .tag {
-      display: inline-block; background: rgba(231,76,60,0.15); color: var(--accent);
-      padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
-      margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em;
-    }
-    .article-header h1 {
-      font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800;
-      letter-spacing: -0.02em; margin-bottom: 12px;
-    }
+    .article-header .tag { display: inline-block; background: rgba(231,76,60,0.15); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .article-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
     .article-header .subtitle { font-size: 1.1rem; color: var(--muted); margin-bottom: 16px; }
     .article-header .meta { font-size: 0.85rem; color: #555; }
-
-    .article-body h2 {
-      font-size: 1.5rem; font-weight: 700; margin: 40px 0 16px;
-      padding-top: 20px; border-top: 1px solid var(--border);
-      letter-spacing: -0.01em;
-    }
+    .article-body h2 { font-size: 1.5rem; font-weight: 700; margin: 40px 0 16px; padding-top: 20px; border-top: 1px solid var(--border); }
     .article-body h3 { font-size: 1.15rem; font-weight: 600; margin: 24px 0 10px; }
-    .article-body p { margin-bottom: 16px; color: var(--text); }
+    .article-body p { margin-bottom: 16px; }
     .article-body strong { color: #fff; }
     .article-body ul, .article-body ol { margin: 0 0 16px 24px; }
     .article-body li { margin-bottom: 8px; }
-
-    .article-body table {
-      width: 100%; border-collapse: collapse; margin: 20px 0 24px; font-size: 0.9rem;
-    }
-    .article-body th {
-      background: var(--surface); padding: 10px 14px; text-align: left;
-      border-bottom: 2px solid var(--border); font-weight: 600; font-size: 0.85rem;
-      color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;
-    }
+    .article-body table { width: 100%; border-collapse: collapse; margin: 20px 0 24px; font-size: 0.9rem; }
+    .article-body th { background: var(--surface); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); font-weight: 600; font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
     .article-body td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
-    .article-body tr:hover td { background: rgba(255,255,255,0.02); }
-
-    /* Good reasons cards */
-    .good-card {
-      background: var(--surface); border-left: 3px solid var(--green);
-      padding: 16px 20px; margin: 12px 0; border-radius: 0 8px 8px 0;
-    }
-    .good-card h4 { color: var(--green); margin-bottom: 6px; }
-
-    /* Risk cards */
-    .risk-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 24px; margin: 20px 0;
-    }
+    .good-card { background: rgba(39,174,96,0.08); border: 1px solid rgba(39,174,96,0.3); border-radius: 12px; padding: 20px 24px; margin: 16px 0; }
+    .good-card h3 { color: var(--green); margin-top: 0; }
+    .risk-card { background: var(--surface); border-left: 4px solid var(--accent); border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 16px 0; }
     .risk-card h3 { margin-top: 0; }
-    .risk-card .severity {
-      display: inline-block; padding: 3px 10px; border-radius: 20px;
-      font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-      margin-bottom: 12px;
-    }
+    .risk-card .severity { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
     .severity-high { background: rgba(231,76,60,0.2); color: var(--accent); }
-    .severity-medium { background: rgba(243,156,18,0.2); color: var(--yellow); }
-    .severity-low { background: rgba(39,174,96,0.15); color: var(--green); }
-    .risk-card .how { margin: 10px 0; font-size: 0.9rem; }
-    .risk-card .how strong { color: var(--accent); }
-    .risk-card .fix {
-      background: rgba(39,174,96,0.06); border: 1px solid rgba(39,174,96,0.2);
-      border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 0.9rem;
-    }
-    .risk-card .fix strong { color: var(--green); }
-
-    /* FUD cards */
-    .fud-card {
-      background: var(--surface); border-left: 3px solid var(--muted);
-      padding: 14px 18px; margin: 10px 0; border-radius: 0 8px 8px 0;
-    }
-    .fud-card .myth { font-weight: 700; color: #fff; margin-bottom: 4px; font-style: italic; }
+    .severity-medium { background: rgba(243,156,18,0.2); color: #f39c12; }
+    .severity-low { background: rgba(39,174,96,0.2); color: var(--green); }
+    .fud-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 12px 0; }
+    .fud-card .myth { font-weight: 700; color: var(--accent); margin-bottom: 4px; }
     .fud-card .reality { color: var(--muted); font-size: 0.95rem; }
-
-    /* Checklist */
-    .checklist {
-      background: var(--surface); border: 2px solid var(--accent); border-radius: 12px;
-      padding: 24px; margin: 24px 0;
-    }
-    .checklist h3 { margin-top: 0; margin-bottom: 16px; }
-    .checklist-item {
-      display: flex; align-items: center; padding: 10px 0;
-      border-bottom: 1px solid var(--border); font-size: 0.95rem;
-    }
-    .checklist-item:last-child { border-bottom: none; }
-    .checklist-item .num {
-      width: 28px; height: 28px; border-radius: 50%; background: var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 0.8rem; margin-right: 14px; flex-shrink: 0;
-    }
-
-    /* Score box */
-    .score-box {
-      margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
-    }
-    .score-item { padding: 4px 0; font-size: 0.9rem; }
-    .score-item strong { font-weight: 700; }
-
-    /* Bottom line box */
-    .bottom-line {
-      background: var(--surface); border: 2px solid var(--green); border-radius: 12px;
-      padding: 24px; margin: 24px 0;
-    }
-    .bottom-line h3 { color: var(--green); margin-top: 0; }
-
-    .article-cta {
-      background: var(--surface); border: 2px solid var(--accent); border-radius: 12px;
-      padding: 32px; text-align: center; margin: 40px 0;
-    }
+    .checklist { background: var(--surface); border: 2px solid var(--green); border-radius: 12px; padding: 24px; margin: 24px 0; }
+    .checklist h3 { color: var(--green); margin-top: 0; }
+    .checklist li { margin-bottom: 10px; }
+    .score-guide { margin-top: 16px; font-size: 0.9rem; }
+    .score-guide div { padding: 6px 0; }
+    .article-cta { background: var(--surface); border: 2px solid var(--accent); border-radius: 12px; padding: 32px; text-align: center; margin: 40px 0; }
     .article-cta h2 { font-size: 1.4rem; margin-bottom: 12px; }
     .article-cta p { color: var(--muted); margin-bottom: 20px; }
-    .article-cta .audit-list { text-align: left; margin: 16px 0 24px; }
-    .article-cta .audit-list li { margin-bottom: 6px; font-size: 0.95rem; }
-    .cta-btn {
-      display: inline-block; background: var(--accent); color: white;
-      padding: 14px 36px; border-radius: 8px; text-decoration: none;
-      font-size: 1rem; font-weight: 700; transition: background 0.2s;
-    }
+    .cta-btn { display: inline-block; background: var(--accent); color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-size: 1rem; font-weight: 700; transition: background 0.2s; }
     .cta-btn:hover { background: var(--accent-hover); }
-
-    footer {
-      border-top: 1px solid var(--border); padding: 24px 0;
-      text-align: center; color: var(--muted); font-size: 0.85rem;
-    }
+    footer { border-top: 1px solid var(--border); padding: 24px 0; text-align: center; color: var(--muted); font-size: 0.85rem; }
     footer a { color: var(--muted); }
-
-    @media (max-width: 600px) {
-      .article-body table { font-size: 0.8rem; }
-      .article-body th, .article-body td { padding: 8px 10px; }
-      .risk-card { padding: 16px; }
-      .checklist { padding: 16px; }
-    }
+    @media (max-width: 600px) { .article-body table { font-size: 0.8rem; } .risk-card, .good-card { padding: 14px 16px; } }
   </style>
 </head>
 <body>
-
-  <nav>
-    <div class="nav-inner">
-      <a href="/" class="logo">🦞 Claw<span>Ready</span></a>
-      <div class="nav-links">
-        <a href="/">Services</a>
-        <a href="/blog">Blog</a>
-        <a href="https://calendly.com/grofresh2018/clawready">Book a Call</a>
-      </div>
-    </div>
-  </nav>
-
+  <nav><div class="nav-inner"><a href="/" class="logo">🦞 Claw<span>Ready</span></a><div class="nav-links"><a href="/">Services</a><a href="/blog">Blog</a><a href="https://calendly.com/grofresh2018/clawready">Book a Call</a></div></div></nav>
   <div class="container">
     <div class="article-header">
       <span class="tag">🔒 Security</span>
       <h1>Is OpenClaw Safe? An Honest Security Assessment</h1>
-      <p class="subtitle">You're thinking about giving an AI agent access to your messages, calendar, and files. The obvious question: is this safe? Here's the honest answer.</p>
-      <div class="meta">13 min read · March 2026 · By the ClawReady team</div>
+      <p class="subtitle">You're thinking about giving an AI agent access to your messages, calendar, and business operations. The obvious question: is this safe?</p>
+      <div class="meta">12 min read · March 2026 · By the ClawReady team</div>
     </div>
-
     <div class="article-body">
 
-      <p>The honest answer: <strong>it depends entirely on how you set it up.</strong> OpenClaw itself is well-designed, open-source, and auditable. But a careless setup can absolutely create real security risks.</p>
-      <p>Here's what's actually safe, what's genuinely risky, and what's just FUD.</p>
+      <p>The honest answer: <strong>it depends entirely on how you set it up.</strong> OpenClaw itself is well-designed, open-source, and auditable. But a careless setup can absolutely create real security risks. Here's what's actually safe, what's genuinely risky, and what's just FUD.</p>
 
-      <h2>What OpenClaw Is (And Isn't)</h2>
-
-      <p>OpenClaw is an open-source autonomous AI agent that runs on <strong>your</strong> hardware. It connects to messaging platforms and uses AI models to read, respond, and take actions on your behalf.</p>
-
-      <ul>
-        <li><strong>What it is:</strong> A Node.js app on your own machine. Open source (MIT). A bridge between AI models and your messaging apps. As secure as the server you run it on.</li>
-        <li><strong>What it is NOT:</strong> A cloud service that stores your data. A black box — the code is public (165K+ GitHub stars). A single company's product — it's governed by an independent foundation.</li>
-      </ul>
-
-      <h2>The Good: Why OpenClaw Is Actually More Secure Than Most AI Tools</h2>
+      <h2>The Good: Why OpenClaw Is More Secure Than Most AI Tools</h2>
 
       <div class="good-card">
-        <h4>1. Self-Hosted = You Control Your Data</h4>
-        <p>Unlike ChatGPT, Claude.ai, or any cloud AI assistant, OpenClaw runs on your hardware. Your conversations, memory files, and agent data stay on your machine. Nobody else has access unless you give it to them. <strong>Fundamentally more private</strong> than any cloud AI tool.</p>
+        <h3>✅ Self-Hosted = You Control Your Data</h3>
+        <p>Unlike ChatGPT or Claude.ai, OpenClaw runs on YOUR hardware. Your conversations, memory, and agent data stay on your machine. Nobody else has access unless you give it to them.</p>
+        <p style="font-size: 0.9rem; color: var(--muted);">ChatGPT stores all conversations. Claude.ai stores conversations. Google stores everything. With OpenClaw, your data stays home.</p>
       </div>
 
       <div class="good-card">
-        <h4>2. Open Source = Auditable</h4>
-        <p>Every line of code is public. Security researchers and the community review it. Vulnerabilities are found and patched publicly. Compare this to closed-source tools where you have zero visibility into what happens with your data.</p>
+        <h3>✅ Open Source = Auditable</h3>
+        <p>Every line of code is public. Security researchers and the 165K+ GitHub community can (and do) review it. When vulnerabilities are found, they're patched publicly.</p>
       </div>
 
       <div class="good-card">
-        <h4>3. You Choose Your AI Provider</h4>
-        <p>Use cloud APIs (Anthropic, OpenAI, Google) — or use <strong>local models via Ollama</strong> where your messages never leave your machine. True end-to-end privacy if you want it.</p>
+        <h3>✅ You Choose Your AI Provider</h3>
+        <p>Use cloud APIs (Anthropic, OpenAI) or <strong>local models via Ollama</strong> — where your messages NEVER leave your machine. True end-to-end privacy.</p>
       </div>
 
       <div class="good-card">
-        <h4>4. Messaging Security Preserved</h4>
-        <p>WhatsApp messages stay E2E encrypted. Telegram uses its encryption. Discord uses TLS. OpenClaw doesn't weaken your existing messaging platform security.</p>
+        <h3>✅ Messaging Security Preserved</h3>
+        <p>WhatsApp remains end-to-end encrypted. Telegram uses its encryption. Discord uses TLS. OpenClaw doesn't weaken your existing messaging security.</p>
       </div>
 
       <h2>The Risks: What You Actually Need to Worry About</h2>
 
-      <!-- Risk 1 -->
       <div class="risk-card">
+        <span class="severity severity-high">HIGH</span>
         <h3>Risk 1: API Key Exposure</h3>
-        <span class="severity severity-high">High Severity</span>
-        <p>Your AI provider API key is the most valuable thing in your setup. If someone gets it, they can run up thousands in charges.</p>
-        <div class="how">
-          <strong>How it happens:</strong> Storing keys in code committed to GitHub. Leaving the web UI accessible without auth. Default configs that expose environment variables.
-        </div>
-        <div class="fix">
-          <strong>✅ Fix:</strong> Store keys in <code>.env</code> files. Add <code>.env</code> to <code>.gitignore</code>. Set spending limits at your provider. Rotate keys every 90 days.
-        </div>
+        <p>Your AI provider API key is the most valuable thing in your setup. If stolen, someone can run up thousands in charges.</p>
+        <p><strong>How it happens:</strong> Keys in code committed to GitHub, exposed web UI, default configurations.</p>
+        <p><strong>Fix:</strong> Store in <code>.env</code> files, add to <code>.gitignore</code>, set provider spending limits, rotate every 90 days.</p>
       </div>
 
-      <!-- Risk 2 -->
       <div class="risk-card">
+        <span class="severity severity-high">HIGH</span>
         <h3>Risk 2: Exposed Admin Interface</h3>
-        <span class="severity severity-high">High Severity</span>
-        <p>OpenClaw's gateway has a web interface. If exposed to the internet without auth, anyone can control your agent.</p>
-        <div class="how">
-          <strong>How it happens:</strong> Running on <code>0.0.0.0</code> without a firewall. Port-forwarding without password protection. Using tunnels without access controls.
-        </div>
-        <div class="fix">
-          <strong>✅ Fix:</strong> Bind to <code>127.0.0.1</code> (localhost only). Use SSH tunneling for remote access. If using Cloudflare Tunnel, enable access policies. Never expose the gateway port directly.
-        </div>
+        <p>OpenClaw's gateway has a web interface. If accessible from the internet without auth, anyone can control your agent.</p>
+        <p><strong>Fix:</strong> Bind to <code>127.0.0.1</code> (localhost only), use SSH tunneling for remote access, never expose the port directly.</p>
       </div>
 
-      <!-- Risk 3 -->
       <div class="risk-card">
+        <span class="severity severity-medium">MEDIUM</span>
         <h3>Risk 3: AI Model Data Handling</h3>
-        <span class="severity severity-medium">Medium Severity</span>
-        <p>When your agent sends a message to Claude or GPT, the content goes to that provider's servers. This includes your message, system prompt, conversation context, and file contents the agent is working with.</p>
-        <div class="how">
-          <strong>Provider policies:</strong>
-          <ul style="margin-top: 8px;">
-            <li><strong>Anthropic (Claude):</strong> Does NOT train on API data. 30-day retention, then deleted.</li>
-            <li><strong>OpenAI (GPT):</strong> Does NOT train on API data. Similar retention.</li>
-            <li><strong>Google (Gemini):</strong> Varies by plan — check current policy.</li>
-            <li><strong>Local models (Ollama):</strong> Data NEVER leaves your machine. Zero exposure.</li>
-          </ul>
-        </div>
-        <div class="fix">
-          <strong>✅ Fix:</strong> Use local models for sensitive conversations. Don't put passwords in your SOUL.md. Review what your agent includes in context.
-        </div>
+        <p>Messages sent to cloud APIs are processed on provider servers. Anthropic and OpenAI don't train on API data, but they retain for abuse monitoring (30 days).</p>
+        <p><strong>Fix:</strong> Use local models for sensitive conversations. Don't put passwords in your SOUL.md.</p>
       </div>
 
-      <!-- Risk 4 -->
       <div class="risk-card">
+        <span class="severity severity-medium">MEDIUM</span>
         <h3>Risk 4: Malicious Skills/Plugins</h3>
-        <span class="severity severity-medium">Medium Severity</span>
-        <p>ClawHub has 700+ skills — and 341 have been flagged as potentially malicious. Skills can execute code on your machine.</p>
-        <div class="how">
-          <strong>How it happens:</strong> Installing unverified skills. Skills that run shell commands or make network requests. Supply chain attacks through dependencies.
-        </div>
-        <div class="fix">
-          <strong>✅ Fix:</strong> Only install from verified publishers. Review skill code before installing. Run OpenClaw in a container or VM. Limit file system access to the workspace directory.
-        </div>
+        <p>ClawHub skills can execute code on your machine. Unverified skills are a supply-chain risk.</p>
+        <p><strong>Fix:</strong> Only install from verified publishers. Review code before installing. Run in a container for isolation.</p>
       </div>
 
-      <!-- Risk 5 -->
       <div class="risk-card">
+        <span class="severity severity-low">LOW-MEDIUM</span>
         <h3>Risk 5: Physical Access</h3>
-        <span class="severity severity-low">Low-Medium</span>
-        <p>Physical access to your Mac Mini or server = access to your agent's memory, API keys, and conversations.</p>
-        <div class="fix">
-          <strong>✅ Fix:</strong> Enable FileVault (Mac) or full-disk encryption (Linux). Set a firmware password. Basic physical security. If using a hosting facility, verify their security measures.
-        </div>
+        <p>Physical access to your machine = access to everything.</p>
+        <p><strong>Fix:</strong> Enable FileVault (Mac) or full-disk encryption (Linux). Firmware password. Basic physical security.</p>
       </div>
 
-      <h2>The FUD: What People Worry About That Isn't Really a Risk</h2>
+      <h2>The FUD: What's NOT Really a Risk</h2>
 
       <div class="fud-card">
         <div class="myth">"OpenClaw can read all my messages"</div>
-        <div class="reality">Only on channels you explicitly connect. It can't read your iMessages unless you set up iMessage integration. You control what it sees.</div>
+        <div class="reality">Only on channels you explicitly connect. No iMessage access unless you set it up. No email unless you enable it. You control what it sees.</div>
       </div>
 
       <div class="fud-card">
         <div class="myth">"The AI could go rogue"</div>
-        <div class="reality">OpenClaw agents follow their SOUL.md instructions. They don't have independent goals. The worst case is a poorly-written SOUL.md — a configuration issue, not a security vulnerability.</div>
+        <div class="reality">Agents follow SOUL.md instructions. They don't have independent goals. Worst case is a poorly-written config — a setup issue, not a vulnerability.</div>
       </div>
 
       <div class="fud-card">
         <div class="myth">"Open source means hackers can find vulnerabilities"</div>
-        <div class="reality">Open source means EVERYONE can find vulnerabilities — including the good guys. 165K+ GitHub stars means many eyes on the code. Closed-source has just as many bugs with fewer people looking.</div>
+        <div class="reality">It also means 165K+ good guys can find them. Closed-source has just as many bugs — but only bad guys look. Open source is more secure, not less.</div>
       </div>
 
       <div class="fud-card">
         <div class="myth">"My agent could spend all my money"</div>
-        <div class="reality">Only if you give it spending tools AND don't set limits. By default, OpenClaw can't make purchases. Set a monthly cap at your AI provider ($50, $100, whatever).</div>
+        <div class="reality">Only if you give it spending tools AND don't set limits. By default, OpenClaw can't make purchases. Set a monthly cap at your AI provider.</div>
       </div>
 
       <h2>Security Checklist: The 10-Point Assessment</h2>
 
       <div class="checklist">
-        <h3>🔒 Score Yourself</h3>
-        <div class="checklist-item"><span class="num">1</span> API keys stored in <code>.env</code>, not in code</div>
-        <div class="checklist-item"><span class="num">2</span> <code>.env</code> in <code>.gitignore</code></div>
-        <div class="checklist-item"><span class="num">3</span> Gateway bound to localhost (127.0.0.1)</div>
-        <div class="checklist-item"><span class="num">4</span> Firewall enabled on host machine</div>
-        <div class="checklist-item"><span class="num">5</span> SSH key auth (no password auth)</div>
-        <div class="checklist-item"><span class="num">6</span> AI provider spending limit set</div>
-        <div class="checklist-item"><span class="num">7</span> Only verified skills installed</div>
-        <div class="checklist-item"><span class="num">8</span> Disk encryption enabled</div>
-        <div class="checklist-item"><span class="num">9</span> Regular updates (OpenClaw + OS)</div>
-        <div class="checklist-item"><span class="num">10</span> API keys rotated in last 90 days</div>
-        <div class="score-box">
-          <div class="score-item"><strong style="color: var(--green);">9–10:</strong> Solid. You're doing it right.</div>
-          <div class="score-item"><strong style="color: var(--green);">7–8:</strong> Good but fix the gaps.</div>
-          <div class="score-item"><strong style="color: var(--yellow);">5–6:</strong> Real exposure. Address it this week.</div>
-          <div class="score-item"><strong style="color: var(--accent);">Below 5:</strong> Stop and secure your setup now.</div>
+        <h3>Score Yourself</h3>
+        <ol>
+          <li>API keys stored in <code>.env</code>, not in code</li>
+          <li><code>.env</code> in <code>.gitignore</code></li>
+          <li>Gateway bound to localhost (<code>127.0.0.1</code>)</li>
+          <li>Firewall enabled on host machine</li>
+          <li>SSH key auth (no password auth)</li>
+          <li>AI provider spending limit set</li>
+          <li>Only verified skills installed</li>
+          <li>Disk encryption enabled</li>
+          <li>Regular updates (OpenClaw + OS)</li>
+          <li>API keys rotated in last 90 days</li>
+        </ol>
+        <div class="score-guide">
+          <div><strong style="color: var(--green);">9–10:</strong> Solid. You're doing it right.</div>
+          <div><strong style="color: #f39c12;">7–8:</strong> Good but fix the gaps.</div>
+          <div><strong style="color: var(--accent);">5–6:</strong> You have real exposure. Address it this week.</div>
+          <div><strong style="color: var(--accent);">Below 5:</strong> Stop and secure your setup now.</div>
         </div>
       </div>
 
       <h2>The Bottom Line</h2>
+      <p><strong>Is OpenClaw safe?</strong> Yes — if you set it up properly. It's actually MORE private than cloud AI assistants because your data stays on your hardware.</p>
+      <p><strong>Is it risk-free?</strong> No. The main risks are configuration mistakes and trusting unverified plugins.</p>
+      <p><strong>Should you get help?</strong> If security isn't your strength, absolutely. A misconfigured agent is worse than no agent at all.</p>
 
-      <div class="bottom-line">
-        <h3>✅ Is OpenClaw safe?</h3>
-        <p><strong>Yes — if you set it up properly.</strong> It's actually more private than cloud AI assistants because your data stays on your hardware.</p>
-        <p><strong>Is it risk-free?</strong> No. Nothing connected to the internet is. The main risks are configuration mistakes and trusting unverified plugins.</p>
-        <p><strong>Should you worry?</strong> Not if you follow basic security hygiene. The checklist above covers 95% of real-world risks.</p>
-        <p><strong>Should you get help?</strong> If security isn't your strength, absolutely. A misconfigured agent is worse than no agent at all.</p>
-      </div>
-
-      <!-- CTA -->
       <div class="article-cta">
         <h2>Want a Professional Security Review?</h2>
-        <p><strong>ClawReady's $49 Security & Cost Audit</strong> — a real human reviews your entire OpenClaw setup:</p>
-        <ul class="audit-list">
-          <li>✅ API key exposure check</li>
-          <li>✅ Network configuration review</li>
-          <li>✅ Admin interface security</li>
-          <li>✅ Plugin/skill safety audit</li>
-          <li>✅ Data handling and privacy review</li>
-          <li>✅ Cost optimization (bonus — most audits find $50–120/mo in savings)</li>
-        </ul>
+        <p><strong>ClawReady's $49 Security & Cost Audit</strong> — A real human reviews your setup for API exposure, network config, admin security, plugin safety, and cost optimization.</p>
         <p>Written report with specific fixes. Most issues resolved in under an hour.</p>
         <a href="https://calendly.com/grofresh2018/clawready" class="cta-btn">Book Your $49 Audit →</a>
+        <p style="margin-top: 16px; font-size: 0.85rem; color: var(--muted);">If you're not sure your setup is safe, it probably isn't. Let us check.</p>
       </div>
 
     </div>
   </div>
-
-  <footer>
-    <div class="container">
-      © 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/blog/is-openclaw-safe">This Article</a>
-    </div>
-  </footer>
-
+  <footer><div class="container">© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/blog/is-openclaw-safe">This Article</a></div></footer>
 </body>
 </html>
