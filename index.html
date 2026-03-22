@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClawReady — Your OpenClaw, Ready to Work</title>
+  <meta name="description" content="Done-for-you OpenClaw setup. Stop watching tutorials. Get your AI agent running today.">
+  <meta property="og:title" content="ClawReady — Your OpenClaw, Ready to Work">
+  <meta property="og:description" content="Done-for-you OpenClaw setup. Stop watching tutorials. Get your AI agent running today.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://clawreadynow.com">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ClawReady — Your OpenClaw, Ready to Work">
+  <meta name="twitter:description" content="Done-for-you OpenClaw setup. Stop watching tutorials. Get your AI agent running today.">
+  <link rel="canonical" href="https://clawreadynow.com">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --accent: #e74c3c;
+      --accent-hover: #c0392b;
+      --green: #27ae60;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+    .hero-emoji { font-size: 64px; margin-bottom: 16px; }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 16px 40px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: var(--accent-hover); }
+    .cta-sub { color: var(--muted); font-size: 0.9rem; margin-top: 12px; }
+
+    /* Problem */
+    .problem {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+    .problem h2 { font-size: 1.8rem; margin-bottom: 24px; text-align: center; }
+    .pain-points {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .pain-point {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .pain-point .icon { font-size: 28px; margin-bottom: 8px; }
+    .pain-point h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .pain-point p { color: var(--muted); font-size: 0.95rem; }
+
+    /* Pricing */
+    .pricing {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+    .pricing h2 { font-size: 1.8rem; margin-bottom: 8px; text-align: center; }
+    .pricing .subtitle { text-align: center; color: var(--muted); margin-bottom: 40px; }
+    .tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .tier {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      position: relative;
+    }
+    .tier.featured { border-color: var(--accent); }
+    .tier-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .tier h3 { font-size: 1.3rem; margin-bottom: 8px; }
+    .tier .price { font-size: 2rem; font-weight: 800; margin-bottom: 4px; }
+    .tier .price-note { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+    .tier ul { list-style: none; margin-bottom: 24px; }
+    .tier ul li {
+      padding: 6px 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .tier ul li::before {
+      content: "✓ ";
+      color: var(--green);
+      font-weight: 700;
+    }
+    .tier .tier-btn {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .tier .tier-btn.primary {
+      background: var(--accent);
+      color: white;
+    }
+    .tier .tier-btn.primary:hover { background: var(--accent-hover); }
+    .tier .tier-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .tier .tier-btn.secondary:hover { border-color: var(--muted); }
+
+    /* Social Proof */
+    .proof {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .proof h2 { font-size: 1.8rem; margin-bottom: 32px; }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .stat-num { font-size: 2.4rem; font-weight: 800; color: var(--accent); }
+    .stat-label { color: var(--muted); font-size: 0.9rem; }
+
+    /* FAQ */
+    .faq {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+    .faq h2 { font-size: 1.8rem; margin-bottom: 32px; text-align: center; }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .faq-item h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    .faq-item p { color: var(--muted); font-size: 0.95rem; }
+
+    /* Footer */
+    .footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* CTA bottom */
+    .bottom-cta {
+      padding: 60px 0;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .bottom-cta h2 { font-size: 1.8rem; margin-bottom: 12px; }
+    .bottom-cta p { color: var(--muted); margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-emoji">🦞</div>
+      <h1>Your OpenClaw, <span>Ready to Work.</span></h1>
+      <p>Stop watching tutorials. Stop troubleshooting configs. Get your personal AI agent set up and running today — by someone who runs five of them.</p>
+      <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Get Started →</a>
+      <p class="cta-sub">Setup in under 2 hours. Running 24/7 after that.</p>
+    </div>
+  </section>
+
+  <!-- Problem -->
+  <section class="problem">
+    <div class="container">
+      <h2>Sound familiar?</h2>
+      <div class="pain-points">
+        <div class="pain-point">
+          <div class="icon">😤</div>
+          <h3>"I bought a Mac Mini but it's just sitting there"</h3>
+          <p>You saw the hype, got the hardware, but the setup process stopped you cold.</p>
+        </div>
+        <div class="pain-point">
+          <div class="icon">🔧</div>
+          <h3>"I don't know what SOUL.md even means"</h3>
+          <p>Markdown files, configs, API keys, OOTH — it shouldn't take a CS degree to run an AI agent.</p>
+        </div>
+        <div class="pain-point">
+          <div class="icon">⏰</div>
+          <h3>"I've watched 20 videos and I'm still stuck"</h3>
+          <p>Tutorial hell is real. You need someone who's done it to just set it up with you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <h2>Pick Your Setup</h2>
+      <p class="subtitle">One-time setup. Your agent runs forever.</p>
+      <div class="tiers">
+
+        <div class="tier">
+          <h3>Starter</h3>
+          <div class="price">$99</div>
+          <div class="price-note">one-time</div>
+          <ul>
+            <li>1-hour guided setup (screen share)</li>
+            <li>OpenClaw installed & configured</li>
+            <li>Identity, memory & soul configured</li>
+            <li>One messaging channel connected</li>
+            <li>Personalized getting started guide</li>
+          </ul>
+          <a href="https://calendly.com/grofresh2018/30min" class="tier-btn secondary">Book Setup →</a>
+        </div>
+
+        <div class="tier featured">
+          <div class="tier-badge">MOST POPULAR</div>
+          <h3>Pro</h3>
+          <div class="price">$199</div>
+          <div class="price-note">one-time</div>
+          <ul>
+            <li>Everything in Starter</li>
+            <li>Custom workflow (briefings, research, automation)</li>
+            <li>Optimized memory architecture</li>
+            <li>Heartbeat & idle productivity configured</li>
+            <li>30 days email support</li>
+          </ul>
+          <a href="https://calendly.com/grofresh2018/30min" class="tier-btn primary">Book Setup →</a>
+        </div>
+
+        <div class="tier">
+          <h3>VIP</h3>
+          <div class="price">$299</div>
+          <div class="price-note">one-time + $49/mo</div>
+          <ul>
+            <li>Everything in Pro</li>
+            <li>Multi-agent setup (up to 3 claws)</li>
+            <li>Mission control dashboard</li>
+            <li>Custom tooling for your business</li>
+            <li>Monthly check-in + priority support</li>
+          </ul>
+          <a href="https://calendly.com/grofresh2018/30min" class="tier-btn secondary">Book Setup →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Audit -->
+  <section class="problem" id="audit">
+    <div class="container">
+      <h2>Already have OpenClaw? Get an Audit.</h2>
+      <p style="text-align: center; color: var(--muted); max-width: 600px; margin: 0 auto 24px;">Most setups waste 40-80% on API costs and miss key features like heartbeat, model routing, and structured memory. We'll review your config and show you exactly what to fix.</p>
+      <div class="pain-points" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="pain-point">
+          <div class="icon">💰</div>
+          <h3>Cost Optimization</h3>
+          <p>Are you burning $40+/week on Opus when Sonnet handles 80% of your tasks?</p>
+        </div>
+        <div class="pain-point">
+          <div class="icon">🧠</div>
+          <h3>Memory Check</h3>
+          <p>Is your agent actually remembering things? Most memory configs are broken.</p>
+        </div>
+        <div class="pain-point">
+          <div class="icon">⚡</div>
+          <h3>Performance Tune</h3>
+          <p>Heartbeat, skills, integrations — we check everything.</p>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 32px;">
+        <div style="font-size: 2rem; font-weight: 800; margin-bottom: 4px;">$49</div>
+        <div style="color: var(--muted); margin-bottom: 16px;">Results in 24 hours</div>
+        <a href="https://calendly.com/grofresh2018/30min" class="cta-btn" style="background: var(--surface); border: 1px solid var(--accent); color: var(--accent);">Book Your Audit →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
+  <section class="proof">
+    <div class="container">
+      <h2>The OpenClaw wave is here</h2>
+      <div class="stats">
+        <div>
+          <div class="stat-num">100K+</div>
+          <div class="stat-label">OpenClaw installs worldwide</div>
+        </div>
+        <div>
+          <div class="stat-num">Mac Mini</div>
+          <div class="stat-label">sales at all-time highs</div>
+        </div>
+        <div>
+          <div class="stat-num">24/7</div>
+          <div class="stat-label">your agent works while you sleep</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="container">
+      <h2>Questions</h2>
+      <div class="faq-item">
+        <h3>What hardware do I need?</h3>
+        <p>Any computer works — Mac Mini, MacBook, old laptop, even a Raspberry Pi. A Mac with 16GB+ RAM gives the best experience, but we'll work with what you have.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Do I need to be technical?</h3>
+        <p>Nope. That's literally why we exist. We handle the technical setup. You just talk to your agent.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What model/AI does it use?</h3>
+        <p>Your choice. We'll help you pick between Claude (Anthropic), ChatGPT (OpenAI), or local models like Qwen 3.5 based on your budget and needs.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How long does setup take?</h3>
+        <p>Starter: ~1 hour. Pro: ~2 hours. VIP: ~3 hours initial + ongoing. Your agent starts working immediately after.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is my data private?</h3>
+        <p>100%. OpenClaw runs on YOUR machine. Your data never leaves your computer (unless you choose a cloud model). We set it up, you own it completely.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="bottom-cta" id="book">
+    <div class="container">
+      <h2>Ready to meet your new employee?</h2>
+      <p>Book a setup session. We'll have your OpenClaw agent running before the call ends.</p>
+      <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book Your Setup →</a>
+      <p class="cta-sub">Available 7 days a week. Eastern time.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>🦞 ClawReady — Built by people who run OpenClaw 24/7</p>
+      <p style="margin-top: 8px;">📞 (216) 694-8521 · Cleveland, OH</p>
+      <p style="margin-top: 8px;">© 2026 ClawReady. Not affiliated with OpenClaw.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
