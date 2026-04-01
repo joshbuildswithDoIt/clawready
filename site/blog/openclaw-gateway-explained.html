@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Gateway Explained: What It Does and How to Keep It Running — ClawReady</title>
+  <meta name="description" content="The OpenClaw gateway is the engine behind everything. Most people don't understand what it does — which means they can't fix it when it breaks. Here's the plain-English explanation.">
+  <meta property="og:title" content="OpenClaw Gateway Explained: What It Does and How to Keep It Running">
+  <meta property="og:description" content="Gateway down? Agents not responding? This is the plain-English guide to what the OpenClaw gateway actually does — and how to diagnose and fix the most common problems.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-gateway-explained">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-gateway-explained">
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414; --surface2: #1a1a1a;
+      --border: #2a2a2a; --text: #e8e8e8; --muted: #888;
+      --accent: #e74c3c; --accent-hover: #c0392b;
+      --green: #27ae60; --yellow: #f39c12; --blue: #3498db;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    nav .logo { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    nav .logo span { color: var(--accent); }
+    nav .cta { background: var(--accent); color: white; padding: .5rem 1.2rem; border-radius: 6px; font-size: .9rem; font-weight: 600; }
+    nav .cta:hover { background: var(--accent-hover); text-decoration: none; }
+    .hero { background: linear-gradient(135deg, #0a1a0a 0%, #0a0a0a 100%); border-bottom: 1px solid var(--border); padding: 3rem 2rem; text-align: center; }
+    .hero .badge { display: inline-block; background: #14532d; color: #86efac; padding: .3rem .9rem; border-radius: 20px; font-size: .8rem; font-weight: 600; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.5rem, 4vw, 2.3rem); font-weight: 800; margin-bottom: 1rem; line-height: 1.2; }
+    .hero .sub { color: var(--muted); font-size: 1rem; max-width: 620px; margin: 0 auto 1.5rem; }
+    .hero .meta { color: var(--muted); font-size: .85rem; }
+    .content { max-width: 760px; margin: 0 auto; padding: 3rem 2rem; }
+    h2 { font-size: 1.4rem; font-weight: 700; margin: 2.5rem 0 1rem; color: var(--text); border-top: 1px solid var(--border); padding-top: 2rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 .6rem; color: var(--text); }
+    p { margin-bottom: 1.2rem; color: #ccc; }
+    ul, ol { margin: 0 0 1.2rem 1.5rem; color: #ccc; }
+    li { margin-bottom: .5rem; }
+    code { background: var(--surface2); border: 1px solid var(--border); padding: .15rem .4rem; border-radius: 4px; font-family: monospace; font-size: .9em; color: #93c5fd; }
+    pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; overflow-x: auto; margin: 1.2rem 0; }
+    pre code { background: none; border: none; padding: 0; color: #ccc; font-size: .9rem; }
+    .callout { background: var(--surface2); border-left: 4px solid var(--blue); padding: 1.2rem 1.5rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; }
+    .callout.green { border-color: var(--green); }
+    .callout.yellow { border-color: var(--yellow); }
+    .callout.red { border-color: var(--accent); }
+    .callout p { margin: 0; }
+    .diagram { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; font-family: monospace; font-size: .88rem; color: #93c5fd; line-height: 1.9; overflow-x: auto; }
+    .cmd-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin: 1.2rem 0; }
+    .cmd-block .cmd-label { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .6rem; }
+    .fix-item { border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; margin: 1.2rem 0; background: var(--surface); }
+    .fix-item .symptom { color: var(--accent); font-weight: 600; font-size: .95rem; margin-bottom: .5rem; }
+    .fix-item .cause { color: var(--muted); font-size: .9rem; margin-bottom: .7rem; }
+    .fix-item .fix { color: #ccc; font-size: .95rem; }
+    .cta-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; margin: 3rem 0 1rem; }
+    .cta-box h3 { font-size: 1.2rem; margin-bottom: .6rem; margin-top: 0; }
+    .cta-box p { margin-bottom: 1.2rem; }
+    .btn { display: inline-block; background: var(--accent); color: white; padding: .75rem 1.8rem; border-radius: 8px; font-weight: 700; font-size: 1rem; }
+    .btn:hover { background: var(--accent-hover); text-decoration: none; }
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: .85rem; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "OpenClaw Gateway Explained: What It Does and How to Keep It Running",
+    "description": "The OpenClaw gateway is the engine behind everything. Most people don't understand what it does — which means they can't fix it when it breaks.",
+    "author": { "@type": "Organization", "name": "ClawReady" },
+    "publisher": { "@type": "Organization", "name": "ClawReady", "url": "https://clawreadynow.com" },
+    "datePublished": "2026-04-01",
+    "url": "https://clawreadynow.com/blog/openclaw-gateway-explained"
+  }
+  </script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Claw<span>Ready</span></a>
+  <a href="https://calendly.com/grofresh2018" class="cta" target="_blank">Book a Setup Call</a>
+</nav>
+
+<div class="hero">
+  <div class="badge">Setup Guide · April 2026</div>
+  <h1>OpenClaw Gateway Explained:<br>What It Does &amp; How to Keep It Running</h1>
+  <p class="sub">The gateway is the engine behind everything in OpenClaw. Most people don't understand what it actually does — which means when it breaks, they're stuck. Here's the plain-English guide.</p>
+  <p class="meta">By ClawReady · 8 min read</p>
+</div>
+
+<div class="content">
+
+  <p>If you've ever opened OpenClaw and gotten no response, seen a "gateway unreachable" error, or wondered why your Telegram bot stopped working after a reboot — the gateway is almost always involved.</p>
+
+  <p>But most documentation assumes you already know what the gateway is. This guide doesn't. Start here.</p>
+
+  <h2>What Is the Gateway?</h2>
+
+  <p>The OpenClaw gateway is a local background service — a small web server that runs on your machine and acts as the central hub for everything OpenClaw does.</p>
+
+  <p>Think of it this way:</p>
+
+  <div class="diagram">
+Your phone (Telegram / WhatsApp / iMessage)
+        ↕
+  [ OpenClaw Gateway ]   ← runs on your machine, port 18789
+        ↕                    handles auth, routing, channel plugins
+   Your AI Agents          ← sessions, tools, memory, skills
+        ↕
+  AI APIs (Claude / GPT / Ollama)
+  </div>
+
+  <p>Every message you send, every tool your agent runs, every channel it listens on — all of it flows through the gateway. When the gateway is down, nothing works. When it's misconfigured, things work inconsistently. When it's running clean, it's invisible.</p>
+
+  <h2>What the Gateway Actually Does</h2>
+
+  <ul>
+    <li><strong>Routes inbound messages</strong> from Telegram, WhatsApp, Discord, iMessage, etc. to your agents</li>
+    <li><strong>Handles authentication</strong> — verifies who's allowed to talk to your agents and how</li>
+    <li><strong>Manages sessions</strong> — keeps track of which conversation is which</li>
+    <li><strong>Runs the web UI</strong> — the dashboard at <code>http://127.0.0.1:18789</code> is served by the gateway</li>
+    <li><strong>Executes tool calls</strong> — when your agent needs to run a shell command, read a file, or call a web API, the gateway coordinates it</li>
+    <li><strong>Loads plugins and channels</strong> — channel integrations (Telegram bot, Discord, etc.) are gateway plugins</li>
+  </ul>
+
+  <div class="callout green">
+    <p><strong>Simple rule:</strong> If OpenClaw isn't responding, check the gateway first. 80% of the time, that's the problem.</p>
+  </div>
+
+  <h2>Checking Gateway Status</h2>
+
+  <p>The fastest diagnostic is one command:</p>
+
+  <div class="cmd-block">
+    <div class="cmd-label">Run this first</div>
+    <pre><code>openclaw gateway status</code></pre>
+  </div>
+
+  <p>This tells you:</p>
+  <ul>
+    <li>Whether the gateway is running (and its PID)</li>
+    <li>Whether it's reachable at its configured address</li>
+    <li>Which channels are connected and their state</li>
+    <li>Any configuration warnings or security issues</li>
+    <li>Session count and active agents</li>
+  </ul>
+
+  <p>For a deeper diagnostic:</p>
+
+  <div class="cmd-block">
+    <div class="cmd-label">Full probe</div>
+    <pre><code>openclaw status --deep</code></pre>
+  </div>
+
+  <p>This runs active connectivity tests against each channel, verifies tokens, and checks external reachability.</p>
+
+  <h2>Starting, Stopping, and Restarting</h2>
+
+  <div class="cmd-block">
+    <div class="cmd-label">Core gateway commands</div>
+    <pre><code># Check status
+openclaw gateway status
+
+# Start the gateway
+openclaw gateway start
+
+# Stop the gateway
+openclaw gateway stop
+
+# Restart (most common fix)
+openclaw gateway restart</code></pre>
+  </div>
+
+  <p>After any config change to <code>openclaw.json</code> — adding a channel, changing a token, updating a model — you need to restart the gateway for changes to take effect. This is the single most common "why isn't my change working?" answer.</p>
+
+  <h2>Making the Gateway Start Automatically</h2>
+
+  <p>By default, you have to manually start the gateway after a reboot. For a machine you want running 24/7, that's not acceptable. The fix is to install the gateway as a system service.</p>
+
+  <p><strong>On Linux (systemd):</strong></p>
+
+  <div class="cmd-block">
+    <div class="cmd-label">Install as systemd service</div>
+    <pre><code>openclaw gateway install
+# Then enable and start it:
+systemctl --user enable openclaw-gateway
+systemctl --user start openclaw-gateway</code></pre>
+  </div>
+
+  <p><strong>On macOS (launchd):</strong></p>
+
+  <div class="cmd-block">
+    <div class="cmd-label">Install as launchd service</div>
+    <pre><code>openclaw gateway install
+# Starts automatically on login</code></pre>
+  </div>
+
+  <p><strong>Verify it survived a reboot:</strong> Restart your machine, then run <code>openclaw gateway status</code>. If it shows "running" without you doing anything — you're set.</p>
+
+  <div class="callout yellow">
+    <p><strong>WSL users (Windows Subsystem for Linux):</strong> The systemd service works but WSL doesn't start on Windows boot by default. You'll need to either start WSL manually, or use the Windows Task Scheduler to launch WSL + the gateway at startup. This is a common gap for NUC / Windows home server setups.</p>
+  </div>
+
+  <h2>Common Problems and Fixes</h2>
+
+  <div class="fix-item">
+    <div class="symptom">❌ "Gateway unreachable" / agents not responding</div>
+    <div class="cause">Gateway isn't running.</div>
+    <div class="fix"><strong>Fix:</strong> Run <code>openclaw gateway start</code> or <code>openclaw gateway restart</code>. Check status after.</div>
+  </div>
+
+  <div class="fix-item">
+    <div class="symptom">❌ Config changes not taking effect</div>
+    <div class="cause">You edited <code>openclaw.json</code> but didn't restart the gateway.</div>
+    <div class="fix"><strong>Fix:</strong> <code>openclaw gateway restart</code> — always required after config edits.</div>
+  </div>
+
+  <div class="fix-item">
+    <div class="symptom">❌ Gateway was running, now it's not (after reboot)</div>
+    <div class="cause">Gateway not installed as a system service.</div>
+    <div class="fix"><strong>Fix:</strong> <code>openclaw gateway install</code> then enable the service (see above).</div>
+  </div>
+
+  <div class="fix-item">
+    <div class="symptom">❌ Telegram/Discord channel shows "error" in status</div>
+    <div class="cause">Token invalid, expired, or stale session.</div>
+    <div class="fix"><strong>Fix:</strong> Regenerate the bot token (BotFather for Telegram), update <code>openclaw.json</code>, restart gateway.</div>
+  </div>
+
+  <div class="fix-item">
+    <div class="symptom">❌ Gateway starts but web UI at port 18789 won't load</div>
+    <div class="cause">Port conflict, or gateway bound to wrong interface.</div>
+    <div class="fix"><strong>Fix:</strong> Check <code>gateway.bind</code> in <code>openclaw.json</code> — should be <code>"127.0.0.1:18789"</code> for local-only. Run <code>lsof -i :18789</code> to check for conflicts.</div>
+  </div>
+
+  <div class="fix-item">
+    <div class="symptom">❌ Two instances of OpenClaw running</div>
+    <div class="cause">Gateway launched twice — common after manual start on a machine with the service also installed.</div>
+    <div class="fix"><strong>Fix:</strong> <code>openclaw gateway stop</code>, then verify with <code>ps aux | grep openclaw</code>. Kill any lingering processes, then start fresh.</div>
+  </div>
+
+  <h2>The Gateway Config (What You Actually Need to Know)</h2>
+
+  <p>Gateway settings live in <code>~/.openclaw/openclaw.json</code> under the <code>gateway</code> key. The ones that matter most:</p>
+
+  <div class="cmd-block">
+    <div class="cmd-label">Key gateway settings</div>
+    <pre><code>{
+  "gateway": {
+    "bind": "127.0.0.1:18789",     // listen address — keep local unless you need remote
+    "authToken": "your-token",      // required for remote access
+    "trustedProxies": []            // set if behind a reverse proxy
+  }
+}</code></pre>
+  </div>
+
+  <div class="callout red">
+    <p><strong>Security note:</strong> If you change <code>gateway.bind</code> to expose it on a public IP (e.g. <code>0.0.0.0:18789</code>), set a strong <code>authToken</code> and configure <code>trustedProxies</code>. An exposed gateway with no auth token is an open door to your entire machine.</p>
+  </div>
+
+  <h2>Keeping the Gateway Healthy Long-Term</h2>
+
+  <ul>
+    <li><strong>Monthly restarts</strong> — even a healthy gateway benefits from a monthly restart to clear accumulated session state and release memory</li>
+    <li><strong>Monitor with status</strong> — add <code>openclaw gateway status</code> to your mental checklist when something feels off</li>
+    <li><strong>Update carefully</strong> — always restart the gateway after OpenClaw updates; some updates change the gateway binary</li>
+    <li><strong>Log rotation</strong> — if you're running the gateway as a service, check that logs aren't filling your disk over time (<code>journalctl --user -u openclaw-gateway --disk-usage</code> on systemd)</li>
+  </ul>
+
+  <div class="callout green">
+    <p><strong>Once it's set up as a service and you understand the restart command</strong> — the gateway becomes invisible. You'll go weeks without thinking about it. That's the goal.</p>
+  </div>
+
+  <div class="cta-box">
+    <h3>🦞 Gateway Giving You Trouble?</h3>
+    <p>Gateway misconfiguration is one of the most common things we fix in ClawReady audits. If you're hitting persistent issues — channel not connecting, agents not responding, reboot survival — book a call and we'll sort it.</p>
+    <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free 15-Min Call →</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 ClawReady · <a href="/">clawreadynow.com</a> · OpenClaw setup, audits & support for small businesses</p>
+</footer>
+
+</body>
+</html>
