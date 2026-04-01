@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw on Telegram, WhatsApp & iMessage: Which Channel Is Right for You? — ClawReady</title>
+  <meta name="description" content="Connect OpenClaw to Telegram, WhatsApp, or iMessage. Step-by-step setup for each channel, honest tradeoffs, and which one to pick based on how you actually work.">
+  <meta property="og:title" content="OpenClaw on Telegram, WhatsApp & iMessage: Which Channel Should You Use?">
+  <meta property="og:description" content="Telegram is easiest. WhatsApp reaches the most people. iMessage is the most seamless for Mac users. Here's how to set up each — and which one to pick.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-telegram-whatsapp-imessage">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-telegram-whatsapp-imessage">
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414; --surface2: #1a1a1a;
+      --border: #2a2a2a; --text: #e8e8e8; --muted: #888;
+      --accent: #e74c3c; --accent-hover: #c0392b;
+      --green: #27ae60; --yellow: #f39c12; --blue: #3498db;
+      --tg: #2AABEE; --wa: #25D366; --im: #1a73e8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    nav .logo { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    nav .logo span { color: var(--accent); }
+    nav .cta { background: var(--accent); color: white; padding: .5rem 1.2rem; border-radius: 6px; font-size: .9rem; font-weight: 600; }
+    nav .cta:hover { background: var(--accent-hover); text-decoration: none; }
+    .hero { background: linear-gradient(135deg, #0a0a1a 0%, #0a0a0a 100%); border-bottom: 1px solid var(--border); padding: 3rem 2rem; text-align: center; }
+    .hero .badge { display: inline-block; background: #1e3a5f; color: #93c5fd; padding: .3rem .9rem; border-radius: 20px; font-size: .8rem; font-weight: 600; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.5rem, 4vw, 2.3rem); font-weight: 800; margin-bottom: 1rem; line-height: 1.2; }
+    .hero .sub { color: var(--muted); font-size: 1rem; max-width: 620px; margin: 0 auto 1.5rem; }
+    .hero .meta { color: var(--muted); font-size: .85rem; }
+    .content { max-width: 760px; margin: 0 auto; padding: 3rem 2rem; }
+    h2 { font-size: 1.4rem; font-weight: 700; margin: 2.5rem 0 1rem; color: var(--text); border-top: 1px solid var(--border); padding-top: 2rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 .6rem; color: var(--text); }
+    p { margin-bottom: 1.2rem; color: #ccc; }
+    ul, ol { margin: 0 0 1.2rem 1.5rem; color: #ccc; }
+    li { margin-bottom: .5rem; }
+    code { background: var(--surface2); border: 1px solid var(--border); padding: .15rem .4rem; border-radius: 4px; font-family: monospace; font-size: .9em; color: #93c5fd; }
+    pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; overflow-x: auto; margin: 1.2rem 0; }
+    pre code { background: none; border: none; padding: 0; color: #ccc; }
+    .callout { background: var(--surface2); border-left: 4px solid var(--blue); padding: 1.2rem 1.5rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; }
+    .callout.green { border-color: var(--green); }
+    .callout.yellow { border-color: var(--yellow); }
+    .callout.red { border-color: var(--accent); }
+    .callout p { margin: 0; }
+    .channel-card { border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; margin: 2rem 0; background: var(--surface); }
+    .channel-card.tg { border-top: 3px solid var(--tg); }
+    .channel-card.wa { border-top: 3px solid var(--wa); }
+    .channel-card.im { border-top: 3px solid var(--im); }
+    .channel-header { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
+    .channel-icon { font-size: 1.8rem; }
+    .channel-title { font-size: 1.2rem; font-weight: 700; }
+    .channel-badge { font-size: .75rem; font-weight: 600; padding: .2rem .7rem; border-radius: 20px; }
+    .badge-easy { background: #14532d; color: #86efac; }
+    .badge-medium { background: #713f12; color: #fde68a; }
+    .badge-hard { background: #7f1d1d; color: #fca5a5; }
+    .steps { list-style: none; margin: 0 0 1.2rem 0; counter-reset: step; }
+    .steps li { counter-increment: step; padding: .6rem .8rem .6rem 2.8rem; position: relative; border-bottom: 1px solid var(--border); color: #ccc; }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before { content: counter(step); position: absolute; left: .6rem; top: .6rem; background: var(--accent); color: white; width: 1.4rem; height: 1.4rem; border-radius: 50%; font-size: .75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--surface2); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--green); margin-bottom: .5rem; font-size: .9rem; }
+    .cons h4 { color: var(--accent); margin-bottom: .5rem; font-size: .9rem; }
+    .pros ul, .cons ul { margin: 0; padding-left: 1.2rem; }
+    .pros li, .cons li { font-size: .9rem; color: #bbb; margin-bottom: .3rem; }
+    .compare-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: .9rem; }
+    .compare-table th { background: var(--surface2); padding: .75rem 1rem; text-align: left; border: 1px solid var(--border); font-weight: 600; }
+    .compare-table td { padding: .65rem 1rem; border: 1px solid var(--border); color: #ccc; }
+    .compare-table tr:nth-child(even) td { background: var(--surface); }
+    .tag-best { color: var(--green); font-weight: 600; }
+    .tag-ok { color: var(--yellow); font-weight: 600; }
+    .tag-no { color: var(--accent); font-weight: 600; }
+    .decision-box { background: linear-gradient(135deg, #0f1a0f, #0a0a0a); border: 1px solid #2a4a2a; border-radius: 12px; padding: 1.8rem; margin: 2rem 0; }
+    .decision-box h3 { color: var(--green); margin-top: 0; }
+    .decision-box ul { margin-bottom: 0; }
+    .cta-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; margin: 3rem 0 1rem; }
+    .cta-box h3 { font-size: 1.2rem; margin-bottom: .6rem; margin-top: 0; }
+    .cta-box p { margin-bottom: 1.2rem; }
+    .btn { display: inline-block; background: var(--accent); color: white; padding: .75rem 1.8rem; border-radius: 8px; font-weight: 700; font-size: 1rem; }
+    .btn:hover { background: var(--accent-hover); text-decoration: none; }
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: .85rem; }
+    @media (max-width: 600px) { .pros-cons { grid-template-columns: 1fr; } }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "OpenClaw on Telegram, WhatsApp & iMessage: Which Channel Is Right for You?",
+    "description": "Connect OpenClaw to Telegram, WhatsApp, or iMessage. Step-by-step setup for each channel, honest tradeoffs, and which one to pick based on how you actually work.",
+    "author": { "@type": "Organization", "name": "ClawReady" },
+    "publisher": { "@type": "Organization", "name": "ClawReady", "url": "https://clawreadynow.com" },
+    "datePublished": "2026-04-01",
+    "url": "https://clawreadynow.com/blog/openclaw-telegram-whatsapp-imessage"
+  }
+  </script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Claw<span>Ready</span></a>
+  <a href="https://calendly.com/grofresh2018" class="cta" target="_blank">Book a Setup Call</a>
+</nav>
+
+<div class="hero">
+  <div class="badge">Setup Guide · April 2026</div>
+  <h1>OpenClaw on Telegram, WhatsApp & iMessage:<br>Which Channel Is Right for You?</h1>
+  <p class="sub">Most people set up OpenClaw and then realize they want to talk to it from their phone — not just a browser tab. Here's the honest breakdown of all three messaging channels.</p>
+  <p class="meta">By ClawReady · 10 min read</p>
+</div>
+
+<div class="content">
+
+  <p>OpenClaw supports Telegram, WhatsApp, iMessage, Signal, Discord, and more. But when people ask "which one should I use?" the answer isn't one-size-fits-all.</p>
+
+  <p>Telegram is the fastest to set up. WhatsApp reaches the most people. iMessage is the most seamless if you're in the Apple ecosystem. Each has real tradeoffs.</p>
+
+  <p>Here's the full breakdown — with setup steps for each one — so you can pick the right channel and stop second-guessing it.</p>
+
+  <h2>Quick Comparison</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Factor</th>
+        <th>Telegram</th>
+        <th>WhatsApp</th>
+        <th>iMessage</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Setup difficulty</td>
+        <td class="tag-best">Easy (10 min)</td>
+        <td class="tag-ok">Medium (30–60 min)</td>
+        <td class="tag-ok">Medium (Mac required)</td>
+      </tr>
+      <tr>
+        <td>Requires paid API?</td>
+        <td class="tag-best">No — free forever</td>
+        <td class="tag-ok">Meta Business API (free tier exists)</td>
+        <td class="tag-best">No — uses your Apple ID</td>
+      </tr>
+      <tr>
+        <td>Works on Android?</td>
+        <td class="tag-best">Yes</td>
+        <td class="tag-best">Yes</td>
+        <td class="tag-no">No — Apple only</td>
+      </tr>
+      <tr>
+        <td>File / media support</td>
+        <td class="tag-best">Excellent</td>
+        <td class="tag-ok">Good</td>
+        <td class="tag-ok">Good</td>
+      </tr>
+      <tr>
+        <td>Multi-user / group support</td>
+        <td class="tag-best">Full</td>
+        <td class="tag-ok">Groups supported</td>
+        <td class="tag-ok">Group chats work</td>
+      </tr>
+      <tr>
+        <td>Best for</td>
+        <td>Everyone — easiest start</td>
+        <td>Sharing agent with others / business use</td>
+        <td>Mac + iPhone users who want seamless</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Option 1: Telegram</h2>
+
+  <div class="channel-card tg">
+    <div class="channel-header">
+      <span class="channel-icon">✈️</span>
+      <span class="channel-title">Telegram</span>
+      <span class="channel-badge badge-easy">Easiest Setup</span>
+    </div>
+
+    <p>Telegram is the default recommendation for most OpenClaw users. It's fast, free, has a real bot API, and works everywhere. If you're not sure which to pick — start here.</p>
+
+    <h3>Setup Steps</h3>
+    <ol class="steps">
+      <li>Open Telegram and search for <strong>@BotFather</strong> (verify the handle is exact)</li>
+      <li>Send <code>/newbot</code>, follow the prompts, choose a name and username</li>
+      <li>BotFather gives you a token — copy it</li>
+      <li>Open <code>~/.openclaw/openclaw.json</code> and add your Telegram config:<br><br>
+        <pre><code>"channels": {
+  "telegram": {
+    "enabled": true,
+    "token": "YOUR_BOT_TOKEN_HERE",
+    "dmPolicy": "pairing"
+  }
+}</code></pre>
+      </li>
+      <li>Restart your OpenClaw gateway: <code>openclaw gateway restart</code></li>
+      <li>Open your new bot in Telegram and send <code>/start</code></li>
+      <li>Your agent will prompt you to approve the pairing — confirm it</li>
+    </ol>
+
+    <div class="callout yellow">
+      <p><strong>Common gotcha:</strong> If you send <code>/start</code> and get no response to the approval command, your bot token may have a stale session. Go to BotFather → revoke token → generate new one → update <code>openclaw.json</code> → restart gateway.</p>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <h4>✅ Pros</h4>
+        <ul>
+          <li>Free bot API, no account verification needed</li>
+          <li>Best file/media support of any channel</li>
+          <li>Fast message delivery</li>
+          <li>Works on all platforms</li>
+          <li>Easy to share with a team</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <h4>❌ Cons</h4>
+        <ul>
+          <li>Your contacts probably aren't on Telegram</li>
+          <li>Separate app from your normal messaging</li>
+          <li>Bot can't initiate conversations (users must message first)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Option 2: WhatsApp</h2>
+
+  <div class="channel-card wa">
+    <div class="channel-header">
+      <span class="channel-icon">💬</span>
+      <span class="channel-title">WhatsApp</span>
+      <span class="channel-badge badge-medium">Medium Setup</span>
+    </div>
+
+    <p>WhatsApp makes sense if you want to share your OpenClaw agent with clients, family, or a team who are already on WhatsApp — which is 2 billion people. The setup is more involved but the reach is unmatched.</p>
+
+    <h3>Two Paths</h3>
+
+    <p><strong>Path A: WhatsApp Business API (recommended)</strong> — Meta's official API for business accounts. Requires a verified phone number, Meta Business Manager setup, and approval (usually 1–2 days). This is the right path for professional or client-facing use.</p>
+
+    <p><strong>Path B: Personal WhatsApp via unofficial bridge</strong> — Various community bridges exist that link your personal WhatsApp to OpenClaw. Works, but violates WhatsApp's ToS and risks account bans. Only use for personal/testing purposes.</p>
+
+    <h3>Setup Steps (Business API Path)</h3>
+    <ol class="steps">
+      <li>Set up a <a href="https://business.facebook.com" target="_blank">Meta Business Manager</a> account if you don't have one</li>
+      <li>Add a WhatsApp Business account and verify your phone number</li>
+      <li>Create a Meta app → add WhatsApp product → note your Phone Number ID and Access Token</li>
+      <li>In <code>openclaw.json</code>:<br><br>
+        <pre><code>"channels": {
+  "whatsapp": {
+    "enabled": true,
+    "phoneNumberId": "YOUR_PHONE_NUMBER_ID",
+    "accessToken": "YOUR_ACCESS_TOKEN",
+    "verifyToken": "choose-any-string"
+  }
+}</code></pre>
+      </li>
+      <li>Configure your webhook URL in Meta's developer console — use your gateway URL + <code>/channels/whatsapp/webhook</code></li>
+      <li>Restart gateway and send a test message to your WhatsApp number</li>
+    </ol>
+
+    <div class="callout">
+      <p><strong>Note on gateway exposure:</strong> The WhatsApp Business API requires a publicly accessible webhook URL. If your OpenClaw is on a local machine behind NAT, you'll need a tunnel (Cloudflare Tunnel, ngrok, or a VPS) to expose the webhook endpoint. This is the most common setup blocker.</p>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <h4>✅ Pros</h4>
+        <ul>
+          <li>Your clients / family are already there</li>
+          <li>2 billion users — no app install required for recipients</li>
+          <li>Great for sharing agent access with non-technical people</li>
+          <li>Agent can send outbound messages (with Business API)</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <h4>❌ Cons</h4>
+        <ul>
+          <li>More complex setup than Telegram</li>
+          <li>Requires public webhook URL (gateway exposure)</li>
+          <li>Meta approval process takes 1–2 days</li>
+          <li>Message templates required for outbound (template approval needed)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Option 3: iMessage</h2>
+
+  <div class="channel-card im">
+    <div class="channel-header">
+      <span class="channel-icon">🍎</span>
+      <span class="channel-title">iMessage</span>
+      <span class="channel-badge badge-medium">Mac Required</span>
+    </div>
+
+    <p>If you're on a Mac and an iPhone, iMessage is the most seamless option. You talk to your agent the same way you text anyone — no separate app, no bot accounts, no tokens to manage. It just shows up in your Messages app.</p>
+
+    <p>The catch: it requires a Mac running your OpenClaw gateway. It uses the <code>imsg</code> bridge tool to relay messages through the macOS Messages app. This means it only works if your gateway machine is a Mac (not a NUC, not a Linux VPS).</p>
+
+    <h3>Setup Steps</h3>
+    <ol class="steps">
+      <li>Install the <code>imsg</code> bridge: follow the <a href="https://docs.openclaw.ai/channels/imessage" target="_blank">official OpenClaw iMessage docs</a></li>
+      <li>Grant accessibility permissions to <code>imsg</code> in System Settings → Privacy → Accessibility</li>
+      <li>In <code>openclaw.json</code>:<br><br>
+        <pre><code>"channels": {
+  "imessage": {
+    "enabled": true,
+    "dmPolicy": "pairing"
+  }
+}</code></pre>
+      </li>
+      <li>Restart gateway</li>
+      <li>Send yourself a message from your iPhone to the Apple ID associated with your Mac</li>
+      <li>Approve the pairing prompt in OpenClaw</li>
+    </ol>
+
+    <div class="callout green">
+      <p><strong>Best use case:</strong> You run OpenClaw on a Mac Mini as your home server. Your iPhone messages the Mac Mini's Apple ID. Your agent responds through Messages just like a normal text. Zero friction once it's set up.</p>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <h4>✅ Pros</h4>
+        <ul>
+          <li>Native Messages app — no extra app needed</li>
+          <li>Seamless for Apple users</li>
+          <li>No API tokens or business accounts</li>
+          <li>Works with existing Apple ID</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <h4>❌ Cons</h4>
+        <ul>
+          <li>Mac gateway required — won't work on Linux/Windows</li>
+          <li>Apple-only — Android users can't use it</li>
+          <li>Accessibility permissions can be finicky</li>
+          <li>No outbound message initiation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Which One Should You Actually Pick?</h2>
+
+  <div class="decision-box">
+    <h3>🎯 Decision Guide</h3>
+    <ul>
+      <li><strong>Just getting started / unsure → Telegram.</strong> 10 minutes, free forever, works everywhere. Start here and switch later if needed.</li>
+      <li><strong>Running OpenClaw on a Mac Mini and use iPhone → iMessage.</strong> Most seamless experience in the Apple ecosystem. Worth the setup time.</li>
+      <li><strong>Sharing agent access with clients or non-technical family → WhatsApp.</strong> They're already there. Worth the extra setup for the reach.</li>
+      <li><strong>Running a business with multiple users → Telegram or WhatsApp Business.</strong> Both handle multi-user well. WhatsApp if your audience is already there.</li>
+      <li><strong>Privacy-first → Signal.</strong> Not covered here but OpenClaw supports it. Strongest end-to-end encryption, best for sensitive use cases.</li>
+    </ul>
+  </div>
+
+  <h2>Common Setup Problems (All Channels)</h2>
+
+  <p>Regardless of which channel you pick, these issues come up constantly:</p>
+
+  <ul>
+    <li><strong>Gateway not running</strong> — run <code>openclaw gateway status</code> first. If it's not running, nothing works.</li>
+    <li><strong>Token/config not reloaded</strong> — always restart the gateway after config changes: <code>openclaw gateway restart</code></li>
+    <li><strong>DM policy blocking messages</strong> — default is <code>pairing</code> (requires approval). If messages aren't getting through, check <code>dmPolicy</code> in your config.</li>
+    <li><strong>Stale bot session</strong> — especially on Telegram after token regeneration. Full gateway restart usually fixes it.</li>
+    <li><strong>Webhook not reachable</strong> — WhatsApp specifically needs a public URL. Use <code>curl</code> from an external machine to verify your webhook endpoint is reachable before debugging anything else.</li>
+  </ul>
+
+  <div class="callout green">
+    <p><strong>Pro tip:</strong> You can run multiple channels simultaneously. Many people use Telegram for personal use and WhatsApp Business for client-facing interactions — same agent, different entry points.</p>
+  </div>
+
+  <div class="cta-box">
+    <h3>🦞 Need Help Getting a Channel Connected?</h3>
+    <p>ClawReady sets up OpenClaw channels as part of every setup package. If you're stuck on webhook config, pairing issues, or just want it done right the first time — book a call.</p>
+    <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free 15-Min Call →</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 ClawReady · <a href="/">clawreadynow.com</a> · OpenClaw setup, audits & support for small businesses</p>
+</footer>
+
+</body>
+</html>
