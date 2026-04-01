@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw + Notion: Read, Write & Automate Your Workspace — ClawReady</title>
+  <meta name="description" content="Connect OpenClaw to Notion and turn your workspace into a living knowledge base your agent can read, update, and act on. Setup guide, use cases, and API configuration.">
+  <meta property="og:title" content="OpenClaw + Notion: Read, Write & Automate Your Workspace">
+  <meta property="og:description" content="Your Notion workspace holds your projects, notes, and databases. Here's how to wire OpenClaw into it — so your agent can read your docs, update your databases, and take action.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-notion-integration">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-notion-integration">
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414; --surface2: #1a1a1a;
+      --border: #2a2a2a; --text: #e8e8e8; --muted: #888;
+      --accent: #e74c3c; --accent-hover: #c0392b;
+      --green: #27ae60; --yellow: #f39c12; --blue: #3498db;
+      --notion: #e8e0d9;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    nav .logo { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    nav .logo span { color: var(--accent); }
+    nav .cta { background: var(--accent); color: white; padding: .5rem 1.2rem; border-radius: 6px; font-size: .9rem; font-weight: 600; }
+    nav .cta:hover { background: var(--accent-hover); text-decoration: none; }
+    .hero { background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); border-bottom: 1px solid var(--border); padding: 3rem 2rem; text-align: center; }
+    .hero .badge { display: inline-block; background: #2a2a2a; color: #d4d4d4; padding: .3rem .9rem; border-radius: 20px; font-size: .8rem; font-weight: 600; margin-bottom: 1rem; border: 1px solid #444; }
+    .hero h1 { font-size: clamp(1.5rem, 4vw, 2.3rem); font-weight: 800; margin-bottom: 1rem; line-height: 1.2; }
+    .hero .sub { color: var(--muted); font-size: 1rem; max-width: 620px; margin: 0 auto 1.5rem; }
+    .hero .meta { color: var(--muted); font-size: .85rem; }
+    .content { max-width: 760px; margin: 0 auto; padding: 3rem 2rem; }
+    h2 { font-size: 1.4rem; font-weight: 700; margin: 2.5rem 0 1rem; color: var(--text); border-top: 1px solid var(--border); padding-top: 2rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 .6rem; color: var(--text); }
+    p { margin-bottom: 1.2rem; color: #ccc; }
+    ul, ol { margin: 0 0 1.2rem 1.5rem; color: #ccc; }
+    li { margin-bottom: .5rem; }
+    code { background: var(--surface2); border: 1px solid var(--border); padding: .15rem .4rem; border-radius: 4px; font-family: monospace; font-size: .9em; color: #93c5fd; }
+    pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; overflow-x: auto; margin: 1.2rem 0; }
+    pre code { background: none; border: none; padding: 0; color: #ccc; font-size: .9rem; }
+    .callout { background: var(--surface2); border-left: 4px solid var(--blue); padding: 1.2rem 1.5rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; }
+    .callout.green { border-color: var(--green); }
+    .callout.yellow { border-color: var(--yellow); }
+    .callout.red { border-color: var(--accent); }
+    .callout p { margin: 0; }
+    .steps { list-style: none; counter-reset: step; margin: 0 0 1.2rem 0; }
+    .steps li { counter-increment: step; padding: .65rem .8rem .65rem 2.8rem; position: relative; border-bottom: 1px solid var(--border); color: #ccc; }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before { content: counter(step); position: absolute; left: .6rem; top: .7rem; background: var(--accent); color: white; width: 1.4rem; height: 1.4rem; border-radius: 50%; font-size: .75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .use-case { border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; background: var(--surface); border-left: 3px solid #555; }
+    .use-case h3 { margin-top: 0; font-size: 1rem; color: var(--text); }
+    .use-case p { margin-bottom: .7rem; }
+    .use-case p:last-child { margin-bottom: 0; }
+    .use-case ul { margin-bottom: 0; }
+    .capability-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .cap-card { background: var(--surface2); border-radius: 8px; padding: 1.1rem; border: 1px solid var(--border); }
+    .cap-card .cap-icon { font-size: 1.3rem; margin-bottom: .5rem; }
+    .cap-card h4 { font-size: .95rem; font-weight: 600; margin-bottom: .3rem; color: var(--text); }
+    .cap-card p { font-size: .85rem; color: var(--muted); margin: 0; }
+    .cta-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; margin: 3rem 0 1rem; }
+    .cta-box h3 { font-size: 1.2rem; margin-bottom: .6rem; margin-top: 0; }
+    .cta-box p { margin-bottom: 1.2rem; }
+    .btn { display: inline-block; background: var(--accent); color: white; padding: .75rem 1.8rem; border-radius: 8px; font-weight: 700; font-size: 1rem; }
+    .btn:hover { background: var(--accent-hover); text-decoration: none; }
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: .85rem; }
+    @media (max-width: 550px) { .capability-grid { grid-template-columns: 1fr; } }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "OpenClaw + Notion: Read, Write & Automate Your Workspace",
+    "description": "Connect OpenClaw to Notion and turn your workspace into a living knowledge base your agent can read, update, and act on.",
+    "author": { "@type": "Organization", "name": "ClawReady" },
+    "publisher": { "@type": "Organization", "name": "ClawReady", "url": "https://clawreadynow.com" },
+    "datePublished": "2026-04-01",
+    "url": "https://clawreadynow.com/blog/openclaw-notion-integration"
+  }
+  </script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Claw<span>Ready</span></a>
+  <a href="https://calendly.com/grofresh2018" class="cta" target="_blank">Book a Setup Call</a>
+</nav>
+
+<div class="hero">
+  <div class="badge">Integration Guide · April 2026</div>
+  <h1>OpenClaw + Notion:<br>Read, Write & Automate Your Workspace</h1>
+  <p class="sub">Notion holds your projects, notes, tasks, and databases. OpenClaw can read all of it, update it, and act on it — if you wire them together correctly. Here's exactly how.</p>
+  <p class="meta">By ClawReady · 9 min read</p>
+</div>
+
+<div class="content">
+
+  <p>If you use Notion as your second brain, you've probably wished your AI assistant could just... read it. Know what's in your project tracker. See your meeting notes. Understand your task database without you pasting it into every conversation.</p>
+
+  <p>With OpenClaw connected to Notion, your agent does exactly that. It reads your pages, queries your databases, creates new entries, and updates existing ones — all as part of normal agentic workflows.</p>
+
+  <h2>How the Notion Integration Works</h2>
+
+  <p>Notion has a public API that supports reading and writing pages, databases, and blocks. OpenClaw connects to it via a Notion integration token — a simple API key you create in 5 minutes through Notion's developer portal.</p>
+
+  <p>Unlike Google Workspace (which requires full OAuth), Notion's integration model is simpler: you create an internal integration, give it access to specific pages or databases, and use the resulting token in OpenClaw. No browser redirect, no consent screen.</p>
+
+  <div class="callout green">
+    <p><strong>Access is opt-in per page.</strong> Your Notion integration only sees pages you explicitly share with it. This is actually a good security model — start by sharing one database, expand as needed. Your agent can't see pages you haven't shared.</p>
+  </div>
+
+  <h2>Setting Up the Connection</h2>
+
+  <ol class="steps">
+    <li>Go to <a href="https://www.notion.so/my-integrations" target="_blank">notion.so/my-integrations</a> and click <strong>New integration</strong></li>
+    <li>Name it (e.g. "OpenClaw"), select your workspace, and set capabilities — start with <strong>Read content</strong> only; add Insert/Update later if needed</li>
+    <li>Copy the <strong>Internal Integration Secret</strong> (your API token)</li>
+    <li>In your Notion workspace, open each database or page you want OpenClaw to access → click <strong>•••</strong> → <strong>Add connections</strong> → select your integration</li>
+    <li>Add the token to your OpenClaw MCP tools config:<br><br>
+      <pre><code>{
+  "tools": {
+    "notion": {
+      "enabled": true,
+      "token": "secret_your_token_here"
+    }
+  }
+}</code></pre>
+    </li>
+    <li>Restart the OpenClaw gateway: <code>openclaw gateway restart</code></li>
+    <li>Test: ask your agent "What's in my [database name] Notion database?"</li>
+  </ol>
+
+  <div class="callout yellow">
+    <p><strong>Share pages, not the whole workspace.</strong> Don't give the integration full workspace access. Share only the databases and pages you want the agent to use. You can always add more later.</p>
+  </div>
+
+  <h2>What OpenClaw Can Do With Notion</h2>
+
+  <div class="capability-grid">
+    <div class="cap-card">
+      <div class="cap-icon">📖</div>
+      <h4>Read pages & docs</h4>
+      <p>Full content of any shared page — meeting notes, SOPs, project docs, wikis</p>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">🗃️</div>
+      <h4>Query databases</h4>
+      <p>Filter, sort, and retrieve rows from any database — tasks, CRM, pipeline, inventory</p>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">➕</div>
+      <h4>Create new entries</h4>
+      <p>Add rows to databases, create new pages from templates your agent generates</p>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">✏️</div>
+      <h4>Update existing content</h4>
+      <p>Change database properties (status, date, assignee), append blocks to pages</p>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">🔍</div>
+      <h4>Search across workspace</h4>
+      <p>Full-text search of all shared pages — find relevant docs without knowing exact titles</p>
+    </div>
+    <div class="cap-card">
+      <div class="cap-icon">📊</div>
+      <h4>Aggregate & summarize</h4>
+      <p>Count tasks by status, summarize project pages, extract action items from notes</p>
+    </div>
+  </div>
+
+  <h2>Practical Use Cases</h2>
+
+  <div class="use-case">
+    <h3>📋 Task & Project Database Management</h3>
+    <p>If you track work in a Notion task database, your agent can query it every morning: "What tasks are due this week? What's overdue? What's blocked?" It can also create new tasks when you say "Add a task to follow up with the contractor on Thursday" — directly into the database, properly formatted.</p>
+    <ul>
+      <li>Query tasks by status, due date, or assignee</li>
+      <li>Create tasks from voice/text input with proper properties filled</li>
+      <li>Move tasks to "Done" when you complete them conversationally</li>
+      <li>Generate a weekly status summary from your project database</li>
+    </ul>
+  </div>
+
+  <div class="use-case">
+    <h3>📝 Meeting Notes & Action Items</h3>
+    <p>After a meeting, you paste in raw notes. Your agent formats them into your Notion meeting template, extracts action items, creates tasks in your task database, and adds the page to the right project folder — all in one step.</p>
+  </div>
+
+  <div class="use-case">
+    <h3>🧠 Knowledge Base Q&A</h3>
+    <p>If your Notion workspace is your company wiki or personal knowledge base, your agent can answer questions from it directly: "What's our refund policy?" or "What did we decide about the logo redesign?" It searches, finds the relevant page, and synthesizes the answer.</p>
+    <div class="callout">
+      <p><strong>Tip:</strong> This works best with well-structured pages. Bullet points and headers are easier for your agent to parse than dense paragraphs. If you structure your Notion well for humans, it'll work well for agents too.</p>
+    </div>
+  </div>
+
+  <div class="use-case">
+    <h3>📈 CRM & Pipeline Tracking</h3>
+    <p>If you use a Notion database as a lightweight CRM, your agent can log client interactions, update deal status, flag deals that haven't moved in X days, and draft follow-up emails for stalled opportunities — without you opening Notion at all.</p>
+  </div>
+
+  <div class="use-case">
+    <h3>🔁 Notion as Agent Memory</h3>
+    <p>One of the most powerful patterns: use Notion as your agent's external memory store instead of (or in addition to) markdown files. Your agent writes research findings, decisions, and context to specific Notion pages — and reads them back at the start of each session. Your knowledge base grows automatically.</p>
+    <div class="callout green">
+      <p><strong>Why this matters:</strong> Notion's structure (databases with properties, linked pages, filtered views) is more queryable than flat markdown files. If you're already living in Notion, keeping agent memory there keeps everything in one place.</p>
+    </div>
+  </div>
+
+  <h2>Limitations to Know</h2>
+
+  <ul>
+    <li><strong>No real-time webhooks.</strong> OpenClaw reads Notion on demand — it doesn't automatically react when a Notion page changes. You need to trigger the read (via heartbeat or a message).</li>
+    <li><strong>Rich content has limits.</strong> Notion's API returns structured blocks. Very complex pages (nested databases, synced blocks, embedded content) may not be fully readable.</li>
+    <li><strong>Rate limits apply.</strong> Notion's API has rate limits (3 requests/second average). For agents doing heavy Notion work, add small delays between operations to avoid throttling.</li>
+    <li><strong>No file attachments.</strong> Files attached to Notion pages aren't directly accessible via the API — only the page text and properties.</li>
+  </ul>
+
+  <h2>Notion vs. Markdown Files: Which Should You Use for Agent Memory?</h2>
+
+  <p>Both work. The choice depends on where you live:</p>
+  <ul>
+    <li><strong>Use Notion</strong> if it's already your primary workspace and you want one source of truth</li>
+    <li><strong>Use markdown files</strong> if you want simplicity, git-backed history, and no external dependency</li>
+    <li><strong>Use both</strong> — markdown files for fast agent-internal memory, Notion for structured data you also want to use as a human</li>
+  </ul>
+
+  <div class="cta-box">
+    <h3>🦞 Want Notion + OpenClaw Wired Up Properly?</h3>
+    <p>Integration setup, database sharing config, agent memory architecture in Notion, and the workflows above — ClawReady sets all of this up in a single session. Book a call to get started.</p>
+    <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free 15-Min Call →</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 ClawReady · <a href="/">clawreadynow.com</a> · OpenClaw setup, audits & support for small businesses</p>
+</footer>
+
+</body>
+</html>
