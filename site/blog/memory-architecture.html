@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Memory Architecture: Why Your Agent Forgets and How to Fix It — ClawReady</title>
+  <meta name="description" content="Most OpenClaw agents have broken memory — they forget context, repeat themselves, and give inconsistent answers. Here's the memory architecture that actually works.">
+  <meta property="og:title" content="OpenClaw Memory Architecture: Why Your Agent Forgets and How to Fix It">
+  <meta property="og:description" content="Default OpenClaw memory is one big file — and it breaks fast. Here's the structured architecture that fixes it.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/memory-architecture">
+  <link rel="canonical" href="https://clawreadynow.com/blog/memory-architecture">
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:740px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:740px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.15rem;font-weight:700;margin:28px 0 10px}
+    .article-body p{margin-bottom:18px;color:#ccc}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#ccc}
+    .article-body li{margin-bottom:8px}
+    .article-body strong{color:var(--text)}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 7px;border-radius:4px;font-size:.88em;font-family:'SF Mono',Monaco,monospace;color:#e8e8e8}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;margin:20px 0}
+    pre code{background:none;border:none;padding:0;font-size:.9em;line-height:1.6}
+    .callout{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{background:rgba(39,174,96,.08);border-color:rgba(39,174,96,.25)}
+    .callout.yellow{background:rgba(243,156,18,.08);border-color:rgba(243,156,18,.25)}
+    .callout p{margin:0;color:var(--text)}
+    .file-tree{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:20px 0;font-family:'SF Mono',Monaco,monospace;font-size:.9em;line-height:1.8}
+    .file-tree .dir{color:var(--accent)}
+    .file-tree .file{color:#ccc}
+    .file-tree .comment{color:#555}
+    .tier-table{width:100%;border-collapse:collapse;margin:20px 0}
+    .tier-table th{text-align:left;padding:10px 14px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+    .tier-table td{padding:10px 14px;border:1px solid var(--border);color:#ccc;font-size:.9rem;vertical-align:top}
+    .tier-table tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:48px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:8px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .cta-btn{display:inline-block;background:var(--accent);color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1rem;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover);text-decoration:none}
+    footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:.85rem;margin-top:60px}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">Claw<span>Ready</span></a>
+      <div class="nav-links">
+        <a href="/#pricing">Pricing</a>
+        <a href="/blog">Blog</a>
+        <a href="https://calendly.com/grofresh2018/30min">Book Setup</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="tag">Setup Guide</span>
+      <h1>OpenClaw Memory Architecture:<br>Why Your Agent Forgets and How to Fix It</h1>
+      <p class="subtitle">Most OpenClaw agents have broken memory — they repeat themselves, forget important context, and give inconsistent answers. The fix is a structured memory architecture.</p>
+      <p class="meta">By ClawReady · April 2026 · 11 min read</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>You've configured your OpenClaw agent. It works well in a single conversation. But start a new session and it seems to have forgotten everything. You tell it the same things again. It makes decisions you already resolved. It doesn't feel like a persistent assistant — it feels like a fresh chatbot every time.</p>
+
+      <p>This is a memory architecture problem. And it's one of the most common issues in OpenClaw setups.</p>
+
+      <h2>Why Default Memory Breaks Down</h2>
+
+      <p>OpenClaw has two types of memory by default:</p>
+
+      <ol>
+        <li><strong>Conversation history</strong> — the running transcript of your current session. Gets appended to every API call. Grows indefinitely. Gets expensive. Gets truncated. Gets lost when you start a new session.</li>
+        <li><strong>Workspace files</strong> — markdown files in your workspace directory that your agent can read and write. Persistent across sessions. Free to store. The only memory that actually survives.</li>
+      </ol>
+
+      <p>Most people rely entirely on conversation history for memory — which means their agent "forgets" everything the moment they start a new session or the context window fills up.</p>
+
+      <div class="callout yellow">
+        <p>⚠️ <strong>The fundamental rule:</strong> Anything important needs to live in a file, not just a conversation. Conversation history is temporary. Files are permanent.</p>
+      </div>
+
+      <h2>The Structured Memory System</h2>
+
+      <p>A good memory architecture separates your agent's knowledge into specific files, each with a clear purpose. Here's the system we configure in every Pro and VIP setup:</p>
+
+      <div class="file-tree">
+        <span class="dir">workspace/</span><br>
+        <span class="file">├── SOUL.md</span> <span class="comment">         # Identity, mission, tone, constraints</span><br>
+        <span class="file">├── USER.md</span> <span class="comment">         # Your name, preferences, timezone, context</span><br>
+        <span class="file">├── HEARTBEAT.md</span> <span class="comment">    # Idle work instructions</span><br>
+        <span class="file">├── memory.md</span> <span class="comment">       # Core persistent facts and decisions</span><br>
+        <span class="dir">└── memory/</span><br>
+        <span class="file">    ├── projects.md</span> <span class="comment">  # Active projects and status</span><br>
+        <span class="file">    ├── people.md</span> <span class="comment">    # Contacts, relationships, context</span><br>
+        <span class="file">    ├── decisions.md</span> <span class="comment"> # Key decisions made and why</span><br>
+        <span class="file">    ├── learnings.md</span> <span class="comment"> # Lessons, patterns, what not to repeat</span><br>
+        <span class="file">    └── log.md</span> <span class="comment">       # Running activity log</span>
+      </div>
+
+      <p>Each file has a specific job. Your agent knows which file to read for which type of information — and more importantly, knows which file to <em>write to</em> when it learns something new.</p>
+
+      <h2>What Goes in Each File</h2>
+
+      <h3>memory.md — The Core Facts File</h3>
+      <p>This is the single most important memory file. It holds the stable facts your agent needs on every turn: your mission, your businesses, your goals, your preferences, your current situation. Think of it as the briefing document a new employee would need to be effective on day one.</p>
+
+      <pre><code># memory.md
+
+## Mission
+Build $10K/mo recurring revenue through consulting + micro-SaaS.
+
+## Active Income Lanes
+1. Consulting ($4K/mo current, target $8K)
+2. ClawReady setup service (new, 0 clients)
+3. SaaS product (planning stage)
+
+## Key Facts
+- Primary contact method: Signal
+- Work hours: 8 AM – 6 PM ET weekdays
+- Home base: Cleveland, OH
+- Hardware: Mac Mini M4 + NucBox backup
+
+## Current Focus (updated weekly)
+- Land first 3 ClawReady clients
+- Ship SaaS MVP by end of month
+- 2 blog posts per week minimum</code></pre>
+
+      <h3>memory/projects.md — Active Project Tracker</h3>
+      <p>One section per active project. Status, next action, blockers, key decisions. Your agent checks this before starting any project-related work so it doesn't repeat steps or contradict earlier decisions.</p>
+
+      <pre><code># Projects
+
+## ClawReady Launch
+**Status:** Live at clawreadynow.com
+**Next:** First 3 clients via Reddit outreach
+**Blockers:** Need Josh to create Reddit account
+**Key decisions:** $99/$199/$299 tiers, Calendly for booking
+
+## SaaS MVP — [Project Name]
+**Status:** Spec phase
+**Next:** Validate with 5 potential users
+**Blockers:** Need user interviews scheduled
+**Key decisions:** Build with Next.js + Stripe, no-code first pass</code></pre>
+
+      <h3>memory/people.md — Contacts and Context</h3>
+      <p>Anyone your agent might reference. Not a full CRM — just enough context to be useful. Who they are, how you know them, what's relevant.</p>
+
+      <pre><code># People
+
+## Jarom Bergeson — KKOS Lawyers
+- Relationship: Business attorney, Ohio LLC specialist
+- Context: Manages entities via KKOS Trifecta framework
+- Last contact: March 17 (re: SDIRA strategy)
+- Note: Warm relationship, potential referral partner for LLC compliance tool
+
+## [Client Name]
+- Relationship: Consulting client
+- Current project: OpenClaw setup for e-commerce team
+- Last contact: March 25
+- Next step: Follow up re: Phase 2 proposal</code></pre>
+
+      <h3>memory/decisions.md — Decision Log</h3>
+      <p>Decisions your agent should never re-litigate without good reason. Pricing choices, technology choices, strategy pivots — documented with the reasoning so your agent doesn't suggest reversing them in a future session.</p>
+
+      <h3>memory/log.md — Activity Log</h3>
+      <p>A rolling log of what your agent has done. Heartbeat cycles, tasks completed, research findings. Lets your agent check what it's already done before repeating work.</p>
+
+      <h2>How to Tell Your Agent to Use the Memory System</h2>
+
+      <p>Having the files isn't enough — your agent needs to know to read them and write to them. Add this to your SOUL.md:</p>
+
+      <pre><code>## Memory System
+- Read memory.md at the start of every session for context
+- Check memory/projects.md before any project work
+- When you learn something important, write it to the appropriate file
+- When a decision is made, log it to memory/decisions.md
+- Never rely on conversation history for important facts —
+  always write to files so nothing gets lost between sessions</code></pre>
+
+      <h2>The Two Memory Mistakes That Break Everything</h2>
+
+      <h3>Mistake 1: One giant memory file</h3>
+      <p>Some people put everything in a single <code>memory.md</code> that grows to thousands of lines. The problem: your agent has to read the whole thing every turn, which costs tokens and creates noise. Separate files let your agent read only what's relevant.</p>
+
+      <h3>Mistake 2: No write instructions</h3>
+      <p>Your agent won't automatically write to memory files unless you tell it to. Without explicit instructions, important context stays in the conversation — and disappears when the session ends. The write instructions in SOUL.md are what make memory actually persistent.</p>
+
+      <h2>Memory Tiers: What to Build First</h2>
+
+      <table class="tier-table">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Files</th>
+            <th>Who needs this</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Minimal</strong></td>
+            <td>SOUL.md + USER.md + memory.md</td>
+            <td>Anyone just getting started. Covers 80% of use cases.</td>
+          </tr>
+          <tr>
+            <td><strong>Standard</strong></td>
+            <td>+ projects.md + decisions.md</td>
+            <td>Anyone running multiple projects or a business.</td>
+          </tr>
+          <tr>
+            <td><strong>Full</strong></td>
+            <td>+ people.md + learnings.md + log.md</td>
+            <td>Power users, business operators, autonomous agent setups.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>Start minimal. Add files as you notice gaps. The right architecture grows with your usage.</p>
+
+      <h2>Archiving: Keeping Memory Fast</h2>
+
+      <p>Memory files grow over time. A log.md that's 2,000 lines costs more tokens to read than one that's 200. The solution: periodic archiving.</p>
+
+      <p>Every few weeks, move old entries from log.md and projects.md into an <code>archive/</code> folder. Keep only the current and recent entries in the active files. Your agent stays fast and focused.</p>
+
+      <pre><code>workspace/
+├── memory/
+│   ├── log.md              # Current month only
+│   └── archive/
+│       ├── log-jan-2026.md
+│       └── log-feb-2026.md</code></pre>
+
+      <div class="callout green">
+        <p>✅ <strong>The result:</strong> An agent that knows your situation, remembers your decisions, and picks up exactly where it left off — whether you start a new session after 5 minutes or 5 days.</p>
+      </div>
+
+      <div class="cta-box">
+        <h3>Want your memory architecture set up properly?</h3>
+        <p>We design and configure the full memory system as part of every Pro and VIP setup — tailored to your specific workflow and goals. Your agent will remember everything from session one.</p>
+        <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book a Pro Setup →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>🦞 ClawReady — Built by people who run OpenClaw 24/7</p>
+    <p style="margin-top:8px">© 2026 ClawReady · <a href="/" style="color:var(--muted)">Home</a> · <a href="/blog" style="color:var(--muted)">Blog</a></p>
+  </footer>
+
+</body>
+</html>

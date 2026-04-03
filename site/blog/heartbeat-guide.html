@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Heartbeat Guide: Make Your Agent Work While You Sleep — ClawReady</title>
+  <meta name="description" content="Heartbeat is how OpenClaw agents work autonomously 24/7. Here's how to configure HEARTBEAT.md so your agent is actually productive when you're not watching.">
+  <meta property="og:title" content="OpenClaw Heartbeat Guide: Make Your Agent Work While You Sleep">
+  <meta property="og:description" content="Most people leave heartbeat at default — so their agent does nothing idle. Here's how to fix that.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/heartbeat-guide">
+  <link rel="canonical" href="https://clawreadynow.com/blog/heartbeat-guide">
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:740px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:740px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.15rem;font-weight:700;margin:28px 0 10px}
+    .article-body p{margin-bottom:18px;color:#ccc}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#ccc}
+    .article-body li{margin-bottom:8px}
+    .article-body strong{color:var(--text)}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 7px;border-radius:4px;font-size:.88em;font-family:'SF Mono',Monaco,monospace;color:#e8e8e8}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;margin:20px 0}
+    pre code{background:none;border:none;padding:0;font-size:.9em;line-height:1.6}
+    .callout{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{background:rgba(39,174,96,.08);border-color:rgba(39,174,96,.25)}
+    .callout.yellow{background:rgba(243,156,18,.08);border-color:rgba(243,156,18,.25)}
+    .callout p{margin:0;color:var(--text)}
+    .example-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;margin:24px 0}
+    .example-box .example-label{color:var(--muted);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+    .use-case-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+    .use-case{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px}
+    .use-case .uc-emoji{font-size:1.8rem;margin-bottom:8px}
+    .use-case h4{font-size:1rem;margin-bottom:6px}
+    .use-case p{color:var(--muted);font-size:.9rem;margin:0}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:48px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:8px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .cta-btn{display:inline-block;background:var(--accent);color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1rem;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover);text-decoration:none}
+    footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:.85rem;margin-top:60px}
+    @media(max-width:600px){.use-case-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">Claw<span>Ready</span></a>
+      <div class="nav-links">
+        <a href="/#pricing">Pricing</a>
+        <a href="/blog">Blog</a>
+        <a href="https://calendly.com/grofresh2018/30min">Book Setup</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="tag">Setup Guide</span>
+      <h1>OpenClaw Heartbeat Guide:<br>Make Your Agent Work While You Sleep</h1>
+      <p class="subtitle">Heartbeat is the feature that turns OpenClaw from a chatbot into an autonomous agent. Most people leave it at default — which means their agent does almost nothing when idle.</p>
+      <p class="meta">By ClawReady · March 2026 · 9 min read</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>One of the most common things we hear from new OpenClaw users: <em>"I set it up, but it just sits there unless I talk to it."</em></p>
+
+      <p>That's a heartbeat problem. And it's completely fixable.</p>
+
+      <p>Heartbeat is how OpenClaw agents stay active when you're not around — running scheduled checks, completing background tasks, sending you reports, and making progress on your goals autonomously. Without a well-configured heartbeat, you have a reactive tool. With one, you have an employee that works 24/7.</p>
+
+      <h2>How Heartbeat Works</h2>
+
+      <p>Every 30 minutes by default (configurable), OpenClaw fires a heartbeat — a background message to your agent with a simple prompt. Your agent wakes up, checks the heartbeat instructions, does some work, and goes back to sleep.</p>
+
+      <p>The heartbeat prompt is typically just a few words: something like <em>"What should you be working on right now?"</em> or <em>"Run your idle checklist."</em> Your agent then reads your <code>HEARTBEAT.md</code> file to find out what to actually do.</p>
+
+      <p>If <code>HEARTBEAT.md</code> doesn't exist or is empty, your agent fires and immediately responds <code>HEARTBEAT_OK</code> — nothing happens. This is the default state for most setups.</p>
+
+      <div class="callout yellow">
+        <p>⚠️ <strong>Check this now:</strong> Does your workspace have a <code>HEARTBEAT.md</code> file? If not, your agent is doing nothing on idle cycles. Every 30 minutes, it wakes up, shrugs, and goes back to sleep.</p>
+      </div>
+
+      <h2>What HEARTBEAT.md Controls</h2>
+
+      <p>Think of <code>HEARTBEAT.md</code> as the standing orders for your agent when you're not in the room. It answers: <em>What should you do when I'm not talking to you?</em></p>
+
+      <p>Good answers to that question depend on your goals, but common patterns include:</p>
+
+      <ul>
+        <li>Check for things that need attention (emails, calendar, site uptime, API errors)</li>
+        <li>Continue ongoing projects and log progress</li>
+        <li>Run scheduled research and summarize findings</li>
+        <li>Send you timed reports (morning briefing, daily summary)</li>
+        <li>Improve documentation and memory files</li>
+        <li>Monitor for opportunities or signals in your space</li>
+      </ul>
+
+      <h2>A Minimal HEARTBEAT.md (Start Here)</h2>
+
+      <pre><code># HEARTBEAT.md
+
+When idle, do the following in order:
+
+1. **Check active tasks** — anything in progress that needs attention?
+   Continue if yes. Log progress to memory/heartbeat-log.md.
+
+2. **Check for alerts** — any sites, APIs, or services that need monitoring?
+   Flag anything that looks wrong.
+
+3. **Improve systems** — if nothing urgent, improve documentation,
+   organize memory, or research the current mission priorities.
+
+## Rules
+- Never sit idle. Always move forward.
+- Log what you did to memory/heartbeat-log.md (date + summary).
+- If something needs my approval, flag it. Don't block on it.
+- Don't repeat work already logged. Check logs before starting.</code></pre>
+
+      <p>This minimal version gives your agent enough direction to be useful without overwhelming it. You can layer in more specific instructions as you learn what works for your situation.</p>
+
+      <h2>Adding Scheduled Reports</h2>
+
+      <p>One of the most popular heartbeat configurations is a timed report system — your agent sends you a summary at specific times each day, automatically.</p>
+
+      <pre><code>## Scheduled Reports (America/New_York)
+
+### Morning (7:00 AM)
+- Send a briefing: overnight summary + top 3 priorities for today
+- Check: any sites down? Any urgent items in the queue?
+- Format: short bullet points, mobile-friendly
+
+### Evening (8:00 PM)
+- Send a daily summary: what got done, what's in progress, blockers
+- Format: scorecard + waiting-on-me items
+
+### Overnight (10 PM – 7 AM)
+- Work silently — no reports, no pings
+- Continue research and documentation
+- Log all work to memory/heartbeat-log.md</code></pre>
+
+      <p>The agent reads the current time on each heartbeat and checks whether a report is due. If yes, it sends one. If not, it moves to the next item on the list.</p>
+
+      <h2>Real-World HEARTBEAT.md Examples by Use Case</h2>
+
+      <div class="use-case-grid">
+        <div class="use-case">
+          <div class="uc-emoji">💼</div>
+          <h4>Freelancer / Consultant</h4>
+          <p>Check client deadlines, draft follow-up emails, log hours, surface unanswered client messages</p>
+        </div>
+        <div class="use-case">
+          <div class="uc-emoji">🏗️</div>
+          <h4>SaaS Founder</h4>
+          <p>Monitor error logs, check MRR, research competitor moves, draft changelog entries, flag churned users</p>
+        </div>
+        <div class="use-case">
+          <div class="uc-emoji">🏠</div>
+          <h4>Landlord / Property Manager</h4>
+          <p>Check maintenance request status, send rent reminders, flag overdue payments, draft lease renewals</p>
+        </div>
+        <div class="use-case">
+          <div class="uc-emoji">📈</div>
+          <h4>Content Creator</h4>
+          <p>Research trending topics, draft content outlines, monitor social performance, surface collaboration opps</p>
+        </div>
+        <div class="use-case">
+          <div class="uc-emoji">🔬</div>
+          <h4>Researcher</h4>
+          <p>Scan new papers and articles, summarize findings, update knowledge base, flag relevant developments</p>
+        </div>
+        <div class="use-case">
+          <div class="uc-emoji">🛒</div>
+          <h4>E-commerce Operator</h4>
+          <p>Monitor inventory levels, check ad spend vs. revenue, flag declining products, draft supplier messages</p>
+        </div>
+      </div>
+
+      <h2>Cost Management: Don't Let Heartbeat Drain Your Budget</h2>
+
+      <p>Heartbeat fires every 30 minutes by default — that's 48 times a day. If each heartbeat triggers a long chain of tasks using Opus, you'll burn through your API budget fast.</p>
+
+      <p>Key rules for cost-conscious heartbeat config:</p>
+
+      <ul>
+        <li><strong>Use a cheap model for routine checks.</strong> Add to SOUL.md: "Use Sonnet (or local model) for all heartbeat cycles unless a task explicitly requires Opus."</li>
+        <li><strong>Return HEARTBEAT_OK when there's nothing to do.</strong> This signals OpenClaw to skip the full model call. Include in your HEARTBEAT.md: "If nothing needs attention, reply exactly: HEARTBEAT_OK"</li>
+        <li><strong>Use longer intervals for low-priority monitoring.</strong> In <code>openclaw.json</code>: <code>"heartbeat": {"intervalMinutes": 60}</code> for non-critical setups.</li>
+        <li><strong>Scope your tasks.</strong> Short, specific tasks cost less than open-ended "do something useful" prompts.</li>
+      </ul>
+
+      <div class="example-box">
+        <div class="example-label">Cost-optimized heartbeat config in openclaw.json</div>
+        <pre><code>{
+  "heartbeat": {
+    "intervalMinutes": 30,
+    "prompt": "Read HEARTBEAT.md and follow it. If nothing needs attention, reply HEARTBEAT_OK."
+  }
+}</code></pre>
+      </div>
+
+      <h2>The HEARTBEAT_OK Pattern</h2>
+
+      <p>When your agent has nothing to do, it should reply <code>HEARTBEAT_OK</code> — a special string OpenClaw recognizes as a "nothing to do" signal, which skips sending the response to any channel and avoids unnecessary noise.</p>
+
+      <p>Always include this in your HEARTBEAT.md:</p>
+
+      <pre><code>## Silent Reply Rule
+When you have nothing to do and no tasks are queued,
+reply with ONLY: HEARTBEAT_OK
+
+This must be your entire response — nothing else.
+OpenClaw uses this to skip the response and save tokens.</code></pre>
+
+      <p>Without this, your agent will send a message every 30 minutes saying "I checked everything and nothing needs attention" — which gets annoying fast.</p>
+
+      <h2>Putting It All Together</h2>
+
+      <p>A well-configured heartbeat setup has three layers:</p>
+
+      <ol>
+        <li><strong>SOUL.md</strong> — defines the mission and model routing (use Sonnet for heartbeat by default)</li>
+        <li><strong>HEARTBEAT.md</strong> — defines the standing orders for idle cycles and scheduled reports</li>
+        <li><strong>Memory files</strong> — where the agent logs its work and reads context between sessions</li>
+      </ol>
+
+      <p>When these three are in sync, your agent works like a real employee: it knows what matters, it works toward your goals when idle, and it keeps you informed without bothering you when there's nothing to report.</p>
+
+      <div class="callout green">
+        <p>✅ <strong>The goal:</strong> Wake up in the morning, check your phone, and see 3–5 useful things your agent did overnight — research, documentation, monitoring, outreach drafts. That's a well-configured heartbeat.</p>
+      </div>
+
+      <div class="cta-box">
+        <h3>Want your heartbeat configured properly?</h3>
+        <p>We set up HEARTBEAT.md, scheduled reports, and cost-optimized model routing as part of every Pro and VIP setup. Book a session and your agent will be working overnight by end of call.</p>
+        <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book a Pro Setup →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>🦞 ClawReady — Built by people who run OpenClaw 24/7</p>
+    <p style="margin-top:8px">© 2026 ClawReady · <a href="/" style="color:var(--muted)">Home</a> · <a href="/blog" style="color:var(--muted)">Blog</a></p>
+  </footer>
+
+</body>
+</html>

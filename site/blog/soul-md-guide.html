@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Complete OpenClaw SOUL.md Guide: Make Your Agent Actually Useful — ClawReady</title>
+  <meta name="description" content="SOUL.md is the most powerful file in your OpenClaw setup — and almost nobody writes it well. Here's exactly what to put in it, with real examples.">
+  <meta property="og:title" content="The Complete OpenClaw SOUL.md Guide">
+  <meta property="og:description" content="Most OpenClaw agents are generic chatbots because their SOUL.md is empty or wrong. Here's how to fix that.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/soul-md-guide">
+  <link rel="canonical" href="https://clawreadynow.com/blog/soul-md-guide">
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:740px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:740px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.15rem;font-weight:700;margin:28px 0 10px}
+    .article-body p{margin-bottom:18px;color:#ccc}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#ccc}
+    .article-body li{margin-bottom:8px}
+    .article-body strong{color:var(--text)}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 7px;border-radius:4px;font-size:.88em;font-family:'SF Mono',Monaco,monospace;color:#e8e8e8}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;margin:20px 0}
+    pre code{background:none;border:none;padding:0;font-size:.9em;line-height:1.6}
+    .callout{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{background:rgba(39,174,96,.08);border-color:rgba(39,174,96,.25)}
+    .callout.yellow{background:rgba(243,156,18,.08);border-color:rgba(243,156,18,.25)}
+    .callout p{margin:0;color:var(--text)}
+    .example-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;margin:24px 0}
+    .example-box .example-label{color:var(--muted);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+    .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+    .vs-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px}
+    .vs-box.bad{border-color:rgba(231,76,60,.4)}
+    .vs-box.good{border-color:rgba(39,174,96,.4)}
+    .vs-box .vs-label{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+    .vs-box.bad .vs-label{color:var(--accent)}
+    .vs-box.good .vs-label{color:var(--green)}
+    .vs-box p{color:#ccc;font-size:.9rem;margin:0;font-style:italic}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:48px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:8px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .cta-btn{display:inline-block;background:var(--accent);color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1rem;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover);text-decoration:none}
+    footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:.85rem;margin-top:60px}
+    @media(max-width:600px){.vs-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">Claw<span>Ready</span></a>
+      <div class="nav-links">
+        <a href="/#pricing">Pricing</a>
+        <a href="/blog">Blog</a>
+        <a href="https://calendly.com/grofresh2018/30min">Book Setup</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="tag">Setup Guide</span>
+      <h1>The Complete OpenClaw SOUL.md Guide:<br>Make Your Agent Actually Useful</h1>
+      <p class="subtitle">SOUL.md is the single most powerful file in your entire OpenClaw setup. Here's exactly what to put in it — and what most people get wrong.</p>
+      <p class="meta">By ClawReady · March 2026 · 10 min read</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>Most OpenClaw agents are generic chatbots. They answer questions fine, but they don't <em>know</em> you. They don't have opinions. They don't take initiative. They're just a fancy wrapper around an API.</p>
+
+      <p>The difference between a generic chatbot and a genuinely useful personal agent comes down to one file: <code>SOUL.md</code>.</p>
+
+      <p>Get it right, and your agent will proactively surface opportunities, write in your voice, remember what matters, and work autonomously toward your actual goals. Get it wrong — or leave it blank — and you have a very expensive FAQ bot.</p>
+
+      <h2>What SOUL.md Actually Does</h2>
+
+      <p>SOUL.md is injected into your agent's context on every single turn. It's the first thing your agent reads before responding to anything. Think of it as the permanent instructions that shape every interaction — your agent's personality, priorities, and operating constraints.</p>
+
+      <p>Unlike your conversation history (which grows and gets expensive), SOUL.md is a controlled, stable document. You write it once, refine it over time, and it applies to every session automatically.</p>
+
+      <div class="callout yellow">
+        <p>⚠️ <strong>Common mistake:</strong> Most people leave SOUL.md as the default template or write 2–3 vague sentences. This is why their agent feels generic. SOUL.md should be specific enough that a stranger could read it and understand exactly who you are and what you need.</p>
+      </div>
+
+      <h2>The 5 Sections Every SOUL.md Needs</h2>
+
+      <h3>1. Identity — Who is this agent?</h3>
+      <p>Give your agent a name, a role, and a clear sense of purpose. Not "helpful AI assistant" — something specific to your situation.</p>
+
+      <div class="vs-grid">
+        <div class="vs-box bad">
+          <div class="vs-label">❌ Vague</div>
+          <p>"You are a helpful AI assistant. Be polite and accurate."</p>
+        </div>
+        <div class="vs-box good">
+          <div class="vs-label">✓ Specific</div>
+          <p>"You are Max — my Chief of Staff. Your job is to help me run my 3 businesses and build toward $20K/mo recurring revenue."</p>
+        </div>
+      </div>
+
+      <h3>2. Tone — How should your agent communicate?</h3>
+      <p>Specify the register: formal or casual, concise or thorough, direct or diplomatic. If you want bullet points over paragraphs, say so. If you want your agent to push back when it disagrees, say that too.</p>
+
+      <div class="example-box">
+        <div class="example-label">Example tone section</div>
+        <pre><code>## Tone
+- Casual and direct. No corporate speak.
+- Short replies unless I ask for depth.
+- Proactive — suggest actions, don't wait to be told.
+- Think like a business partner, not a chatbot.
+- Push back if you think I'm wrong. I'd rather hear it.</code></pre>
+      </div>
+
+      <h3>3. Priorities — What does "success" mean for this agent?</h3>
+      <p>What are your actual goals? What should your agent be optimizing for when you're not watching? This is what drives autonomous behavior — your agent needs to know what direction to work in.</p>
+
+      <div class="example-box">
+        <div class="example-label">Example priorities section</div>
+        <pre><code>## Mission
+Build and grow monthly income streams. Primary goal: $10K MRR
+within 12 months through a combination of service income,
+micro-SaaS, and content.
+
+## What "moving forward" looks like
+- A new paying client
+- A deployed product improvement
+- A published piece of content
+- A documented decision or system improvement</code></pre>
+      </div>
+
+      <h3>4. Constraints — What should your agent never do?</h3>
+      <p>Hard limits matter. List the things your agent should always stop and ask before doing: spending money, sending emails on your behalf, making public posts, running destructive commands.</p>
+
+      <div class="example-box">
+        <div class="example-label">Example constraints section</div>
+        <pre><code>## Never Without Asking
+- Send emails or messages to real people
+- Post anything publicly
+- Delete or overwrite files I haven't seen
+- Spend money or call paid APIs beyond normal usage
+- Change security settings or system configs
+
+## Always
+- Ask when uncertain
+- Flag blockers that need my input
+- Document decisions in memory files</code></pre>
+      </div>
+
+      <h3>5. Model Routing — When to use which model</h3>
+      <p>This is the section most people skip — and it's where 60%+ of API cost savings live. Tell your agent explicitly when to reach for the expensive model vs. the fast cheap one.</p>
+
+      <div class="example-box">
+        <div class="example-label">Example model routing section</div>
+        <pre><code>## Model Usage
+- Default to Sonnet for everything
+- Use Opus ONLY when I explicitly ask for deep analysis,
+  complex multi-step reasoning, or nuanced long-form writing
+- Use local model (Qwen) for: summarizing, quick lookups,
+  formatting tasks, routine status checks</code></pre>
+      </div>
+
+      <h2>A Complete SOUL.md Example</h2>
+
+      <p>Here's a full example for a freelance consultant running their own business:</p>
+
+      <pre><code># SOUL.md — Alex's Chief of Staff
+
+## Identity
+You are Arch — my Chief of Staff and business partner.
+Primary role: help me run my consulting practice and build
+toward $15K/mo recurring revenue.
+
+You are not a chatbot. You are a proactive operator.
+
+## Tone
+- Casual and direct. Short replies unless I ask for depth.
+- Suggest actions. Don't just answer — drive forward.
+- Push back when I'm wrong. I want a real perspective.
+- Use bullet points for lists. Skip filler sentences.
+
+## Mission
+Build a sustainable consulting practice.
+Income lanes: client work ($8K+/mo), productized service,
+and eventually a course or tool.
+
+## Priorities (in order)
+1. Existing client deliverables and deadlines
+2. New client pipeline and proposals
+3. Content and visibility
+4. Systems and documentation
+
+## Model Routing
+- Default: Sonnet for all tasks
+- Opus: deep strategy, long documents, complex analysis
+- Ask me before using Opus on anything routine
+
+## Never Without Asking
+- Send emails or messages to anyone
+- Post publicly
+- Delete files
+- Make bookings or payments
+
+## Silent Hours
+10 PM – 7 AM ET: work silently, no pings.
+Log overnight work to memory/overnight-log.md.</code></pre>
+
+      <h2>Common SOUL.md Mistakes to Avoid</h2>
+
+      <ul>
+        <li><strong>Too short:</strong> "Be helpful and accurate" gives your agent nothing to work with. More specificity = more useful behavior.</li>
+        <li><strong>No mission:</strong> Without a clear goal, your agent can't take autonomous initiative. It just waits for instructions.</li>
+        <li><strong>No constraints:</strong> Your agent will make judgment calls. Without guardrails, some of those calls will be wrong.</li>
+        <li><strong>Stale SOUL.md:</strong> Update it when your priorities change. An outdated SOUL.md is worse than a minimal one.</li>
+        <li><strong>No model routing:</strong> This is where the money is. A single line here can cut your API bill by 60%.</li>
+      </ul>
+
+      <h2>How to Test Your SOUL.md</h2>
+
+      <p>After writing or updating SOUL.md, run these three tests:</p>
+
+      <ol>
+        <li><strong>Ask your agent to introduce itself.</strong> The answer should sound like someone who knows your situation — not a generic AI assistant.</li>
+        <li><strong>Give your agent an open-ended task</strong> ("help me move the mission forward today"). A good SOUL.md means it has enough context to suggest something useful. A bad one means it asks you to clarify everything.</li>
+        <li><strong>Check your API logs after a week.</strong> If costs are still high, your model routing section probably needs work.</li>
+      </ol>
+
+      <div class="callout green">
+        <p>✅ <strong>The benchmark:</strong> After a good SOUL.md, your agent should feel like someone who knows you — not someone who met you 30 seconds ago. That's the difference between a tool and an assistant.</p>
+      </div>
+
+      <div class="cta-box">
+        <h3>Want help writing your SOUL.md?</h3>
+        <p>We write custom SOUL.md files as part of every setup. Book a session and we'll build it together on the call — tailored to your actual goals and workflow.</p>
+        <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book a Setup Session →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>🦞 ClawReady — Built by people who run OpenClaw 24/7</p>
+    <p style="margin-top:8px">© 2026 ClawReady · <a href="/" style="color:var(--muted)">Home</a> · <a href="/blog" style="color:var(--muted)">Blog</a></p>
+  </footer>
+
+</body>
+</html>

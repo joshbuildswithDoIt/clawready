@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5 Mistakes in Almost Every OpenClaw Setup (From Reviewing 50+) — ClawReady</title>
+  <meta name="description" content="After helping fix 50+ OpenClaw setups, we keep seeing the same 5 mistakes. Most people have no idea they're there. Here's what to look for — and how to fix each one.">
+  <meta property="og:title" content="5 Mistakes in Almost Every OpenClaw Setup (From Reviewing 50+)">
+  <meta property="og:description" content="These aren't edge cases. They're in almost every setup we've seen — and most people have no idea. Here's the list.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/5-mistakes-50-setups">
+  <link rel="canonical" href="https://clawreadynow.com/blog/5-mistakes-50-setups">
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:740px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:740px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.15rem;font-weight:700;margin:28px 0 10px}
+    .article-body p{margin-bottom:18px;color:#ccc}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#ccc}
+    .article-body li{margin-bottom:8px}
+    .article-body strong{color:var(--text)}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 7px;border-radius:4px;font-size:.88em;font-family:'SF Mono',Monaco,monospace;color:#e8e8e8}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;margin:20px 0}
+    pre code{background:none;border:none;padding:0;font-size:.9em}
+    .callout{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{background:rgba(39,174,96,.08);border-color:rgba(39,174,96,.25)}
+    .callout.yellow{background:rgba(243,156,18,.08);border-color:rgba(243,156,18,.25)}
+    .callout p{margin:0;color:var(--text)}
+    .mistake-num{display:inline-block;background:var(--accent);color:white;width:32px;height:32px;border-radius:50%;text-align:center;line-height:32px;font-weight:800;font-size:.95rem;margin-right:10px;vertical-align:middle}
+    .fix-box{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:8px;padding:20px 24px;margin:20px 0}
+    .fix-box .fix-label{color:var(--green);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+    .fix-box p{margin:0;color:#ccc;font-size:.95rem}
+    .savings-badge{display:inline-block;background:rgba(39,174,96,.15);color:var(--green);padding:3px 10px;border-radius:12px;font-size:.8rem;font-weight:700;margin-left:8px}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:48px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:8px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .cta-btn{display:inline-block;background:var(--accent);color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1rem;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover);text-decoration:none}
+    footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:.85rem;margin-top:60px}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">Claw<span>Ready</span></a>
+      <div class="nav-links">
+        <a href="/#pricing">Pricing</a>
+        <a href="/blog">Blog</a>
+        <a href="https://calendly.com/grofresh2018/30min">Book Setup</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="tag">Setup Guide</span>
+      <h1>5 Mistakes in Almost Every OpenClaw Setup<br>(From Reviewing 50+)</h1>
+      <p class="subtitle">These aren't edge cases. They're in almost every setup we've seen — and most people have no idea they're there.</p>
+      <p class="meta">By ClawReady · March 2026 · 8 min read</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>Between setup sessions, DMs, Reddit threads, and Discord I've now looked at over 50 different OpenClaw setups. Broken ones. Working ones. "It works but it costs $200/month" ones.</p>
+
+      <p>The problems are almost never unique. It's the same 5 things, every time. Here's the list — check your own setup against it.</p>
+
+      <div class="callout yellow">
+        <p>⚠️ <strong>Quick check:</strong> If you're spending more than $30/week on API costs or your agent feels slow and forgetful, you probably have at least 2 of these.</p>
+      </div>
+
+      <h2><span class="mistake-num">1</span> Opus as Your Default Model</h2>
+
+      <p>This is the single most expensive mistake in the entire OpenClaw ecosystem — and it's the default for many people coming in from tutorials.</p>
+
+      <p>Opus is incredible. It's also <strong>10–15x more expensive than Sonnet</strong> for tasks where you won't notice the difference.</p>
+
+      <p>Your agent checking your calendar? Sonnet. Summarizing an article? Sonnet. Setting a reminder? Sonnet. Writing a quick email draft? Sonnet.</p>
+
+      <p>Opus makes sense for deep research, long multi-step reasoning, or nuanced writing where quality genuinely matters. That's maybe 5–10% of what most people use their agent for.</p>
+
+      <p>One person I helped was spending <strong>$47/week</strong>. We changed the default model to Sonnet and added one line to their SOUL.md. Their next week cost <strong>$6</strong>.</p>
+
+      <div class="fix-box">
+        <div class="fix-label">✓ The Fix</div>
+        <p>In your <code>openclaw.json</code>:</p>
+      </div>
+      <pre><code>{
+  "ai": {
+    "model": "anthropic/claude-sonnet-4-6"
+  }
+}</code></pre>
+      <p>Then in your SOUL.md, add: <em>"Use Opus only when I explicitly ask for deep analysis or complex reasoning. Default to Sonnet for everything else."</em></p>
+
+      <p><strong>Expected savings: 60–85% on API costs.</strong> <span class="savings-badge">High impact</span></p>
+
+      <h2><span class="mistake-num">2</span> Never Starting a Fresh Session</h2>
+
+      <p>This is the silent budget killer nobody talks about.</p>
+
+      <p>Every message in your current session gets sent with every new API call. That means if you've been chatting with your agent for 3 weeks in the same session, your "what's the weather?" question is carrying <strong>thousands of tokens of old conversation</strong> with it. You're paying for all of that. Every single time.</p>
+
+      <p>Three people I helped cut their monthly costs by <strong>40–60%</strong> by doing one thing: typing <code>/new</code> before heavy tasks.</p>
+
+      <p>Your agent doesn't lose its memory when you start a new session. It still has SOUL.md, USER.md, MEMORY.md — all its files. You're just clearing the conversation buffer. Think of it like closing and reopening a chat window. The person on the other end still knows who you are.</p>
+
+      <div class="fix-box">
+        <div class="fix-label">✓ The Fix</div>
+        <p>Type <code>/new</code> at the start of each new topic or work block. Do it before any big task. Make it a habit. Your bill will thank you.</p>
+      </div>
+
+      <p><strong>Expected savings: 30–50% on ongoing costs.</strong> <span class="savings-badge">High impact</span></p>
+
+      <h2><span class="mistake-num">3</span> Installing Skills Without Reading the Source</h2>
+
+      <p>ClaWHub has 13,000+ skills. That sounds great. It's also a problem.</p>
+
+      <p>Security tools have flagged hundreds of skills as actively malicious — infostealers, backdoors, remote access tools disguised as automation. And that's just the ones that got caught.</p>
+
+      <p>But even the non-malicious skills can wreck your setup. I've seen skills that:</p>
+      <ul>
+        <li>Loop silently on a cron, burning $20–30/month with zero visible output</li>
+        <li>Inject themselves into every conversation, bloating your context window</li>
+        <li>Override parts of your config without telling you</li>
+        <li>Crash silently and leave your agent in a broken state that only shows up 3 messages later</li>
+      </ul>
+
+      <div class="fix-box">
+        <div class="fix-label">✓ The Fix</div>
+        <p>Rule: if you can't read and understand the skill's source code in 5 minutes, don't install it. If it needs shell access or network access, understand exactly why before it touches your setup. When in doubt, skip it.</p>
+      </div>
+
+      <p><strong>Risk reduction: prevents silent cost leaks + protects your data.</strong> <span class="savings-badge">Security</span></p>
+
+      <h2><span class="mistake-num">4</span> Gateway Exposed to the Network</h2>
+
+      <p>If you installed OpenClaw on a VPS and your gateway config says <code>"host": "0.0.0.0"</code> — or you didn't set it at all — your agent might be accessible to anyone who knows your IP.</p>
+
+      <p>That means a stranger could message your agent. Your agent that has access to your email, your calendar, your files, and possibly your shell.</p>
+
+      <p>Check right now:</p>
+      <pre><code>openclaw config get | grep host</code></pre>
+
+      <div class="fix-box">
+        <div class="fix-label">✓ The Fix</div>
+        <p>In your <code>openclaw.json</code>:</p>
+      </div>
+      <pre><code>{
+  "gateway": {
+    "host": "127.0.0.1"
+  }
+}</code></pre>
+      <p>Then access via SSH tunnel or a reverse proxy with auth (Nginx + basic auth, or Tailscale). Never expose your gateway directly to 0.0.0.0 on a public server.</p>
+
+      <p><strong>Risk: critical. Fix takes 2 minutes.</strong> <span class="savings-badge">Security</span></p>
+
+      <h2><span class="mistake-num">5</span> No Structured Memory Architecture</h2>
+
+      <p>Most OpenClaw setups use memory as one big file — or worse, rely entirely on conversation history. Both approaches break down fast.</p>
+
+      <p>The result: an agent that forgets important context, repeats itself, gives inconsistent answers, and costs more because it's re-learning things every session.</p>
+
+      <p>Structured memory means separating your agent's knowledge into specific files: one for your identity and mission, one for active projects, one for people and contacts, one for decisions made. The agent reads what it needs, when it needs it — and remembers correctly across sessions.</p>
+
+      <div class="fix-box">
+        <div class="fix-label">✓ The Fix</div>
+        <p>At minimum, create these files in your workspace:</p>
+      </div>
+      <pre><code>SOUL.md       — who you are, what the agent should do
+USER.md       — your name, preferences, timezone
+memory.md     — key facts, projects, decisions
+HEARTBEAT.md  — what the agent does when idle</code></pre>
+      <p>Reference them explicitly in your SOUL.md so your agent knows to read them. This alone transforms an inconsistent chatbot into a reliable assistant.</p>
+
+      <p><strong>Impact: transforms agent quality and consistency.</strong> <span class="savings-badge">Quality</span></p>
+
+      <hr style="border-color: var(--border); margin: 48px 0;">
+
+      <h2>The Audit Version</h2>
+
+      <p>If you want to check your own setup quickly, here's the 5-point checklist:</p>
+
+      <ol>
+        <li><strong>Model:</strong> Is your default model Sonnet (or local), not Opus?</li>
+        <li><strong>Sessions:</strong> Are you using <code>/new</code> regularly, or running one long session indefinitely?</li>
+        <li><strong>Skills:</strong> Have you read the source of every skill you've installed?</li>
+        <li><strong>Gateway:</strong> Does <code>openclaw config get | grep host</code> show 127.0.0.1, not 0.0.0.0?</li>
+        <li><strong>Memory:</strong> Do you have separate, structured memory files your agent reads on every turn?</li>
+      </ol>
+
+      <p>If you answered "no" to 2 or more of these, your setup has room to improve — and the improvements are fast.</p>
+
+      <div class="callout green">
+        <p>✅ <strong>Most of these fixes take under 10 minutes.</strong> The biggest one (model routing) takes 30 seconds and can save you hundreds of dollars a month.</p>
+      </div>
+
+      <div class="cta-box">
+        <h3>Want someone to check your setup?</h3>
+        <p>Book a $49 audit. We'll go through all 5 of these — plus anything else we find — and give you a prioritized fix list. Most audits find at least 2 issues; many find all 5.</p>
+        <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book a $49 Audit →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>🦞 ClawReady — Built by people who run OpenClaw 24/7</p>
+    <p style="margin-top:8px">© 2026 ClawReady · <a href="/" style="color:var(--muted)">Home</a> · <a href="/blog" style="color:var(--muted)">Blog</a></p>
+  </footer>
+
+</body>
+</html>

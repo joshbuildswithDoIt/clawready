@@ -230,19 +230,34 @@
       <h2>Sound familiar?</h2>
       <div class="pain-points">
         <div class="pain-point">
-          <div class="icon">😤</div>
-          <h3>"I bought a Mac Mini but it's just sitting there"</h3>
-          <p>You saw the hype, got the hardware, but the setup process stopped you cold.</p>
+          <div class="icon">💸</div>
+          <h3>"I'm paying $47/week and getting almost nothing"</h3>
+          <p>Opus is the default model — and it costs 10–15x more than Sonnet for tasks where you won't notice the difference. One config change fixes this.</p>
         </div>
         <div class="pain-point">
           <div class="icon">🔧</div>
-          <h3>"I don't know what SOUL.md even means"</h3>
-          <p>Markdown files, configs, API keys, OOTH — it shouldn't take a CS degree to run an AI agent.</p>
+          <h3>"I installed a skill and now my agent is broken"</h3>
+          <p>ClaWHub has 13,000+ skills. Hundreds are flagged as malicious — infostealers, silent API loops burning $20–30/mo, config overrides. Most people install without reading the source.</p>
+        </div>
+        <div class="pain-point">
+          <div class="icon">🌐</div>
+          <h3>"Wait — anyone can message my agent?"</h3>
+          <p>If your gateway is set to 0.0.0.0, your agent is exposed to the public internet. That means strangers can access your email, files, and shell. This is the #1 security hole we find.</p>
+        </div>
+        <div class="pain-point">
+          <div class="icon">😤</div>
+          <h3>"I bought a Mac Mini but it's just sitting there"</h3>
+          <p>You saw the hype, got the hardware, but the setup process stopped you cold. You're not alone — it's genuinely hard to configure from scratch.</p>
+        </div>
+        <div class="pain-point">
+          <div class="icon">📈</div>
+          <h3>"My context window is eating my budget"</h3>
+          <p>Every message carries your entire conversation history. A 3-week-old session means you're paying for thousands of stale tokens on every "what's the weather" question. A simple habit eliminates this.</p>
         </div>
         <div class="pain-point">
           <div class="icon">⏰</div>
           <h3>"I've watched 20 videos and I'm still stuck"</h3>
-          <p>Tutorial hell is real. You need someone who's done it to just set it up with you.</p>
+          <p>Tutorial hell is real. These are the same 5 mistakes in almost every broken setup we've seen. You need someone who's done it to just fix it with you.</p>
         </div>
       </div>
     </div>
@@ -287,13 +302,13 @@
         <div class="tier">
           <h3>VIP</h3>
           <div class="price">$299</div>
-          <div class="price-note">one-time + $49/mo</div>
+          <div class="price-note">one-time</div>
           <ul>
             <li>Everything in Pro</li>
             <li>Multi-agent setup (up to 3 claws)</li>
             <li>Mission control dashboard</li>
             <li>Custom tooling for your business</li>
-            <li>Monthly check-in + priority support</li>
+            <li>Priority support for 30 days</li>
           </ul>
           <a href="https://calendly.com/grofresh2018/30min" class="tier-btn secondary">Book Setup →</a>
         </div>
@@ -302,26 +317,68 @@
     </div>
   </section>
 
+  <!-- Managed Care -->
+  <section class="pricing" id="managed-care" style="border-top: 1px solid var(--border); padding-top: 60px;">
+    <div class="container">
+      <h2>Don't Want to Babysit It?</h2>
+      <p class="subtitle">ClawReady Managed Care — we keep your agent healthy, updated, and working while you focus on your business.</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 40px;">
+
+        <div class="tier">
+          <h3>Care Lite</h3>
+          <div class="price">$99<span style="font-size: 1rem; font-weight: 400;">/mo</span></div>
+          <div class="price-note">recurring — cancel anytime</div>
+          <ul>
+            <li>Monthly health check & cost audit</li>
+            <li>OpenClaw version updates applied</li>
+            <li>Skill security scan</li>
+            <li>Email support (48h response)</li>
+            <li>Configuration tweaks on request</li>
+          </ul>
+          <a href="https://calendly.com/grofresh2018/30min" class="tier-btn secondary">Start Care Plan →</a>
+        </div>
+
+        <div class="tier featured">
+          <div class="tier-badge">BEST VALUE</div>
+          <h3>Care Pro</h3>
+          <div class="price">$199<span style="font-size: 1rem; font-weight: 400;">/mo</span></div>
+          <div class="price-note">recurring — cancel anytime</div>
+          <ul>
+            <li>Everything in Care Lite</li>
+            <li>Weekly proactive check-ins</li>
+            <li>New automations added each month</li>
+            <li>Priority support (24h response)</li>
+            <li>On-call troubleshooting when things break</li>
+            <li>Agent performance tuning</li>
+          </ul>
+          <a href="https://calendly.com/grofresh2018/30min" class="tier-btn primary">Start Care Plan →</a>
+        </div>
+
+      </div>
+      <p style="text-align: center; color: var(--muted); margin-top: 24px; font-size: 0.9rem;">Competitors charge $250–$1,250/mo for the same thing. We don't. <a href="#pricing" style="color: var(--accent);">Add a setup session to save $50 on first month.</a></p>
+    </div>
+  </section>
+
   <!-- Audit -->
   <section class="problem" id="audit">
     <div class="container">
       <h2>Already have OpenClaw? Get an Audit.</h2>
-      <p style="text-align: center; color: var(--muted); max-width: 600px; margin: 0 auto 24px;">Most setups waste 40-80% on API costs and miss key features like heartbeat, model routing, and structured memory. We'll review your config and show you exactly what to fix.</p>
+      <p style="text-align: center; color: var(--muted); max-width: 600px; margin: 0 auto 24px;">We've reviewed 50+ OpenClaw setups. The same problems appear almost every time — and most people have no idea they're there. We'll find them in yours.</p>
       <div class="pain-points" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
         <div class="pain-point">
           <div class="icon">💰</div>
-          <h3>Cost Optimization</h3>
-          <p>Are you burning $40+/week on Opus when Sonnet handles 80% of your tasks?</p>
+          <h3>Cost Audit</h3>
+          <p>One person cut their weekly bill from $47 to $6 with a single model config change. We'll find yours.</p>
         </div>
         <div class="pain-point">
-          <div class="icon">🧠</div>
-          <h3>Memory Check</h3>
-          <p>Is your agent actually remembering things? Most memory configs are broken.</p>
+          <div class="icon">🔒</div>
+          <h3>Security Check</h3>
+          <p>Is your gateway exposed? Any sketchy skills installed? We'll scan for the holes most people never look for.</p>
         </div>
         <div class="pain-point">
           <div class="icon">⚡</div>
           <h3>Performance Tune</h3>
-          <p>Heartbeat, skills, integrations — we check everything.</p>
+          <p>Context bloat, memory config, heartbeat setup, session hygiene — we check everything that affects speed and cost.</p>
         </div>
       </div>
       <div style="text-align: center; margin-top: 32px;">
