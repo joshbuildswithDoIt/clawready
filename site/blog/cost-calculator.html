@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Cost Calculator — Estimate Your Monthly Bill — ClawReady</title>
+  <meta name="description" content="Free OpenClaw cost calculator. Estimate your monthly API bill based on your model, usage patterns, and session habits. Find out if you're overpaying.">
+  <meta property="og:title" content="OpenClaw Cost Calculator — Estimate Your Monthly Bill">
+  <meta property="og:description" content="Estimate your OpenClaw monthly API cost in 60 seconds. Find out if you're overpaying for Opus when Sonnet would do.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://clawreadynow.com/blog/cost-calculator">
+  <link rel="canonical" href="https://clawreadynow.com/blog/cost-calculator">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--green:#27ae60;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;}
+    .container{max-width:760px;margin:0 auto;padding:0 24px;}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);}
+    nav a{color:var(--accent);text-decoration:none;font-weight:700;font-size:1rem;}
+    .hero{padding:60px 0 40px;border-bottom:1px solid var(--border);}
+    .tag{display:inline-block;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.75rem;padding:4px 10px;border-radius:4px;margin-bottom:20px;}
+    h1{font-size:2rem;line-height:1.25;margin-bottom:16px;}
+    .subtitle{color:var(--muted);font-size:1.05rem;}
+    .calc-wrap{padding:48px 0;}
+    .calc{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;}
+    .calc h2{font-size:1.3rem;margin-bottom:28px;}
+    .field{margin-bottom:24px;}
+    .field label{display:block;font-size:.9rem;color:var(--muted);margin-bottom:8px;font-weight:600;}
+    .field select,.field input[type=range]{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:.95rem;}
+    .field select:focus{outline:none;border-color:var(--accent);}
+    .range-row{display:flex;align-items:center;gap:12px;}
+    .range-row input{flex:1;}
+    .range-val{min-width:48px;text-align:right;font-weight:700;color:var(--text);}
+    .result-box{background:var(--bg);border:2px solid var(--accent);border-radius:12px;padding:28px;margin-top:32px;text-align:center;}
+    .result-label{color:var(--muted);font-size:.9rem;margin-bottom:8px;}
+    .result-amount{font-size:3rem;font-weight:800;color:var(--accent);}
+    .result-sub{color:var(--muted);font-size:.9rem;margin-top:8px;}
+    .tips-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:20px;margin-top:20px;text-align:left;}
+    .tips-box h3{font-size:.95rem;margin-bottom:12px;}
+    .tips-box ul{padding-left:18px;margin:0;}
+    .tips-box li{font-size:.85rem;color:var(--muted);margin-bottom:6px;}
+    .tips-box li.saving{color:var(--green);}
+    .notes{padding:40px 0;}
+    .notes h2{font-size:1.4rem;margin-bottom:20px;}
+    .notes p{color:#ccc;margin-bottom:14px;font-size:.95rem;}
+    .notes table{width:100%;border-collapse:collapse;margin:20px 0;}
+    .notes th{background:var(--surface);padding:10px 14px;text-align:left;font-size:.8rem;color:var(--muted);border-bottom:1px solid var(--border);}
+    .notes td{padding:10px 14px;border-bottom:1px solid var(--border);color:#ccc;font-size:.85rem;}
+    .cta-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;text-align:center;margin:40px 0;}
+    .cta-block h3{font-size:1.3rem;margin-bottom:12px;}
+    .cta-block p{color:var(--muted);margin-bottom:24px;}
+    .cta-btn{display:inline-block;background:var(--accent);color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;}
+    .footer{padding:40px 0;text-align:center;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);}
+    .footer a{color:var(--muted);text-decoration:none;}
+  </style>
+</head>
+<body>
+  <nav><div class="container"><a href="https://clawreadynow.com">🦞 ClawReady</a></div></nav>
+
+  <section class="hero">
+    <div class="container">
+      <div class="tag">💰 Free Tool</div>
+      <h1>OpenClaw Cost Calculator</h1>
+      <p class="subtitle">Estimate your monthly OpenClaw API bill in 60 seconds — and find out if you're overpaying.</p>
+    </div>
+  </section>
+
+  <div class="calc-wrap">
+    <div class="container">
+      <div class="calc">
+        <h2>🧮 Estimate Your Monthly Cost</h2>
+
+        <div class="field">
+          <label>Primary Model</label>
+          <select id="model">
+            <option value="opus">Claude Opus 4 ($15/$75 per M tokens)</option>
+            <option value="sonnet" selected>Claude Sonnet 4 ($3/$15 per M tokens)</option>
+            <option value="haiku">Claude Haiku 3.5 ($0.80/$4 per M tokens)</option>
+            <option value="gpt4o">GPT-4o ($2.50/$10 per M tokens)</option>
+            <option value="gpt4omini">GPT-4o Mini ($0.15/$0.60 per M tokens)</option>
+            <option value="local">Local / Ollama ($0 — free)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>How often do you interact with your agent? <span id="freq-label">~20 times/day</span></label>
+          <div class="range-row">
+            <input type="range" id="freq" min="1" max="100" value="20" oninput="updateCalc()">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Average context size per message (tokens) <span id="ctx-label">~4,000</span></label>
+          <div class="range-row">
+            <input type="range" id="ctx" min="500" max="50000" step="500" value="4000" oninput="updateCalc()">
+          </div>
+          <p style="color:var(--muted);font-size:.8rem;margin-top:6px;">Tip: Long-running sessions accumulate context fast. Fresh sessions = lower bills.</p>
+        </div>
+
+        <div class="field">
+          <label>Heartbeat / background cycles per day <span id="hb-label">24</span></label>
+          <div class="range-row">
+            <input type="range" id="hb" min="0" max="96" value="24" oninput="updateCalc()">
+          </div>
+        </div>
+
+        <div id="result-box" class="result-box">
+          <div class="result-label">Estimated Monthly Cost</div>
+          <div class="result-amount" id="result-amount">$0</div>
+          <div class="result-sub" id="result-sub">Adjust sliders above to calculate</div>
+        </div>
+
+        <div id="tips-box" class="tips-box" style="display:none;">
+          <h3>💡 Ways to reduce this bill:</h3>
+          <ul id="tips-list"></ul>
+        </div>
+      </div>
+
+      <section class="notes">
+        <h2>How This Works</h2>
+        <p>OpenClaw sends your messages to AI model APIs. You pay per token — roughly per word. The cost depends on your model, how long your context window is per message, and how often your agent is active.</p>
+        <p>Most users don't realize how much their context window compounds costs. A 3-week-old session carries thousands of tokens of history into every single message. Starting fresh sessions weekly can cut your bill by 40–60%.</p>
+
+        <h2>Model Pricing Reference (April 2026)</h2>
+        <table>
+          <thead>
+            <tr><th>Model</th><th>Input (per M tokens)</th><th>Output (per M tokens)</th><th>Best for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Claude Opus 4</td><td>$15</td><td>$75</td><td>Complex reasoning, long-form</td></tr>
+            <tr><td>Claude Sonnet 4</td><td>$3</td><td>$15</td><td>Most tasks — best balance</td></tr>
+            <tr><td>Claude Haiku 3.5</td><td>$0.80</td><td>$4</td><td>Fast responses, high volume</td></tr>
+            <tr><td>GPT-4o</td><td>$2.50</td><td>$10</td><td>OpenAI alternative to Sonnet</td></tr>
+            <tr><td>GPT-4o Mini</td><td>$0.15</td><td>$0.60</td><td>Budget option, basic tasks</td></tr>
+            <tr><td>Ollama (local)</td><td>$0</td><td>$0</td><td>Free — needs capable hardware</td></tr>
+          </tbody>
+        </table>
+
+        <p style="color:var(--muted);font-size:.85rem;">Prices are estimates and change frequently. Check provider dashboards for current rates. This calculator is for planning purposes only.</p>
+      </section>
+
+      <div class="cta-block">
+        <h3>Getting a Higher Bill Than Expected?</h3>
+        <p>A ClawReady audit finds the specific config changes that will cut your bill. Average client savings: $25–$40/month from one session.</p>
+        <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book a $49 Audit →</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p><a href="https://clawreadynow.com">ClawReady</a> · <a href="https://clawreadynow.com/blog">Blog</a> · (216) 694-8521 · Cleveland, OH</p>
+      <p style="margin-top:8px;">© 2026 ClawReady. Not affiliated with OpenClaw.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Model pricing: [input per M, output per M]
+    const models = {
+      opus:     [15, 75],
+      sonnet:   [3, 15],
+      haiku:    [0.80, 4],
+      gpt4o:    [2.50, 10],
+      gpt4omini:[0.15, 0.60],
+      local:    [0, 0]
+    };
+
+    function fmtCtx(v) {
+      if (v >= 1000) return (v/1000).toFixed(0) + 'K';
+      return v.toString();
+    }
+
+    function updateCalc() {
+      const model = document.getElementById('model').value;
+      const freq = parseInt(document.getElementById('freq').value);
+      const ctx = parseInt(document.getElementById('ctx').value);
+      const hb = parseInt(document.getElementById('hb').value);
+
+      document.getElementById('freq-label').textContent = `~${freq} times/day`;
+      document.getElementById('ctx-label').textContent = `~${fmtCtx(ctx)}`;
+      document.getElementById('hb-label').textContent = hb;
+
+      const [inp, out] = models[model];
+
+      // Estimate: each interaction = ctx tokens input + ~500 output
+      // Each heartbeat = ~2000 tokens input + ~200 output (idle check)
+      const daysPerMonth = 30;
+      const interactionInputTokens = freq * ctx * daysPerMonth;
+      const interactionOutputTokens = freq * 500 * daysPerMonth;
+      const heartbeatInputTokens = hb * 2000 * daysPerMonth;
+      const heartbeatOutputTokens = hb * 200 * daysPerMonth;
+
+      const totalInput = interactionInputTokens + heartbeatInputTokens;
+      const totalOutput = interactionOutputTokens + heartbeatOutputTokens;
+
+      const cost = (totalInput / 1e6) * inp + (totalOutput / 1e6) * out;
+
+      const resultEl = document.getElementById('result-amount');
+      const subEl = document.getElementById('result-sub');
+
+      if (model === 'local') {
+        resultEl.textContent = '$0';
+        subEl.textContent = 'Local models via Ollama cost nothing in API fees.';
+      } else {
+        resultEl.textContent = '$' + cost.toFixed(2);
+        const weekly = (cost / 4.3).toFixed(2);
+        const daily = (cost / 30).toFixed(2);
+        subEl.textContent = `~$${weekly}/week · ~$${daily}/day`;
+      }
+
+      // Tips
+      const tips = [];
+      if (model === 'opus') tips.push({text: '🔥 Switch to Sonnet 4 — same results for 80% of tasks, 5x cheaper.', saving: true});
+      if (ctx > 8000) tips.push({text: `⚠️ Context is ${fmtCtx(ctx)} tokens. Start fresh sessions more often to cut this.`, saving: true});
+      if (hb > 48) tips.push({text: 'Consider a lighter heartbeat model (Haiku) for idle cycles.', saving: true});
+      if (model === 'sonnet' && cost > 50) tips.push({text: 'High volume on Sonnet — consider hybrid routing (Haiku for simple tasks, Sonnet for complex).', saving: true});
+      tips.push({text: 'Free: Use Ollama for local tasks that don\'t need cloud intelligence.', saving: false});
+
+      const tipsBox = document.getElementById('tips-box');
+      const tipsList = document.getElementById('tips-list');
+      tipsList.innerHTML = tips.map(t => `<li class="${t.saving ? 'saving' : ''}">${t.text}</li>`).join('');
+      tipsBox.style.display = 'block';
+    }
+
+    // Init
+    updateCalc();
+  </script>
+</body>
+</html>
