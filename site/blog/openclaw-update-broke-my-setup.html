@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Update Broke My Setup — How to Fix It (April 2026)</title>
+  <meta name="description" content="If your OpenClaw stopped working after a recent update, you're not alone. The April 2 release moved xAI and Firecrawl config paths. Here's exactly how to fix it.">
+  <meta property="og:title" content="OpenClaw Update Broke My Setup — How to Fix It (April 2026)">
+  <meta property="og:description" content="The April 2026 release moved xAI and Firecrawl config to new plugin paths. Run openclaw doctor --fix or follow this step-by-step guide to restore your setup.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-update-broke-my-setup">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-update-broke-my-setup">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-07JN7219ZL');
+  </script>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --accent: #e74c3c;
+      --yellow: #f39c12;
+      --green: #27ae60;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+    nav { padding: 20px 0; border-bottom: 1px solid var(--border); }
+    nav a { color: var(--accent); text-decoration: none; font-weight: 700; font-size: 1rem; }
+    .hero { padding: 60px 0 40px; border-bottom: 1px solid var(--border); }
+    .tag {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 2rem; line-height: 1.25; margin-bottom: 16px; }
+    .subtitle { color: var(--muted); font-size: 1.05rem; }
+    .content { padding: 48px 0; }
+    .content h2 { font-size: 1.4rem; margin: 40px 0 16px; }
+    .content h3 { font-size: 1.1rem; margin: 28px 0 12px; }
+    .content p { margin-bottom: 16px; color: #ccc; }
+    .content ul, .content ol { padding-left: 24px; margin-bottom: 16px; color: #ccc; }
+    .content li { margin-bottom: 8px; }
+    .content strong { color: var(--text); }
+    .warning {
+      background: rgba(243,156,18,0.1);
+      border: 1px solid var(--yellow);
+      border-left: 3px solid var(--yellow);
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin: 32px 0;
+    }
+    .warning p { margin: 0; color: var(--text); }
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin: 32px 0;
+    }
+    .callout p { margin: 0; color: var(--text); }
+    pre {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 20px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; color: #e8e8e8; }
+    .inline-code {
+      background: #1a1a1a;
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.87em;
+      color: #f0a0a0;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      margin: 16px 0;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .step-body h3 { margin: 0 0 6px; font-size: 1rem; }
+    .step-body p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+    .cta-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin: 48px 0 0;
+    }
+    .cta-block h3 { font-size: 1.4rem; margin-bottom: 12px; }
+    .cta-block p { color: var(--muted); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .footer { padding: 40px 0; text-align: center; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 60px; }
+    .footer a { color: var(--muted); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <a href="https://clawreadynow.com">🦞 ClawReady</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <div class="tag">🔧 Troubleshooting</div>
+      <h1>OpenClaw Update Broke My Setup — How to Fix It</h1>
+      <p class="subtitle">The April 2, 2026 release moved xAI and Firecrawl config to new paths. If your web search, x_search, or fetch tools stopped working, here's the fix.</p>
+      <p style="color: var(--muted); font-size: 0.85rem; margin-top: 20px;">April 3, 2026 · 6 min read · Updated for 2026.4.1</p>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container">
+
+      <div class="warning">
+        <p>⚠️ <strong>Affected versions:</strong> Any setup that updated to <strong>2026.4.1 (released Apr 2, 2026)</strong> with xAI web search or Firecrawl fetch configured. Legacy config paths silently fail — your tools return errors or empty results without explaining why.</p>
+      </div>
+
+      <p>You updated OpenClaw, and now something's broken. Firecrawl isn't fetching pages. xAI web search is returning errors. Or your agent just seems off — slower, less capable, not using tools it used to use.</p>
+
+      <p>If you updated to <strong>2026.4.1</strong> on April 2 or later and have xAI or Firecrawl configured, the problem is almost certainly a config migration issue. Here's what changed and how to fix it in about 5 minutes.</p>
+
+      <h2>What Changed in the April 2 Release</h2>
+
+      <p>OpenClaw moved two plugin configurations from legacy "core" paths to proper plugin-owned paths:</p>
+
+      <h3>1. xAI / x_search</h3>
+      <p><strong>Old path:</strong> <span class="inline-code">tools.web.x_search.*</span><br>
+      <strong>New path:</strong> <span class="inline-code">plugins.entries.xai.config.xSearch.*</span><br>
+      <strong>Auth key path:</strong> <span class="inline-code">plugins.entries.xai.config.webSearch.apiKey</span> (or env var <span class="inline-code">XAI_API_KEY</span>)</p>
+
+      <h3>2. Firecrawl / web_fetch</h3>
+      <p><strong>Old path:</strong> <span class="inline-code">tools.web.fetch.firecrawl.*</span><br>
+      <strong>New path:</strong> <span class="inline-code">plugins.entries.firecrawl.config.webFetch.*</span></p>
+
+      <p>If you had these configured at the old paths, they still exist in your config but <strong>OpenClaw no longer reads them there</strong>. The tools silently fall back to defaults or fail.</p>
+
+      <h2>The Fast Fix: openclaw doctor</h2>
+
+      <p>OpenClaw ships with a migration tool for exactly this. Run:</p>
+
+      <pre><code>openclaw doctor --fix</code></pre>
+
+      <p>This scans your config for legacy paths, migrates them to the new locations, and backs up the original. Takes about 30 seconds. Restart OpenClaw afterward:</p>
+
+      <pre><code>openclaw gateway restart</code></pre>
+
+      <p>Test that your tools are working again:</p>
+
+      <pre><code>openclaw status</code></pre>
+
+      <p>If xAI or Firecrawl show as active in the status output, you're good.</p>
+
+      <h2>If You Prefer to Fix It Manually</h2>
+
+      <p>Open your <span class="inline-code">~/.openclaw/openclaw.json</span> config file. Look for either of these sections:</p>
+
+      <pre><code>{
+  "tools": {
+    "web": {
+      "x_search": { ... },     ← OLD — move this
+      "fetch": {
+        "firecrawl": { ... }   ← OLD — move this
+      }
+    }
+  }
+}</code></pre>
+
+      <p>Move them to the plugin-owned structure:</p>
+
+      <pre><code>{
+  "plugins": {
+    "entries": {
+      "xai": {
+        "config": {
+          "xSearch": { ... },         ← moved here
+          "webSearch": {
+            "apiKey": "your-key"
+          }
+        }
+      },
+      "firecrawl": {
+        "config": {
+          "webFetch": { ... }         ← moved here
+        }
+      }
+    }
+  }
+}</code></pre>
+
+      <p>Save, then restart the gateway.</p>
+
+      <h2>Other Things to Check After Any Major Update</h2>
+
+      <p>While you're in there, a few things worth checking after any OpenClaw version bump:</p>
+
+      <ul>
+        <li><strong>Gateway security defaults</strong> — some releases tighten exec defaults. Run <span class="inline-code">openclaw status</span> and confirm your gateway binding is what you expect.</li>
+        <li><strong>Skill compatibility</strong> — ClaWHub skills that use core tool APIs sometimes break on major releases. Check your installed skills against the release notes.</li>
+        <li><strong>Memory and session files</strong> — rarely affected, but worth a quick scan if behavior seems off.</li>
+        <li><strong>Model config</strong> — release notes occasionally rename model identifiers. If a model returns "unknown model" errors, check the updated model list.</li>
+      </ul>
+
+      <div class="callout">
+        <p>💡 <strong>Task Flow is also new in this release</strong> — background orchestration with durable state tracking. It's a power-user feature worth exploring once your setup is stable. We'll cover it in a dedicated post.</p>
+      </div>
+
+      <h2>Still Broken?</h2>
+
+      <p>If <span class="inline-code">openclaw doctor --fix</span> didn't resolve it, there are a few other culprits:</p>
+
+      <ol>
+        <li><strong>Node version</strong> — OpenClaw requires Node 20+. Check with <span class="inline-code">node --version</span>.</li>
+        <li><strong>API key expiry</strong> — xAI and Firecrawl keys rotate. Verify in your respective dashboards.</li>
+        <li><strong>Conflicting skill configs</strong> — a skill with elevated permissions can override tool behavior. Run <span class="inline-code">openclaw skills list</span> and look for anything that touches web fetch or search.</li>
+        <li><strong>Exec policy changes</strong> — the 2026.4.1 release also changed exec defaults on gateway/node targets. If commands that used to run silently now prompt for approval, that's intentional — adjust your exec-approvals.json or policy config.</li>
+      </ol>
+
+      <p>The OpenClaw Discord (#help) is active and usually has same-day answers for specific errors. Post your <span class="inline-code">openclaw status</span> output along with the error message.</p>
+
+      <div class="cta-block">
+        <h3>Don't Want to Debug This Yourself?</h3>
+        <p>We've fixed this exact issue (and the dozen others that break after updates) for 50+ setups. A $49 audit covers a full config review, migration check, and any breakage from the latest release — results in 24 hours.</p>
+        <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book a $49 Audit →</a>
+        <p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">Or grab a <a href="https://clawreadynow.com/#managed-care" style="color: var(--accent);">Managed Care plan</a> — we handle every future update automatically.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p><a href="https://clawreadynow.com">ClawReady</a> · <a href="https://clawreadynow.com/blog">Blog</a> · (216) 694-8521 · Cleveland, OH</p>
+      <p style="margin-top: 8px;">© 2026 ClawReady. Not affiliated with OpenClaw.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

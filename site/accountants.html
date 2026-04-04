@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw for CPAs & Accountants — ClawReady Setup</title>
+  <meta name="description" content="TaxGPT says OpenClaw is too technical for CPAs. We disagree. ClawReady sets up OpenClaw for your accounting practice in one session — document chasing, deadline alerts, client comms, done for you.">
+  <meta property="og:title" content="OpenClaw for CPAs & Accountants — ClawReady Setup">
+  <meta property="og:description" content="Done-for-you OpenClaw setup built for CPA firms. Chase documents, track deadlines, and handle client comms automatically — without a tech background.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://clawreadynow.com/accountants">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="OpenClaw for CPAs & Accountants — ClawReady">
+  <meta name="twitter:description" content="Done-for-you OpenClaw setup for accounting practices. Document chasing, deadline tracking, client comms — automated. No tech background needed.">
+  <link rel="canonical" href="https://clawreadynow.com/accountants">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-07JN7219ZL');
+  </script>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --accent: #e74c3c;
+      --accent-hover: #c0392b;
+      --green: #27ae60;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    nav { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; max-width: 900px; margin: 0 auto; }
+    nav a { text-decoration: none; }
+    .nav-logo { font-weight: 800; font-size: 1.2rem; color: var(--text); }
+    .nav-logo span { color: var(--accent); }
+    .nav-links a { color: var(--muted); margin-left: 24px; font-size: 0.9rem; text-decoration: none; }
+    .hero { text-align: center; padding: 80px 0 60px; }
+    .hero-tag { display: inline-block; background: rgba(231,76,60,0.15); color: var(--accent); border: 1px solid rgba(231,76,60,0.3); font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; letter-spacing: 0.05em; }
+    .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { color: var(--muted); font-size: 1.1rem; max-width: 620px; margin: 0 auto 32px; }
+    .cta-btn { display: inline-block; background: var(--accent); color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1.05rem; transition: background 0.2s; }
+    .cta-btn:hover { background: var(--accent-hover); }
+    .cta-sub { color: var(--muted); font-size: 0.85rem; margin-top: 12px; }
+    .objection-bar {
+      background: rgba(231,76,60,0.08);
+      border: 1px solid rgba(231,76,60,0.2);
+      border-radius: 10px;
+      padding: 20px 28px;
+      max-width: 700px;
+      margin: 0 auto 60px;
+      text-align: left;
+    }
+    .objection-bar p { margin: 0; font-size: 0.95rem; color: #ccc; }
+    .objection-bar strong { color: var(--text); }
+    section { padding: 60px 0; border-top: 1px solid var(--border); }
+    section h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; text-align: center; }
+    .subtitle { text-align: center; color: var(--muted); max-width: 600px; margin: 0 auto 40px; font-size: 0.95rem; }
+    .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+    .pain-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+    .pain-card .icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .pain-card h3 { font-size: 1rem; margin-bottom: 8px; }
+    .pain-card p { color: var(--muted); font-size: 0.9rem; margin: 0; }
+    .workflow-list { display: flex; flex-direction: column; gap: 16px; }
+    .workflow-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; display: flex; gap: 20px; align-items: flex-start; }
+    .workflow-item .num { background: var(--accent); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; margin-top: 2px; }
+    .workflow-item h3 { font-size: 1rem; margin-bottom: 6px; }
+    .workflow-item p { color: var(--muted); font-size: 0.9rem; margin: 0; }
+    .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+    .tier { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px 28px; position: relative; }
+    .tier.featured { border-color: var(--accent); }
+    .tier-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 0.72rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; letter-spacing: 0.06em; white-space: nowrap; }
+    .tier h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .tier .price { font-size: 2rem; font-weight: 800; margin-bottom: 4px; }
+    .tier .price-note { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+    .tier ul { list-style: none; margin-bottom: 24px; }
+    .tier ul li { padding: 6px 0; font-size: 0.9rem; color: var(--muted); }
+    .tier ul li::before { content: "✓ "; color: var(--green); font-weight: 700; }
+    .tier .tier-btn { display: block; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; transition: all 0.2s; }
+    .tier .tier-btn.primary { background: var(--accent); color: white; }
+    .tier .tier-btn.primary:hover { background: var(--accent-hover); }
+    .tier .tier-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .tier .tier-btn.secondary:hover { border-color: var(--muted); }
+    .faq-list { display: flex; flex-direction: column; }
+    .faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; }
+    .faq-item h3 { font-size: 1rem; margin-bottom: 8px; }
+    .faq-item p { color: var(--muted); font-size: 0.9rem; margin: 0; }
+    .bottom-cta { padding: 60px 0; text-align: center; border-top: 1px solid var(--border); }
+    .bottom-cta h2 { font-size: 1.8rem; margin-bottom: 12px; }
+    .bottom-cta p { color: var(--muted); margin-bottom: 24px; }
+    .footer { padding: 40px 0; border-top: 1px solid var(--border); text-align: center; color: var(--muted); font-size: 0.85rem; }
+    .footer a { color: var(--muted); text-decoration: none; }
+    .stats { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; margin-top: 20px; }
+    .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
+    .stat-label { color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="https://clawreadynow.com" class="nav-logo">🦞 Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="https://clawreadynow.com/#pricing">Pricing</a>
+      <a href="https://clawreadynow.com/blog">Blog</a>
+      <a href="https://calendly.com/grofresh2018/30min">Book a Call</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" style="border-top: none; padding-top: 80px;">
+    <div class="container">
+      <div class="hero-tag">🧮 For CPAs & Accountants</div>
+      <h1>"OpenClaw is too technical for CPAs."<br><span>We set it up for you.</span></h1>
+      <p>TaxGPT says you shouldn't use OpenClaw. We help 30+ accounting professionals run it every day — without a technical background. Document chasing, deadline alerts, and client comms. Done for you in one session.</p>
+      <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book Your Setup →</a>
+      <p class="cta-sub">Setup in under 2 hours. Running 24/7 after that.</p>
+    </div>
+  </section>
+
+  <!-- Objection bar -->
+  <div class="container">
+    <div class="objection-bar">
+      <p>⚠️ <strong>TaxGPT published an article</strong> saying OpenClaw has "technical nuance that is needed to be able to install" it — implying CPAs should stay away. That's true if you install it yourself. <strong>ClawReady installs and configures it for you.</strong> You don't touch a config file.</p>
+    </div>
+  </div>
+
+  <!-- Pain Points -->
+  <section>
+    <div class="container">
+      <h2>Sound Familiar?</h2>
+      <p class="subtitle">These are the actual time-wasters we hear from every CPA who books a call.</p>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="icon">📄</div>
+          <h3>"I'm still chasing documents on April 10th"</h3>
+          <p>Your agent sends the first reminder on the 1st, the second on the 5th, and escalates on the 10th. In your voice. Without you touching it.</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">⏰</div>
+          <h3>"I missed a deadline because it wasn't on my radar"</h3>
+          <p>Heartbeat workflows check your upcoming deadlines daily and surface the ones that need action before they're urgent.</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">📱</div>
+          <h3>"Clients text me at 9 PM with basic questions"</h3>
+          <p>Your agent handles first-response over text, email drafts, or WhatsApp — so you're not the one on call for "when's my refund?"</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">📋</div>
+          <h3>"Engagement letters go out late every year"</h3>
+          <p>Automate the draft, send for your review, and track who's signed — without a practice management system you had to learn.</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">🔁</div>
+          <h3>"I spend 2 hours a day on emails that don't need me"</h3>
+          <p>Status updates, document confirmations, acknowledgements, scheduling — your agent handles all of it. You review and approve the ones that matter.</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">💸</div>
+          <h3>"I can't justify hiring an admin for 20 hours/week"</h3>
+          <p>A trained OpenClaw setup costs $199 once + ~$20–40/mo in API costs. A part-time admin is $800–1,600/mo. The math is obvious.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What We Configure -->
+  <section>
+    <div class="container">
+      <h2>What ClawReady Sets Up for Your Practice</h2>
+      <p class="subtitle">This is the CPA-specific configuration we install in your Pro setup session.</p>
+      <div class="workflow-list">
+        <div class="workflow-item">
+          <div class="num">1</div>
+          <div>
+            <h3>Document Chase Workflow</h3>
+            <p>Client list + document checklist loaded into agent memory. Tiered reminder sequence configured: friendly on day 1, firmer on day 5, urgent + your review on day 10. Runs automatically each filing season.</p>
+          </div>
+        </div>
+        <div class="workflow-item">
+          <div class="num">2</div>
+          <div>
+            <h3>Deadline Heartbeat</h3>
+            <p>Agent checks your upcoming deadlines each morning and surfaces the ones with action needed. You get a proactive summary before your day starts — not a scramble when something's due tomorrow.</p>
+          </div>
+        </div>
+        <div class="workflow-item">
+          <div class="num">3</div>
+          <div>
+            <h3>Client Communication Templates</h3>
+            <p>Your tone, your language, your sign-off. Engagement letter drafts, status updates, "we received your documents" confirmations, extension notices — templated and ready to send with one approval.</p>
+          </div>
+        </div>
+        <div class="workflow-item">
+          <div class="num">4</div>
+          <div>
+            <h3>Messaging Channel Connected</h3>
+            <p>We connect your agent to one channel — WhatsApp, Telegram, iMessage, or email draft mode. Clients can reach it, and you can manage everything from your phone.</p>
+          </div>
+        </div>
+        <div class="workflow-item">
+          <div class="num">5</div>
+          <div>
+            <h3>Identity, Memory & Voice Configured</h3>
+            <p>Your agent knows your firm name, your clients' names, your services, your hours, and how you communicate. It sounds like you — not a chatbot.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="container">
+      <h2>Pick Your Setup</h2>
+      <p class="subtitle">One session. Running permanently after that.</p>
+      <div class="tiers">
+        <div class="tier">
+          <h3>Starter</h3>
+          <div class="price">$99</div>
+          <div class="price-note">one-time</div>
+          <ul>
+            <li>1-hour guided setup (screen share)</li>
+            <li>OpenClaw installed & configured</li>
+            <li>Identity, memory & voice set</li>
+            <li>One channel connected</li>
+            <li>Getting started guide</li>
+          </ul>
+          <a href="https://calendly.com/grofresh2018/30min" class="tier-btn secondary">Book Setup →</a>
+        </div>
+        <div class="tier featured">
+          <div class="tier-badge">RECOMMENDED FOR CPAs</div>
+          <h3>Pro</h3>
+          <div class="price">$199</div>
+          <div class="price-note">one-time</div>
+          <ul>
+            <li>Everything in Starter</li>
+            <li>Document chase workflow built</li>
+            <li>Deadline heartbeat configured</li>
+            <li>Client communication templates</li>
+            <li>Optimized memory architecture</li>
+            <li>30 days email support</li>
+          </ul>
+          <a href="https://calendly.com/grofresh2018/30min" class="tier-btn primary">Book Setup →</a>
+        </div>
+        <div class="tier">
+          <h3>VIP</h3>
+          <div class="price">$299</div>
+          <div class="price-note">one-time</div>
+          <ul>
+            <li>Everything in Pro</li>
+            <li>Multi-agent setup (up to 3 claws)</li>
+            <li>Custom tooling for your practice</li>
+            <li>Zoho Books / QuickBooks workflow hooks</li>
+            <li>Priority support for 30 days</li>
+          </ul>
+          <a href="https://calendly.com/grofresh2018/30min" class="tier-btn secondary">Book Setup →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <div class="container">
+      <h2>Questions We Always Get</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3>I'm not technical at all. Can I really do this?</h3>
+          <p>Yes. That's the entire point. We do the setup via screen share — you watch and learn if you want to, or you just let us configure it. Most CPAs are up and running in under 2 hours without touching a config file.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Is my client data secure?</h3>
+          <p>OpenClaw runs on your hardware — not a third-party cloud. Your data stays on your machine. We configure your gateway security during setup so it's not exposed to the public internet. You're in control.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What does it actually cost to run?</h3>
+          <p>The OpenClaw software is free. The ongoing cost is your AI API usage — typically $20–40/month for an active CPA practice. We configure cost-optimized models during setup (not the expensive defaults).</p>
+        </div>
+        <div class="faq-item">
+          <h3>Does it work with my existing tools?</h3>
+          <p>OpenClaw can connect to most things via API — QuickBooks, Zoho Books, Google Workspace, Outlook, and more. We'll assess your specific stack during the setup call and configure the integrations that make sense.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What if it breaks after you set it up?</h3>
+          <p>Pro and VIP include 30 days of email support. We also offer a $49 audit anytime you want a second look. And our Managed Care plans ($99–$199/mo) keep your setup running indefinitely without you managing it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="bottom-cta">
+    <div class="container">
+      <h2>Stop Chasing Documents. Start Running a Practice.</h2>
+      <p>Book a 30-minute call. We'll assess your setup, answer every question, and get your agent running the same day.</p>
+      <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book Your CPA Setup Call →</a>
+      <p class="cta-sub">📞 (216) 694-8521 · Cleveland, OH · Results in under 2 hours</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p><a href="https://clawreadynow.com">ClawReady</a> · <a href="https://clawreadynow.com/blog">Blog</a> · <a href="https://clawreadynow.com/real-estate">Real Estate</a> · <a href="https://clawreadynow.com/airbnb-hosts">Airbnb Hosts</a></p>
+      <p style="margin-top: 8px;">© 2026 ClawReady. Not affiliated with OpenClaw or TaxGPT.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

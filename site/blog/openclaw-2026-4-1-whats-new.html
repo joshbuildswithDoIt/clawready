@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 2026.4.1 — What's New (And the Exec Default Change You Need to Know)</title>
+  <meta name="description" content="OpenClaw 2026.4.1 just shipped. Here's what changed: Android Assistant integration, Task Flow substrate, new plugin hooks — and the exec security default that will surprise you if you miss it.">
+  <meta property="og:title" content="OpenClaw 2026.4.1 — What's New (And the Exec Default Change You Need to Know)">
+  <meta property="og:description" content="2026.4.1 is live. Key changes: Android Assistant, Task Flow restored, before_agent_reply hook — and a breaking exec default that removes approval prompts on gateway/node hosts.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-2026-4-1-whats-new">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-2026-4-1-whats-new">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-07JN7219ZL');
+  </script>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --accent: #e74c3c;
+      --yellow: #f39c12;
+      --green: #27ae60;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+    nav { padding: 20px 0; border-bottom: 1px solid var(--border); }
+    nav a { color: var(--accent); text-decoration: none; font-weight: 700; font-size: 1rem; }
+    .hero { padding: 60px 0 40px; border-bottom: 1px solid var(--border); }
+    .tag {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .tag.breaking {
+      background: rgba(231, 76, 60, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    h1 { font-size: 2rem; line-height: 1.25; margin-bottom: 16px; }
+    .subtitle { color: var(--muted); font-size: 1.05rem; }
+    .content { padding: 48px 0; }
+    .content h2 { font-size: 1.4rem; margin: 40px 0 16px; }
+    .content h3 { font-size: 1.1rem; margin: 28px 0 12px; color: var(--text); }
+    .content p { margin-bottom: 16px; color: #ccc; }
+    .content ul, .content ol { padding-left: 24px; margin-bottom: 16px; color: #ccc; }
+    .content li { margin-bottom: 8px; }
+    .content strong { color: var(--text); }
+    .content code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: #e8e8e8;
+    }
+    .content pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+    .content pre code { background: none; border: none; padding: 0; font-size: 0.85rem; }
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin: 32px 0;
+    }
+    .callout.warning {
+      border-left-color: var(--yellow);
+    }
+    .callout.good {
+      border-left-color: var(--green);
+    }
+    .callout p { margin: 0; color: var(--text); }
+    .callout p + p { margin-top: 10px; }
+    .change-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .change-block .label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .label.breaking { background: rgba(231,76,60,0.2); color: var(--accent); }
+    .label.new { background: rgba(39,174,96,0.2); color: var(--green); }
+    .label.fix { background: rgba(52,152,219,0.2); color: #3498db; }
+    .change-block h3 { margin: 0 0 8px; font-size: 1rem; }
+    .change-block p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+    .cta-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin: 48px 0 0;
+    }
+    .cta-block h3 { font-size: 1.4rem; margin-bottom: 12px; }
+    .cta-block p { color: var(--muted); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .footer { padding: 40px 0; text-align: center; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 60px; }
+    .footer a { color: var(--muted); text-decoration: none; }
+    .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin: 32px 0; }
+    .toc h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 6px; }
+    .toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <a href="https://clawreadynow.com">🦞 ClawReady</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <div class="tag breaking">⚠️ Breaking Change Inside</div>
+      <h1>OpenClaw 2026.4.1 — What's New (And the Exec Default You Need to Know)</h1>
+      <p class="subtitle">The latest release dropped today with Android Assistant integration, Task Flow substrate, and a new plugin hook — but the exec security default change is what will bite you if you miss it.</p>
+      <p style="color: var(--muted); font-size: 0.85rem; margin-top: 20px;">April 3, 2026 · 6 min read · Based on official release notes</p>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container">
+
+      <p>OpenClaw 2026.4.1 shipped this morning. Most updates are incremental, but there's one exec behavior change in this release that will surprise you on upgrade if you don't read carefully — and one genuinely exciting new capability for Android users.</p>
+
+      <div class="toc">
+        <h4>In this post</h4>
+        <ol>
+          <li><a href="#exec-default">⚠️ The exec default change (read this first)</a></li>
+          <li><a href="#android">Android Google Assistant integration</a></li>
+          <li><a href="#taskflow">Task Flow substrate restored</a></li>
+          <li><a href="#plugin-hooks">New plugin hook: before_agent_reply</a></li>
+          <li><a href="#breaking">Breaking: xAI + Firecrawl config paths moved</a></li>
+          <li><a href="#fixes">Fixes worth knowing</a></li>
+          <li><a href="#upgrade">How to upgrade</a></li>
+        </ol>
+      </div>
+
+      <h2 id="exec-default">⚠️ The Exec Default Change — Read This First</h2>
+
+      <p>This is the one that will catch people off guard. From the release notes:</p>
+
+      <blockquote style="border-left: 3px solid var(--border); padding-left: 20px; color: var(--muted); margin: 24px 0; font-style: italic;">
+        "Exec defaults: make gateway/node host exec default to YOLO mode by requesting security=full with ask=off, and align host approval-file fallbacks plus docs/doctor reporting with that no-prompt default."
+      </blockquote>
+
+      <p>In plain English: <strong>if you run exec commands through a gateway or remote node connection, OpenClaw no longer prompts for approval by default.</strong></p>
+
+      <p>Previously, commands routed through a gateway would respect whatever approval policy you had configured — often prompting before running. Now the default is <code>security=full, ask=off</code>, meaning commands run immediately without asking.</p>
+
+      <div class="callout warning">
+        <p>⚠️ <strong>Who this affects:</strong> Anyone using OpenClaw via a remote gateway or node (i.e., you connect from your phone or another machine). If your agent is configured to run exec commands and you haven't explicitly set an approval policy, those commands now run without prompting after upgrading.</p>
+        <p>This does NOT affect local connections with approval policies you've already set explicitly.</p>
+      </div>
+
+      <p><strong>What to do:</strong> After upgrading, run <code>openclaw doctor</code> to review your exec policy. If you want to keep prompts for specific command types, set your policy explicitly in your config rather than relying on defaults. The old behavior is still available — it's just no longer the default for gateway/node hosts.</p>
+
+      <p>If you're a ClawReady customer and you're unsure about your current exec policy, reply to your setup email and we'll check your config.</p>
+
+      <h2 id="android">📱 Android Google Assistant Integration</h2>
+
+      <div class="change-block">
+        <span class="label new">New</span>
+        <h3>Launch OpenClaw from Google Assistant on Android</h3>
+        <p>OpenClaw now registers Google Assistant App Actions metadata so Android users can invoke their agent directly from the assistant trigger and pass prompts into the chat composer.</p>
+      </div>
+
+      <p>This is a big quality-of-life upgrade for Android users. Instead of opening the OpenClaw app and navigating to a chat, you can now say "Hey Google, ask OpenClaw [your question]" and it routes directly to your agent.</p>
+
+      <p>It also means OpenClaw can now act as an assistant-role entrypoint — useful for users building voice-triggered workflows on Android devices. This requires updating the Android app alongside the server.</p>
+
+      <h2 id="taskflow">🔄 Task Flow Substrate Restored</h2>
+
+      <div class="change-block">
+        <span class="label new">New</span>
+        <h3>Managed Task Flows with durable state and recovery</h3>
+        <p>The core Task Flow substrate is back — managed vs. mirrored sync modes, durable flow state and revision tracking, and <code>openclaw flows</code> inspection/recovery primitives for background orchestration.</p>
+      </div>
+
+      <p>Task Flows allow OpenClaw to run long-running background jobs that persist across sessions. This is primarily relevant for advanced users and plugin developers building multi-step orchestration — things like "research this topic for an hour and report back" without requiring an active session to stay open.</p>
+
+      <p>The new additions include managed child task spawning and sticky cancel intent, so you can stop scheduling immediately and let parent flows settle cleanly when cancelled.</p>
+
+      <h2 id="plugin-hooks">🔌 New Plugin Hook: before_agent_reply</h2>
+
+      <div class="change-block">
+        <span class="label new">New</span>
+        <h3>Plugins can now short-circuit the LLM with synthetic replies</h3>
+        <p>The <code>before_agent_reply</code> hook lets plugins intercept the reply pipeline after inline actions and return a synthetic response without calling the LLM.</p>
+      </div>
+
+      <p>For plugin developers, this opens up patterns like: run a tool action, and if the result is deterministic, return a canned response immediately instead of passing to the model. Useful for performance optimization and cost reduction in high-frequency automation flows.</p>
+
+      <h2 id="breaking">Breaking: Plugin Config Paths Changed</h2>
+
+      <div class="change-block">
+        <span class="label breaking">Breaking</span>
+        <h3>xAI x_search config moved to plugin-owned path</h3>
+        <p>Settings previously at <code>tools.web.x_search.*</code> now live at <code>plugins.entries.xai.config.xSearch.*</code>. Auth migrated to <code>plugins.entries.xai.config.webSearch.apiKey</code> or the <code>XAI_API_KEY</code> env var.</p>
+      </div>
+
+      <div class="change-block">
+        <span class="label breaking">Breaking</span>
+        <h3>Firecrawl web_fetch config moved to plugin-owned path</h3>
+        <p>Settings previously at <code>tools.web.fetch.firecrawl.*</code> now live at <code>plugins.entries.firecrawl.config.webFetch.*</code>.</p>
+      </div>
+
+      <p>Both can be auto-migrated. Run <code>openclaw doctor --fix</code> after upgrading and it will move the config for you.</p>
+
+      <h2 id="fixes">Fixes Worth Knowing</h2>
+
+      <ul>
+        <li><strong>Pairing-required errors fixed</strong> — Gateway/exec loopback now has proper fallbacks for empty paired-device token maps, so local exec and node clients stop failing with "pairing required" after the 2026.3.31 changes.</li>
+        <li><strong>sessions_spawn on loopback fixed</strong> — Sub-agent gateway calls now pin to the correct admin scope, fixing <code>close(1008) "pairing required"</code> errors.</li>
+        <li><strong>Malformed exec-approvals.json handled</strong> — Invalid security/ask values in your approvals file are now stripped and fall back to documented defaults instead of corrupting runtime policy.</li>
+        <li><strong>Plugin SDK deprecation warnings</strong> — Legacy provider compat subpaths now emit migration warnings. These will be removed in a future major release.</li>
+        <li><strong>Context window reporting fixed</strong> — <code>/status</code> now correctly shows the 1.0M context window for fresh Anthropic 4.6 model overrides instead of reporting an undercount.</li>
+      </ul>
+
+      <h2 id="upgrade">How to Upgrade</h2>
+
+      <pre><code>npm update -g openclaw
+openclaw doctor --fix</code></pre>
+
+      <p>The <code>--fix</code> flag handles the xAI and Firecrawl config migrations automatically. After upgrading, check your exec policy if you use remote gateway or node connections (see the exec default section above).</p>
+
+      <div class="callout good">
+        <p>✅ <strong>Already a ClawReady customer?</strong> Your config was set up with explicit policies — you're less likely to be surprised by the exec default change than someone who installed OpenClaw from scratch. Still worth running <code>openclaw doctor</code> to confirm your posture after upgrading.</p>
+      </div>
+
+      <div class="cta-block">
+        <h3>Not Sure If Your Config Is Ready for 2026.4.1?</h3>
+        <p>We offer a $49 audit that reviews your exec policy, plugin list, security posture, and model config. Results in 24 hours.</p>
+        <a href="https://calendly.com/grofresh2018/30min" class="cta-btn">Book an Audit →</a>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p><a href="https://clawreadynow.com">ClawReady</a> · <a href="https://clawreadynow.com/blog">Blog</a> · (216) 694-8521 · Cleveland, OH</p>
+      <p style="margin-top: 8px;">© 2026 ClawReady. Not affiliated with OpenClaw.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
