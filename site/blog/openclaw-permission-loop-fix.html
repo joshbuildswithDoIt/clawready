@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fix: OpenClaw Keeps Asking for Permission After 2026.4.1 Update — ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.1 changed exec approval defaults — now it blocks everything until you configure exec-approvals.json. Here's the exact fix in 5 minutes.">
+  <meta property="og:title" content="Fix: OpenClaw Keeps Asking for Permission After 2026.4.1 Update">
+  <meta property="og:description" content="v2026.4.1 broke exec approvals for thousands of users. Here's the exact fix — exec-approvals.json, Discord/Slack approval channel setup, and how to restore your previous behavior.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-permission-loop-fix">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-permission-loop-fix">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.4rem;font-weight:700;margin:36px 0 14px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;overflow-x:auto;margin:16px 0;font-size:.88rem;line-height:1.6}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.9rem;color:var(--accent)}
+    pre code{background:none;border:none;padding:0;color:#e8e8e8;font-size:.88rem}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:24px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .step{counter-increment:steps;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:14px 0;position:relative;padding-left:60px}
+    .step::before{content:counter(steps);position:absolute;left:18px;top:18px;width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+    .steps{counter-reset:steps;margin:0}
+    .step h3{margin:0 0 8px;font-size:1rem}
+    .step p{margin:0;font-size:.92rem;color:var(--muted)}
+    .step pre{margin:10px 0 0}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">🔧 Fix</div>
+    <h1>Fix: OpenClaw Keeps Asking for Permission After 2026.4.1 Update</h1>
+    <p class="subtitle">v2026.4.1 changed exec approval defaults — now it blocks all commands until you configure exec-approvals.json. Here's the exact fix, three ways to handle it.</p>
+    <p class="meta">By ClawReady — April 5, 2026 · 5 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>If you updated to OpenClaw 2026.4.1 and your agent suddenly asks for approval before every single command — even things it was doing automatically before — you're not alone. This is the #1 issue on r/openclaw right now.</p>
+
+    <p>Here's what changed and how to fix it.</p>
+
+    <h2>What Changed in 2026.4.1</h2>
+
+    <p>The 2026.4.1 update introduced a new exec security model. Previously, OpenClaw would run commands based on your <code>openclaw.json</code> security settings. Now, the source of truth is a separate file: <code>~/.openclaw/exec-approvals.json</code>.</p>
+
+    <div class="callout yellow">
+      <p><strong>The breaking change:</strong> If <code>exec-approvals.json</code> doesn't exist, 2026.4.1 defaults to blocking <em>everything</em> — including commands your agent has been running automatically for months. The migration doesn't create this file automatically.</p>
+    </div>
+
+    <p>This is intentional — it's a security improvement. But it's a breaking change that wasn't prominently flagged in the release notes, which is why thousands of users hit it unexpectedly.</p>
+
+    <h2>The Three Ways to Fix It</h2>
+
+    <h3>Option 1: Restore Previous Behavior (Fastest)</h3>
+    <p>If you want your agent to behave exactly like it did before the update — run commands autonomously without asking — create the approvals file with full allow:</p>
+
+    <pre><code>mkdir -p ~/.openclaw
+cat > ~/.openclaw/exec-approvals.json << 'EOF'
+{
+  "version": 1,
+  "defaultPolicy": "allow",
+  "rules": []
+}
+EOF</code></pre>
+
+    <div class="callout">
+      <p><strong>Security note:</strong> This restores pre-4.1 behavior but removes the new approval layer. Only use this if your gateway is properly secured (auth token set, not publicly exposed). If you're not sure, use Option 2 instead.</p>
+    </div>
+
+    <h3>Option 2: Configure an Approval Channel (Recommended)</h3>
+    <p>This is the right way to use 2026.4.1 — your agent asks for permission via Discord or Slack, you approve/deny with a tap on your phone. It's actually a great workflow once configured.</p>
+
+    <ol>
+      <li>In your openclaw.json, add your approval channel config under <code>approvals</code></li>
+      <li>Set your Discord or Slack channel as the approval destination</li>
+      <li>Create exec-approvals.json with <code>"defaultPolicy": "ask"</code></li>
+    </ol>
+
+    <pre><code># exec-approvals.json for approval-channel workflow
+{
+  "version": 1,
+  "defaultPolicy": "ask",
+  "approvalChannel": "discord",
+  "timeoutSeconds": 300,
+  "rules": [
+    {
+      "pattern": "git status|git log|ls|cat|pwd",
+      "policy": "allow"
+    },
+    {
+      "pattern": "rm -rf|sudo rm|DROP TABLE|format",
+      "policy": "deny"
+    }
+  ]
+}</code></pre>
+
+    <p>With this config: read-only commands run automatically, destructive patterns are always blocked, and everything else asks you via Discord with approve/deny buttons.</p>
+
+    <h3>Option 3: Per-Command Allowlist (Most Precise)</h3>
+    <p>If you know exactly which commands your agent needs to run automatically, list them explicitly:</p>
+
+    <pre><code>{
+  "version": 1,
+  "defaultPolicy": "ask",
+  "rules": [
+    { "pattern": "git (add|commit|push|pull|status|log)", "policy": "allow" },
+    { "pattern": "npm (run|install|build|test)", "policy": "allow" },
+    { "pattern": "ls|cat|pwd|echo|grep|find", "policy": "allow" },
+    { "pattern": "curl https://", "policy": "allow" },
+    { "pattern": ".*", "policy": "ask" }
+  ]
+}</code></pre>
+
+    <h2>Also Check: The Specific Scenario Where Nothing Works at All</h2>
+
+    <p>Some users on r/openclaw are reporting that even after creating exec-approvals.json, their agent is still stuck. This is usually one of two things:</p>
+
+    <ul>
+      <li><strong>File permissions:</strong> Run <code>chmod 600 ~/.openclaw/exec-approvals.json</code> — OpenClaw won't read it if it's world-writable.</li>
+      <li><strong>Restart required:</strong> OpenClaw doesn't hot-reload this file. Restart the service: <code>sudo systemctl restart openclaw</code> (or however you run it).</li>
+    </ul>
+
+    <h2>If You're Still on 2026.3.31 — Local LLM Timeout Bug</h2>
+
+    <p>Separate issue: 2026.3.31 introduced a bug that causes local LLMs (Ollama, LM Studio) to time out after a few minutes. If you're hitting this, either:</p>
+    <ul>
+      <li>Update to 2026.4.1+ where it's fixed (and apply the exec-approvals.json fix above)</li>
+      <li>Or revert to 2026.3.28: <code>npm install -g openclaw@2026.3.28</code></li>
+    </ul>
+
+    <div class="callout green">
+      <p><strong>Verify your fix worked:</strong> Restart OpenClaw, then ask your agent to run a simple command like <code>echo hello</code>. If it runs without asking for approval (Option 1) or routes the approval to your channel (Option 2), you're good.</p>
+    </div>
+
+    <h2>Why This Keeps Happening</h2>
+
+    <p>OpenClaw is shipping roughly one release every 1.5 days right now, and about 40% of recent releases have included breaking config changes. The 4.1 exec change is a good example of what this looks like in practice: a well-intentioned security improvement, insufficient migration tooling, and thousands of users hitting the wall simultaneously.</p>
+
+    <p>If you're tired of spending afternoons debugging post-update breakage, that's exactly what <a href="/blog/openclaw-managed-care" style="color:var(--accent)">ClawReady Care</a> handles — we track every release, evaluate breaking changes against your specific config, and apply fixes before you notice anything is wrong.</p>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Never Get Caught by a Breaking Update Again</h2>
+    <p>ClawReady Care covers every release, every breaking change, every CVE patch. $99/mo — we handle it so you don't have to.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
