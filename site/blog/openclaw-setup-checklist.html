@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The 32-Point OpenClaw Setup Checklist (What a Pro Install Looks Like) — ClawReady</title>
+  <meta name="description" content="Every professional OpenClaw install should cover 32 checkpoints across security, identity, channels, monitoring, and backup. How many does yours have?">
+  <meta property="og:title" content="The 32-Point OpenClaw Setup Checklist">
+  <meta property="og:description" content="Security, identity, channels, monitoring, backup — 32 checkpoints every professional OpenClaw install should cover. How many does yours have?">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-setup-checklist">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-setup-checklist">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(39,174,96,.1);color:var(--green);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.4rem;font-weight:700;margin:36px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout p{margin:0;font-size:.95rem}
+    .checklist{list-style:none;margin:0 0 8px 0!important;display:flex;flex-direction:column;gap:6px}
+    .checklist li{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:7px;font-size:.92rem}
+    .checklist li .check{color:var(--green);font-size:1rem;flex-shrink:0;margin-top:1px}
+    .checklist li .item{flex:1}
+    .checklist li .item strong{display:block;color:#fff}
+    .checklist li .item span{color:var(--muted);font-size:.85rem}
+    .score-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;margin:32px 0;text-align:center}
+    .score-box h3{font-size:1.1rem;margin-bottom:16px;color:var(--muted)}
+    .score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media(max-width:500px){.score-grid{grid-template-columns:repeat(2,1fr)}}
+    .score-item{padding:12px;border-radius:8px;border:1px solid var(--border)}
+    .score-item .range{font-size:1.1rem;font-weight:800;margin-bottom:4px}
+    .score-item .verdict{font-size:.8rem;color:var(--muted)}
+    .score-item.red{border-color:rgba(231,76,60,.3);background:rgba(231,76,60,.05)}
+    .score-item.red .range{color:var(--accent)}
+    .score-item.yellow{border-color:rgba(243,156,18,.3);background:rgba(243,156,18,.05)}
+    .score-item.yellow .range{color:var(--yellow)}
+    .score-item.blue{border-color:rgba(52,152,219,.3);background:rgba(52,152,219,.05)}
+    .score-item.blue .range{color:var(--blue)}
+    .score-item.green{border-color:rgba(39,174,96,.3);background:rgba(39,174,96,.05)}
+    .score-item.green .range{color:var(--green)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">✅ Checklist</div>
+    <h1>The 32-Point OpenClaw Setup Checklist</h1>
+    <p class="subtitle">What a professional install actually looks like — across security, identity, channels, monitoring, and backup. Run through this and see where your setup stands.</p>
+    <p class="meta">By ClawReady — April 5, 2026 · 7 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>After 50+ OpenClaw installs, we've learned that the difference between a setup that "works" and a setup that <em>works reliably for your business</em> comes down to 32 specific checkpoints. Most DIY setups cover about 10 of them.</p>
+
+    <p>Run through this list. Every unchecked item is a risk or a gap.</p>
+
+    <div class="score-box">
+      <h3>Score your setup</h3>
+      <div class="score-grid">
+        <div class="score-item red"><div class="range">0–10</div><div class="verdict">Vulnerable — fix immediately</div></div>
+        <div class="score-item yellow"><div class="range">11–20</div><div class="verdict">Functional but fragile</div></div>
+        <div class="score-item blue"><div class="range">21–28</div><div class="verdict">Solid — a few gaps</div></div>
+        <div class="score-item green"><div class="range">29–32</div><div class="verdict">Production-ready ✓</div></div>
+      </div>
+    </div>
+
+    <h2>🔒 Security (8 points)</h2>
+    <ul class="checklist">
+      <li><div class="check">☐</div><div class="item"><strong>Auth token set</strong><span>A strong random token in openclaw.json — not the default or empty</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Gateway bind address locked</strong><span>Bound to 127.0.0.1 or your internal interface, not 0.0.0.0</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Firewall configured</strong><span>Only necessary ports open — 22 (SSH), 80, 443. OpenClaw port not publicly exposed.</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Reverse proxy with HTTPS</strong><span>nginx or Caddy in front with a valid Let's Encrypt certificate</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>API spend limits set</strong><span>Hard caps on Anthropic and OpenAI dashboards before any real usage</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>SSH key auth only</strong><span>Password authentication disabled on the server — key pairs only</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Secrets never in chat or email</strong><span>API keys entered directly into config files or environment, never pasted in chat</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>CVE monitoring</strong><span>Subscribed to OpenClaw GitHub releases so you're notified of security patches immediately</span></div></li>
+    </ul>
+
+    <h2>🧠 Identity & Configuration (7 points)</h2>
+    <ul class="checklist">
+      <li><div class="check">☐</div><div class="item"><strong>SOUL.md written for your business</strong><span>Covers agent identity, tone, boundaries, and your specific workflow preferences</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>AGENTS.md configured</strong><span>Org structure, roles, delegation rules — not the default template</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>USER.md populated</strong><span>Your name, timezone, communication preferences, business context</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>HEARTBEAT.md customized</strong><span>Defines what the agent should do during idle cycles — not left at default</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Memory structure established</strong><span>Workspace organized — memory/, projects/, templates/ directories with initial content</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Model configured appropriately</strong><span>Right model for your use case — Opus for reasoning, Sonnet for speed, local for cost</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Workspace committed to git</strong><span>Version control on your workspace so you can roll back config changes</span></div></li>
+    </ul>
+
+    <h2>📡 Channels (5 points)</h2>
+    <ul class="checklist">
+      <li><div class="check">☐</div><div class="item"><strong>Primary channel tested end-to-end</strong><span>Not just installed — a real message sent and received on your phone or desktop</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Webhook URLs registered</strong><span>Each channel's webhook properly registered with the provider (Telegram, Discord, etc.)</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Channel plugins verified after updates</strong><span>Plugins re-tested after every major OpenClaw update — they break silently</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Fallback channel configured</strong><span>At least one backup channel if your primary goes down</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Notification schedule configured</strong><span>Heartbeat schedule matches your actual working hours — no 3 AM pings</span></div></li>
+    </ul>
+
+    <h2>⚙️ Infrastructure (6 points)</h2>
+    <ul class="checklist">
+      <li><div class="check">☐</div><div class="item"><strong>systemd unit installed</strong><span>OpenClaw restarts automatically after server reboots or crashes</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Log rotation configured</strong><span>Logs don't grow to fill your disk over time</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Disk space monitored</strong><span>Alert at 80% — OpenClaw workspaces can grow quickly with memory files</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Update process documented</strong><span>Written procedure for how to safely update — backup, changelog review, test</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Node version pinned</strong><span>Specific Node.js version locked to avoid breaking changes from runtime updates</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Uptime monitoring</strong><span>External ping (UptimeRobot free tier works) so you know when it's down before your users do</span></div></li>
+    </ul>
+
+    <h2>💾 Backup & Recovery (6 points)</h2>
+    <ul class="checklist">
+      <li><div class="check">☐</div><div class="item"><strong>Workspace backed up</strong><span>Automated backup of ~/.openclaw/workspace — this is your agent's brain</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Config backed up separately</strong><span>openclaw.json and all plugin configs backed up and version controlled</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Backup tested</strong><span>You've actually restored from backup at least once — untested backups aren't backups</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Pre-update snapshot habit</strong><span>Manual backup before every OpenClaw update as a non-negotiable step</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>Recovery time documented</strong><span>You know how long it takes to get back up from a full failure — and it's acceptable</span></div></li>
+      <li><div class="check">☐</div><div class="item"><strong>API keys stored securely</strong><span>Keys in a password manager, not in Notion, Google Docs, or your email drafts</span></div></li>
+    </ul>
+
+    <div class="callout green">
+      <p><strong>ClawReady covers all 32 checkpoints</strong> on every install. If you scored below 20, you have real gaps worth fixing — either DIY with this list or <a href="https://calendly.com/grofresh2018" target="_blank" style="color:var(--green)">book a call</a> and we'll close them for you.</p>
+    </div>
+
+    <h2>What to Do With Your Score</h2>
+
+    <p><strong>29–32:</strong> You're in good shape. Re-run this checklist after every major OpenClaw update — the infrastructure items especially can drift.</p>
+
+    <p><strong>21–28:</strong> Pick the unchecked items in Security and Backup first — those have the highest consequence if they fail. The rest you can work through systematically.</p>
+
+    <p><strong>11–20:</strong> Your setup works but it's fragile. One bad update, one server reboot, or one rogue API call away from a problem. Prioritize systemd, API limits, and workspace backup this week.</p>
+
+    <p><strong>0–10:</strong> You have "something running" — not a production setup. Please at minimum set an API spend cap and an auth token today before anything else.</p>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want All 32 Done For You?</h2>
+    <p>ClawReady covers every item on this list in a 48-hour setup. Starting at $99.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
