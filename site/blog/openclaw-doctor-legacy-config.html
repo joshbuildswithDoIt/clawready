@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>openclaw doctor: Fix Legacy Config Before It Breaks Your Setup — ClawReady</title>
+  <meta name="description" content="Since v2026.3.28, OpenClaw no longer auto-repairs deprecated config keys. If your install predates January 2026, you need to run openclaw doctor now — before the next update breaks something silently.">
+  <meta property="og:title" content="openclaw doctor: Fix Legacy Config Before It Breaks Your Setup">
+  <meta property="og:description" content="OpenClaw stopped silently repairing old configs in v2026.3.28. Here's how to run openclaw doctor, what to look for, and how to fix every common warning.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-doctor-legacy-config">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-doctor-legacy-config">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(243,156,18,.1);color:var(--yellow);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;overflow-x:auto;margin:16px 0;font-size:.88rem;line-height:1.6}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88rem;color:var(--accent)}
+    pre code{background:none;border:none;padding:0;color:#ccc}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .warning-block{background:var(--surface);border:1px solid rgba(243,156,18,.3);border-radius:10px;padding:20px 24px;margin:18px 0}
+    .warning-block .w-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--yellow);margin-bottom:8px}
+    .warning-block .w-code{font-family:monospace;font-size:.88rem;color:var(--yellow);margin-bottom:10px}
+    .warning-block .w-fix{font-size:.9rem;color:var(--text)}
+    .warning-block .w-fix code{color:var(--green)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">⚠️ Config Fix</div>
+    <h1>openclaw doctor: Fix Legacy Config Before It Breaks Your Setup</h1>
+    <p class="subtitle">Since v2026.3.28, OpenClaw stopped silently repairing deprecated config. If your install predates January 2026 and you haven't run <code>openclaw doctor</code>, you have ticking config debt.</p>
+    <p class="meta">By ClawReady — April 5, 2026 · 6 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Until v2026.3.28, OpenClaw would silently rewrite legacy config keys every time it started up. Old key? It would quietly migrate it to the new format and keep going. You'd never know.</p>
+
+    <p>That behavior is gone.</p>
+
+    <p>Starting with 3.28, the gateway no longer auto-repairs deprecated config. If you have old keys sitting in your <code>openclaw.json</code> — and if your install predates January 2026, you probably do — they'll stop working silently on the next update that drops support for them.</p>
+
+    <div class="callout yellow">
+      <p><strong>From the v2026.3.28 release notes:</strong> "Config repair behavior changed: The gateway no longer auto-repairs deprecated config keys at startup. If your install predates January 2026 and you haven't run <code>openclaw doctor</code> since, run it to see what was quietly fixed."</p>
+    </div>
+
+    <h2>Step 1: Run openclaw doctor</h2>
+
+    <p>This is a built-in diagnostic tool. Run it now:</p>
+
+    <pre><code>openclaw doctor</code></pre>
+
+    <p>It scans your config files, workspace structure, and plugin settings for known issues. Output looks something like this:</p>
+
+    <pre><code>OpenClaw Doctor — v2026.4.2
+Scanning config...
+
+⚠  Deprecated key: tts.provider → use tts.engine (legacy support ends v2026.5)
+⚠  Deprecated key: gateway.bindAddress → use gateway.bind
+✓  Auth token: present
+✓  Gateway: reachable
+⚠  exec-approvals.json: missing (defaults to block-all on v2026.4.1+)
+✓  Workspace: found at ~/.openclaw/workspace
+⚠  Channels: telegram plugin config missing webhookUrl
+✓  Node: v22.22.0 (supported)
+
+3 warnings, 0 errors.
+Run `openclaw doctor --fix` to auto-resolve warnings where possible.</code></pre>
+
+    <h2>Step 2: Run --fix for Auto-Resolvable Issues</h2>
+
+    <pre><code>openclaw doctor --fix</code></pre>
+
+    <p>This handles the easy migrations automatically — renamed keys, moved config sections, deprecated aliases. It creates a backup of your config before making changes.</p>
+
+    <p>After running it, run <code>openclaw doctor</code> again to confirm the warnings are cleared.</p>
+
+    <h2>Step 3: Fix the Remaining Warnings Manually</h2>
+
+    <p>Some warnings require manual intervention. Here are the most common ones and exactly how to fix them:</p>
+
+    <div class="warning-block">
+      <div class="w-label">Warning</div>
+      <div class="w-code">exec-approvals.json: missing (defaults to block-all on v2026.4.1+)</div>
+      <div class="w-fix">
+        Create the file at <code>~/.openclaw/exec-approvals.json</code>. Minimal config to restore pre-4.1 behavior:
+        <pre><code>{
+  "version": 1,
+  "rules": [
+    {
+      "match": "*",
+      "ask": "on-miss",
+      "security": "allowlist"
+    }
+  ]
+}</code></pre>
+        Or for fully trusted local installs: <code>"ask": "off"</code>. See the <a href="https://docs.openclaw.ai/cli/approvals" target="_blank" style="color:var(--blue)">approvals docs</a> for full reference.
+      </div>
+    </div>
+
+    <div class="warning-block">
+      <div class="w-label">Warning</div>
+      <div class="w-code">Channels: telegram plugin config missing webhookUrl</div>
+      <div class="w-fix">
+        Your Telegram plugin has a token but no registered webhook. Fix:<br><br>
+        <code>openclaw channels telegram setup</code><br><br>
+        This re-registers your bot's webhook URL with Telegram's API. Required after any domain/IP change or if you migrated servers.
+      </div>
+    </div>
+
+    <div class="warning-block">
+      <div class="w-label">Warning</div>
+      <div class="w-code">Deprecated key: tts.provider → use tts.engine</div>
+      <div class="w-fix">
+        In your <code>openclaw.json</code>, rename the key:<br>
+        <code>"tts": {"provider": "..."}</code> → <code>"tts": {"engine": "..."}</code><br><br>
+        The value stays the same. Just the key name changed. <code>openclaw doctor --fix</code> usually handles this automatically.
+      </div>
+    </div>
+
+    <div class="warning-block">
+      <div class="w-label">Warning</div>
+      <div class="w-code">Deprecated key: gateway.bindAddress → use gateway.bind</div>
+      <div class="w-fix">
+        In <code>openclaw.json</code>:<br>
+        <code>"gateway": {"bindAddress": "127.0.0.1"}</code> → <code>"gateway": {"bind": "127.0.0.1"}</code><br><br>
+        Again, value is unchanged — just the key name. Doctor --fix handles this.
+      </div>
+    </div>
+
+    <div class="warning-block">
+      <div class="w-label">Warning</div>
+      <div class="w-code">MiniMax plugin: API shape changed, reconfigure required</div>
+      <div class="w-fix">
+        MiniMax changed their API in v2026.3.28. If you use MiniMax, you need to re-enter credentials:<br>
+        <code>openclaw channels minimax setup</code><br><br>
+        If you don't use MiniMax, remove the plugin config entirely to suppress the warning.
+      </div>
+    </div>
+
+    <h2>How to Check if You're Affected</h2>
+
+    <p>Quick check — when was your OpenClaw first installed?</p>
+
+    <pre><code># Check your oldest config file timestamp
+ls -la ~/.openclaw/openclaw.json
+
+# Check git history if your workspace is version controlled
+cd ~/.openclaw/workspace && git log --oneline | tail -1</code></pre>
+
+    <p>If your install is older than January 2026, there's a near-100% chance you have at least one deprecated key. Run doctor.</p>
+
+    <h2>Make This Part of Your Update Routine</h2>
+
+    <p>Going forward, add <code>openclaw doctor</code> to your update process — run it after every major version bump:</p>
+
+    <pre><code># Before updating: back up
+cp -r ~/.openclaw ~/.openclaw-backup-$(date +%Y%m%d)
+
+# Update
+npm update -g openclaw
+
+# After updating: check config health
+openclaw doctor
+
+# Auto-fix where possible
+openclaw doctor --fix
+
+# Verify
+openclaw doctor</code></pre>
+
+    <p>Takes 2 minutes. Prevents the kind of silent config drift that leads to a mysterious broken channel three updates later.</p>
+
+    <div class="callout green">
+      <p><strong>ClawReady includes config health checks</strong> on every managed care plan update. We run doctor before and after every version bump and fix any warnings before they become problems. If you'd rather not think about this — <a href="https://calendly.com/grofresh2018" target="_blank" style="color:var(--green)">book a call</a>.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want Someone to Handle This For You?</h2>
+    <p>ClawReady's managed care plan covers every update, every config migration, every doctor run. $99/mo.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
