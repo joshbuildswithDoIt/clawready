@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Add Your OpenClaw Agent to a Google Meet Call (Pika Integration) — ClawReady</title>
+  <meta name="description" content="Pika just dropped real-time video chat for AI agents. You can now send your OpenClaw agent a Google Meet invite and have it join the call. Here's how to set it up.">
+  <meta property="og:title" content="How to Add Your OpenClaw Agent to a Google Meet Call (Pika Integration)">
+  <meta property="og:description" content="Pika dropped real-time video chat for AI agents. Send your OpenClaw agent a Google Meet invite — it joins, listens, responds, and takes notes. Setup guide inside.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-google-meet-pika">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-google-meet-pika">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.1);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header .breaking{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:700;margin-bottom:16px;margin-left:8px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.9rem;color:var(--accent)}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .step-list{display:flex;flex-direction:column;gap:16px;margin:24px 0}
+    .step{display:flex;gap:16px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px}
+    .step .num{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+    .step .content{flex:1}
+    .step .content strong{display:block;font-size:1rem;margin-bottom:6px;color:#fff}
+    .step .content p{margin:0;color:var(--muted);font-size:.9rem}
+    .use-cases{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+    @media(max-width:560px){.use-cases{grid-template-columns:1fr}}
+    .use-case{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+    .use-case .icon{font-size:1.4rem;margin-bottom:8px}
+    .use-case h3{font-size:.95rem;font-weight:700;margin-bottom:6px;color:#fff}
+    .use-case p{font-size:.85rem;color:var(--muted);margin:0}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">🎥 New Feature</div>
+    <span class="breaking">Just Dropped</span>
+    <h1>How to Add Your OpenClaw Agent to a Google Meet Call</h1>
+    <p class="subtitle">Pika just released real-time video chat for AI agents. You can now send your OpenClaw agent a Google Meet invite — it joins, listens, responds live, and takes notes automatically.</p>
+    <p class="meta">By ClawReady — April 5, 2026 · 5 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>This week Pika dropped one of the most sci-fi features in AI tooling so far: <strong>real-time video call support for AI agents</strong>. Send your OpenClaw agent a Google Meet invite. It joins the call. It participates. It takes notes.</p>
+
+    <p>Here's what that actually means in practice and how to get it working on your setup.</p>
+
+    <h2>What Pika's Video Chat Integration Does</h2>
+
+    <p>Pika is a real-time multimodal communication layer that sits between OpenClaw and video conferencing tools. When connected to your OpenClaw agent:</p>
+
+    <ul>
+      <li>Your agent gets a calendar-connected email address (e.g., <code>doit@youragent.pika.ai</code>)</li>
+      <li>Invite that address to any Google Meet call like you'd invite a human participant</li>
+      <li>The agent joins the call, processes audio in real time, and can respond via text-to-speech</li>
+      <li>After the call: automatic summary, action items, and decisions pushed to your OpenClaw workspace</li>
+    </ul>
+
+    <div class="callout blue">
+      <p><strong>Important distinction:</strong> The agent doesn't have a face or camera — it joins as an audio-only participant with a name. Other participants see it listed in the call like any other attendee. It can speak when addressed directly or stay in listen/note mode.</p>
+    </div>
+
+    <h2>Prerequisites</h2>
+
+    <ul>
+      <li>OpenClaw running and accessible (not just localhost — needs a public URL or ngrok tunnel)</li>
+      <li>Pika account (pika.ai — currently free tier available during beta)</li>
+      <li>Google account for calendar integration</li>
+      <li>OpenClaw gateway with a valid auth token (required for Pika's webhook)</li>
+    </ul>
+
+    <h2>Setup: Step by Step</h2>
+
+    <div class="step-list">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="content">
+          <strong>Create your Pika account and agent profile</strong>
+          <p>Go to pika.ai → Sign up → Create Agent. Give it your agent's name (from your IDENTITY.md), description, and connect your OpenClaw gateway URL + auth token. This is where Pika will forward transcripts and receive responses.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="content">
+          <strong>Connect your Google Calendar</strong>
+          <p>In Pika dashboard → Integrations → Google Calendar → Authorize. This gives your agent its own calendar presence. Pika creates a dedicated Google account for the agent that you control.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="content">
+          <strong>Configure your OpenClaw webhook endpoint</strong>
+          <p>In your OpenClaw <code>openclaw.json</code>, add the Pika plugin config block with your Pika API key and webhook secret. Restart OpenClaw. Pika will verify the connection with a test ping.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div class="content">
+          <strong>Set meeting behavior in SOUL.md</strong>
+          <p>Add a <code>## Meeting Behavior</code> section to your SOUL.md. Define: active participant or silent note-taker? When to speak? What to do with the transcript after? This controls how your agent behaves in calls.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div class="content">
+          <strong>Send a test invite and verify</strong>
+          <p>Create a Google Meet event → add your agent's Pika email as a guest → start the call. Check that the agent joins, that transcription is flowing in your OpenClaw logs, and that the post-call summary appears in your workspace.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>What to Put in Your SOUL.md Meeting Section</h2>
+
+    <p>This is the most important configuration step — and the one most setup guides skip. Your agent's meeting behavior should match how you actually work:</p>
+
+    <div class="callout">
+      <p><strong>Example SOUL.md meeting block:</strong></p>
+      <br>
+      <p><code>## Meeting Behavior</code><br><br>
+      <code>- Default mode: silent note-taker unless directly addressed by name</code><br>
+      <code>- When addressed: respond concisely, max 2 sentences unless asked to elaborate</code><br>
+      <code>- After every call: generate summary → action items → decisions made → open questions</code><br>
+      <code>- Save transcript to memory/meetings/YYYY-MM-DD-[meeting-name].md</code><br>
+      <code>- Never speak over humans. Wait for a natural pause.</code></p>
+    </div>
+
+    <h2>Real-World Use Cases</h2>
+
+    <div class="use-cases">
+      <div class="use-case">
+        <div class="icon">📋</div>
+        <h3>Client meetings</h3>
+        <p>Agent takes notes silently. Pushes action items to your workspace immediately after the call ends. No more "who said what" debates.</p>
+      </div>
+      <div class="use-case">
+        <div class="icon">🏠</div>
+        <h3>Property walkthroughs</h3>
+        <p>Walk through a property on video call with a tenant or contractor. Agent captures every maintenance request and commitment made during the call.</p>
+      </div>
+      <div class="use-case">
+        <div class="icon">💼</div>
+        <h3>Contractor briefings</h3>
+        <p>Brief a contractor on a job verbally via Meet. Agent transcribes the scope, generates a written summary, and files it automatically.</p>
+      </div>
+      <div class="use-case">
+        <div class="icon">📞</div>
+        <h3>Sales calls</h3>
+        <p>Agent listens to discovery calls and pulls deal notes, objections, and next steps into your CRM or workspace automatically.</p>
+      </div>
+      <div class="use-case">
+        <div class="icon">🧾</div>
+        <h3>Tax/legal consultations</h3>
+        <p>Agent joins your CPA or attorney call and captures decisions, action items, and deadline commitments — nothing slips through the cracks.</p>
+      </div>
+      <div class="use-case">
+        <div class="icon">🎯</div>
+        <h3>Team standups</h3>
+        <p>Agent joins daily standups, logs blockers and commitments, and sends you a summary with anything that needs your attention flagged.</p>
+      </div>
+    </div>
+
+    <h2>Known Limitations (Beta)</h2>
+
+    <ul>
+      <li><strong>Google Meet only</strong> — Zoom and Teams support are on Pika's roadmap, not live yet</li>
+      <li><strong>Text-to-speech latency</strong> — there's a 1–3 second delay when the agent speaks, which can feel awkward in fast-moving conversations</li>
+      <li><strong>Requires public gateway URL</strong> — if your OpenClaw is on localhost only, Pika can't reach it; you need a public domain or an ngrok tunnel</li>
+      <li><strong>Audio quality sensitive</strong> — poor call audio leads to transcription errors; a headset on your end improves accuracy significantly</li>
+      <li><strong>Beta pricing TBD</strong> — free during beta, pricing not yet announced for production</li>
+    </ul>
+
+    <div class="callout green">
+      <p><strong>The public URL requirement is the most common blocker.</strong> If your OpenClaw isn't already accessible via a proper domain with HTTPS, you'll need that in place before Pika works. That's one of the things ClawReady sets up on every install — it's not an afterthought.</p>
+    </div>
+
+    <h2>Is This Worth Setting Up Now?</h2>
+
+    <p>If you're already running OpenClaw with a proper public setup, yes — the Pika integration adds genuine value for anyone who does meetings. The note-taking use case alone pays for itself in the first week.</p>
+
+    <p>If your OpenClaw is still on a laptop with no public URL, get the base setup solid first. The Pika integration will be meaningless if the foundation isn't there.</p>
+
+    <p>For new setups where you want Pika working from day one — mention it on your ClawReady intake call and we'll include the Pika configuration and SOUL.md meeting section as part of the setup.</p>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want Pika + OpenClaw Set Up Together?</h2>
+    <p>We'll configure your gateway, Pika integration, and meeting behavior in SOUL.md — all in one 48-hour setup.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
