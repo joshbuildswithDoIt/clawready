@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anthropic Cut Off Claude for OpenClaw — Here's What Still Works — ClawReady</title>
+  <meta name="description" content="Anthropic restricted subscription-tier Claude access for third-party harnesses like OpenClaw. Here's what changed, what still works, and how to keep your setup running.">
+  <meta property="og:title" content="Anthropic Cut Off Claude for OpenClaw — Here's What Still Works">
+  <meta property="og:description" content="Anthropic restricted Claude access for third-party harnesses. Here's the workaround, what models still work, and how to stay running without interruption.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-anthropic-claude-access">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-anthropic-claude-access">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header .breaking{display:inline-block;background:var(--accent);color:#fff;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:700;margin-bottom:16px;margin-left:8px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:22px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.9rem;color:var(--accent)}
+    .article-body pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-size:.88rem;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+    @media(max-width:560px){.status-grid{grid-template-columns:1fr}}
+    .status-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+    .status-card .provider{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;color:var(--muted)}
+    .status-card .status{font-size:1rem;font-weight:700;margin-bottom:4px}
+    .status-card .sub{font-size:.85rem;color:var(--muted)}
+    .status-card.ok{border-color:rgba(39,174,96,.3);background:rgba(39,174,96,.04)}
+    .status-card.ok .status{color:var(--green)}
+    .status-card.warn{border-color:rgba(243,156,18,.3);background:rgba(243,156,18,.04)}
+    .status-card.warn .status{color:var(--yellow)}
+    .status-card.bad{border-color:rgba(231,76,60,.3);background:rgba(231,76,60,.04)}
+    .status-card.bad .status{color:var(--accent)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">⚠️ Breaking</div><span class="breaking">April 2026</span>
+    <h1>Anthropic Cut Off Claude for OpenClaw — Here's What Still Works</h1>
+    <p class="subtitle">Anthropic restricted subscription-tier Claude access for third-party harnesses. If your OpenClaw setup stopped working with Claude recently, here's why — and the fix.</p>
+    <p class="meta">By ClawReady — April 5, 2026 · 6 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>A post on r/openclaw this week (96 upvotes in 24 hours) surfaced what a lot of people are quietly hitting: <strong>Anthropic has restricted subscription-tier Claude access for third-party harnesses like OpenClaw.</strong> If your setup uses a Claude subscription (Max, Pro, or Teams) rather than a direct API key, you may have already lost access — or will soon.</p>
+
+    <p>Here's what's happening, what still works, and how to keep your OpenClaw setup running on Claude.</p>
+
+    <h2>What Changed</h2>
+
+    <p>Anthropic has tightened which applications can access Claude through the subscription tier. Previously, OpenClaw could authenticate using session tokens from a Claude.ai account. Anthropic has moved to restrict this — only officially sanctioned API clients (including Claude Code CLI) retain subscription-level access.</p>
+
+    <div class="callout yellow">
+      <p><strong>This does NOT affect direct API key users.</strong> If you're using an Anthropic API key (<code>sk-ant-...</code>) in your openclaw.json, you're unaffected. This change only impacts users who connected OpenClaw via subscription session tokens rather than a paid API key.</p>
+    </div>
+
+    <h2>Current Status by Access Method</h2>
+
+    <div class="status-grid">
+      <div class="status-card ok">
+        <div class="provider">Anthropic Direct API</div>
+        <div class="status">✓ Fully Working</div>
+        <div class="sub">API key (sk-ant-...) in openclaw.json — unaffected</div>
+      </div>
+      <div class="status-card bad">
+        <div class="provider">Claude Subscription Token</div>
+        <div class="status">✗ Restricted</div>
+        <div class="sub">Session token auth via Claude.ai account — blocked for harnesses</div>
+      </div>
+      <div class="status-card ok">
+        <div class="provider">OpenAI API</div>
+        <div class="status">✓ Fully Working</div>
+        <div class="sub">GPT-4o, o3, o4-mini — no changes</div>
+      </div>
+      <div class="status-card ok">
+        <div class="provider">Local Models (Ollama)</div>
+        <div class="status">✓ Fully Working</div>
+        <div class="sub">Qwen, Llama, Mistral — zero dependency on Anthropic</div>
+      </div>
+      <div class="status-card ok">
+        <div class="provider">Google Gemini API</div>
+        <div class="status">✓ Fully Working</div>
+        <div class="sub">Gemini 2.5 Pro/Flash — direct API key</div>
+      </div>
+      <div class="status-card warn">
+        <div class="provider">Claude Code CLI</div>
+        <div class="status">⚠ Workaround Available</div>
+        <div class="sub">Still has subscription access — can be proxied (see below)</div>
+      </div>
+    </div>
+
+    <h2>Option 1: Switch to Anthropic API Key (Recommended)</h2>
+
+    <p>This is the cleanest fix. Sign up for Anthropic API access and use a real API key instead of a session token.</p>
+
+    <ol>
+      <li>Go to <strong>console.anthropic.com</strong> → Create an account or log in</li>
+      <li>Go to <strong>API Keys</strong> → Create new key</li>
+      <li>Add a small credit balance ($5–$10 to start)</li>
+      <li><strong>Set a spending limit</strong> — go to Settings → Limits and cap it at $20–$50/month</li>
+      <li>In your openclaw.json, update the Anthropic provider to use <code>"apiKey": "sk-ant-..."</code></li>
+      <li>Restart OpenClaw</li>
+    </ol>
+
+    <div class="callout blue">
+      <p><strong>Cost reality check:</strong> At normal OpenClaw usage, most non-power users spend $10–$40/month on direct API. Claude Sonnet 4.6 is cheaper per token than you might expect for conversational workloads. A heartbeat + 3 daily reports + light task work typically runs $15–$25/month.</p>
+    </div>
+
+    <h2>Option 2: Use the Claude Code CLI Proxy (The Loophole)</h2>
+
+    <p>The r/openclaw post that went viral this week spotted something: Claude Code CLI still has full subscription access — and it can be configured to act as a local API proxy. This lets OpenClaw route requests through the Claude Code CLI process, which retains subscription-tier access.</p>
+
+    <p>This is a workaround, not a permanent solution. Anthropic may close it. But as of today it works:</p>
+
+    <pre><code># Install Claude Code CLI if you don't have it
+npm install -g @anthropic-ai/claude-code
+
+# Start the local proxy (keep this running)
+claude --proxy-port 8090
+
+# In openclaw.json, point Anthropic to the local proxy
+{
+  "providers": {
+    "anthropic": {
+      "baseUrl": "http://localhost:8090/v1",
+      "apiKey": "proxy"
+    }
+  }
+}</code></pre>
+
+    <div class="callout">
+      <p><strong>Caveat:</strong> This requires Claude Code CLI to be running as a background process. If it crashes or the machine reboots, OpenClaw loses Claude access until you restart it. It also may violate Anthropic's terms of service — use at your own risk. The API key option is cleaner and more reliable.</p>
+    </div>
+
+    <h2>Option 3: Switch to a Different Model</h2>
+
+    <p>If you don't want to set up billing right now, OpenClaw works well with several free or cheaper alternatives:</p>
+
+    <ul>
+      <li><strong>Google Gemini 2.5 Flash</strong> — Fast, cheap, generous free tier. Good for most daily tasks.</li>
+      <li><strong>Ollama + Qwen 3.5 9B</strong> — Completely free, runs locally, no API calls. Performance is lower than Claude but zero cost.</li>
+      <li><strong>OpenAI GPT-4o mini</strong> — Inexpensive, widely available, solid performance for task automation.</li>
+    </ul>
+
+    <p>To switch default model in openclaw.json:</p>
+
+    <pre><code>{
+  "defaultModel": "google/gemini-2.5-flash",
+  // or: "ollama/qwen3.5:9b"
+  // or: "openai/gpt-4o-mini"
+}</code></pre>
+
+    <h2>What We Recommend</h2>
+
+    <p>For anyone running OpenClaw as a serious business tool:</p>
+
+    <ol>
+      <li><strong>Get an Anthropic API key now</strong> — it's the stable, supported path. The cost is reasonable and you keep Claude.</li>
+      <li><strong>Set a hard spend limit immediately</strong> — before anything goes live. $30–$50/month cap protects you from surprises.</li>
+      <li><strong>Add Ollama as a fallback</strong> — local model for heartbeat and low-stakes tasks cuts your API bill significantly.</li>
+    </ol>
+
+    <div class="callout green">
+      <p>If you're running into this and need help reconfiguring your setup, <a href="https://calendly.com/grofresh2018" target="_blank" style="color:var(--green)">book a free call</a>. We can audit your current config and get you onto the right access method in under an hour.</p>
+    </div>
+
+    <h2>Why This Keeps Happening</h2>
+
+    <p>Anthropic, OpenAI, and Google are all gradually tightening which access methods work with third-party tools. This is partly about enforcing terms of service, partly about managing compute costs, and partly about pushing developers toward paid API tiers where usage is metered and controllable.</p>
+
+    <p>The practical implication for OpenClaw users: <strong>direct API keys are always more stable than session token tricks.</strong> Every workaround that relies on unofficial access eventually gets closed. Building your setup on proper API keys is the only reliable long-term path.</p>
+
+    <p>This is also why managed care matters — when these changes happen, you need someone tracking them and reconfiguring your setup before you lose access mid-week. Our managed care clients were notified about this change within 24 hours of it surfacing.</p>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Need Help Reconfiguring Your Setup?</h2>
+    <p>We'll audit your current access method and get you onto a stable, properly configured API key setup — same day.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
