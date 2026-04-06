@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw on Raspberry Pi / ARM: What Breaks and How to Fix It — ClawReady</title>
+  <meta name="description" content="Running OpenClaw on a Raspberry Pi 4 or 5? ARM64 installs have known rough edges — binary compatibility issues, longer build times, skill deps that silently fail. Here's the complete fix guide.">
+  <meta property="og:title" content="OpenClaw on Raspberry Pi / ARM: What Breaks and How to Fix It">
+  <meta property="og:description" content="The official docs acknowledge 'rough edges' with ARM. Here's everything that actually breaks on Pi 4/5 and the fixes — from binary deps to Node version to Ollama model loading.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-raspberry-pi-arm-setup">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-raspberry-pi-arm-setup">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.1);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .hardware-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.9rem}
+    .hardware-table th{background:var(--surface);border:1px solid var(--border);padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:.8rem}
+    .hardware-table td{border:1px solid var(--border);padding:10px 14px;vertical-align:top}
+    .hardware-table tr:nth-child(even) td{background:#0f0f0f}
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.78rem;font-weight:600}
+    .badge.yes{background:rgba(39,174,96,.15);color:var(--green)}
+    .badge.no{background:rgba(231,76,60,.15);color:var(--accent)}
+    .badge.partial{background:rgba(243,156,18,.15);color:var(--yellow)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">🍓 Hardware — ARM Setup</span>
+    <h1>OpenClaw on Raspberry Pi / ARM: Everything That Breaks and How to Fix It</h1>
+    <p class="subtitle">The official docs admit "rough edges" with ARM deployments. Here's what actually breaks on Pi 4/5 — and the specific fixes for each issue.</p>
+    <p class="meta">April 6, 2026 · 8 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>The Raspberry Pi is an appealing always-on OpenClaw host: low power draw (~5W), silent, under $100, and you probably already have one. The official docs say it works — with "rough edges." That's underselling it a bit.</p>
+
+    <p>ARM64 OpenClaw installs have several known failure modes that the standard setup guides don't cover. This guide documents all of them, with specific fixes for each.</p>
+
+    <div class="callout blue">
+      <p><strong>Hardware scope:</strong> This guide covers Raspberry Pi 4 (4GB+ recommended) and Pi 5 running Raspberry Pi OS 64-bit (Bookworm) or Ubuntu 24.04 LTS ARM64. Pi 3 and 32-bit OS installs are not recommended — Node.js v22 requires 64-bit.</p>
+    </div>
+
+    <h2>Hardware Compatibility at a Glance</h2>
+
+    <table class="hardware-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>OpenClaw</th>
+          <th>Ollama Local Models</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Pi 5 (8GB)</strong></td>
+          <td><span class="badge yes">✓ Works</span></td>
+          <td><span class="badge yes">✓ Works</span></td>
+          <td>Best Pi option. Can run Qwen 2.5 3B comfortably.</td>
+        </tr>
+        <tr>
+          <td><strong>Pi 4 (8GB)</strong></td>
+          <td><span class="badge yes">✓ Works</span></td>
+          <td><span class="badge partial">⚠ Limited</span></td>
+          <td>Ollama works with small models (≤3B). Slow inference.</td>
+        </tr>
+        <tr>
+          <td><strong>Pi 4 (4GB)</strong></td>
+          <td><span class="badge yes">✓ Works</span></td>
+          <td><span class="badge partial">⚠ Very limited</span></td>
+          <td>Only smallest models (1B–2B). API model recommended instead.</td>
+        </tr>
+        <tr>
+          <td><strong>Pi 4 (2GB)</strong></td>
+          <td><span class="badge partial">⚠ Tight</span></td>
+          <td><span class="badge no">✗ Not practical</span></td>
+          <td>OpenClaw gateway alone uses ~400MB. Very little headroom.</td>
+        </tr>
+        <tr>
+          <td><strong>Pi 3</strong></td>
+          <td><span class="badge no">✗ Not supported</span></td>
+          <td><span class="badge no">✗ No</span></td>
+          <td>32-bit OS, ARMv7 architecture. Node v22 requires 64-bit.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Issue 1: The npm Install / Binary Compatibility Problem</h2>
+
+    <p>The most common ARM failure: you run <code>npm install -g openclaw</code> and get cryptic binary errors like:</p>
+
+    <pre>Error: /usr/local/lib/node_modules/openclaw/node_modules/better-sqlite3/build/Release/better_sqlite3.node: invalid ELF header</pre>
+
+    <p>Or:</p>
+
+    <pre>Error: /usr/local/lib/node_modules/openclaw/node_modules/sharp/build/Release/sharp-linux-arm64.node: cannot open shared object file</pre>
+
+    <p><strong>Why it happens:</strong> Some of OpenClaw's dependencies ship prebuilt native binaries for x86_64. On ARM, npm tries to use those binaries, which are the wrong architecture. Or the ARM64 binary was never built for that dependency version.</p>
+
+    <p><strong>Fix — force native compilation:</strong></p>
+    <pre># Install build dependencies first
+sudo apt-get install -y build-essential python3 python3-pip libvips-dev
+
+# Install openclaw and force rebuild of native modules
+npm install -g openclaw --build-from-source</pre>
+
+    <p>This takes 10–20 minutes on a Pi 4 (the compilation is slow on ARM) but produces binaries that actually work.</p>
+
+    <div class="callout green">
+      <p><strong>Alternative:</strong> Use the git install path instead of npm global. Clone the repo, run <code>npm install</code> locally, then <code>npm run build</code>. This gives you more control over the build process and makes it easier to debug compilation failures.</p>
+    </div>
+
+    <h2>Issue 2: Node.js Version</h2>
+
+    <p>Raspberry Pi OS ships with old Node.js versions. OpenClaw requires v20+ (v22 recommended). The system package often gives you v16 or v18.</p>
+
+    <pre># Check what you have
+node --version
+
+# If it's under v20, install nvm and upgrade
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+
+# Install and use Node 22
+nvm install 22
+nvm use 22
+nvm alias default 22
+
+# Verify
+node --version  # should show v22.x.x</pre>
+
+    <p>Then reinstall openclaw with the correct Node version active.</p>
+
+    <h2>Issue 3: Skills with External Binary Dependencies</h2>
+
+    <p>Some ClawHub skills bundle or depend on external binaries that only have x86_64 builds. These silently fail to load on ARM without a clear error message.</p>
+
+    <p>Safe skills on ARM64:</p>
+    <ul>
+      <li>Skills that are pure JavaScript/TypeScript — always work</li>
+      <li>Skills using Node.js child_process to call CLI tools you've installed via apt — work if the CLI has an ARM64 build</li>
+      <li>WhatsApp via Baileys — pure JS, ARM64 is fine</li>
+    </ul>
+
+    <p>Potentially broken skills on ARM64:</p>
+    <ul>
+      <li>Skills that bundle precompiled binaries (check for <code>.node</code> files in the skill directory)</li>
+      <li>Skills with native npm dependencies that don't have ARM64 prebuilds</li>
+    </ul>
+
+    <p>Diagnosis: after installing a skill, run <code>openclaw doctor</code> and check for skill-related warnings. If a skill shows dependency errors, look at its <code>package.json</code> for native deps and check if they have ARM64 support.</p>
+
+    <h2>Issue 4: Swap Memory for Gateway Stability</h2>
+
+    <p>On Pi 4 with 4GB RAM, the OpenClaw gateway plus an active conversation can push close to the memory limit — especially with multi-turn sessions building up context. Without swap, you get OOM kills that look like mysterious crashes.</p>
+
+    <pre># Check current swap
+free -h
+
+# If swap is 0 or very small, increase it
+sudo dphys-swapfile swapoff
+sudo nano /etc/dphys-swapfile
+# Change CONF_SWAPSIZE=100 to CONF_SWAPSIZE=2048
+
+sudo dphys-swapfile setup
+sudo dphys-swapfile swapon</pre>
+
+    <div class="callout yellow">
+      <p><strong>Note:</strong> Heavy swap use on a Pi running off an SD card will wear it out fast. If you're using a Pi as a permanent always-on host, run it from a USB SSD, not an SD card. This makes a significant difference in both speed and longevity.</p>
+    </div>
+
+    <h2>Issue 5: Gateway Auto-Start on Boot</h2>
+
+    <p>OpenClaw doesn't auto-start on reboot by default. On a Pi that's meant to be always-on, this means any power cycle or update requires manual intervention. Here's the systemd service setup:</p>
+
+    <pre># Create the service file
+sudo nano /etc/systemd/system/openclaw.service</pre>
+
+    <pre>[Unit]
+Description=OpenClaw Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USERNAME
+WorkingDirectory=/home/YOUR_USERNAME
+ExecStart=/home/YOUR_USERNAME/.nvm/versions/node/v22.0.0/bin/openclaw gateway start --foreground
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target</pre>
+
+    <pre># Enable and start
+sudo systemctl daemon-reload
+sudo systemctl enable openclaw
+sudo systemctl start openclaw
+
+# Check status
+sudo systemctl status openclaw</pre>
+
+    <p>Replace <code>YOUR_USERNAME</code> with your actual username, and update the Node path to match your nvm installation (<code>which openclaw</code> will give you the full path).</p>
+
+    <h2>Issue 6: Ollama on ARM — Model Selection Matters</h2>
+
+    <p>Ollama runs on ARM64, but the model size ceiling is much lower than on x86 machines:</p>
+
+    <ul>
+      <li><strong>Pi 5 (8GB):</strong> Qwen 2.5 3B or Llama 3.2 3B work well. Anything 7B+ will be extremely slow.</li>
+      <li><strong>Pi 4 (8GB):</strong> Same, but slower. Qwen 2.5 1.5B is more practical for interactive use.</li>
+      <li><strong>Pi 4 (4GB):</strong> Use Anthropic/OpenAI API instead of local models. Not enough RAM for meaningful local inference.</li>
+    </ul>
+
+    <p>For a Pi-hosted OpenClaw that's meant to be practical, the best architecture is: <strong>local Pi for the gateway and workspace, API model for inference</strong>. This gives you 24/7 uptime without the API needing to be always running, while still getting Claude or GPT quality responses.</p>
+
+    <div class="callout green">
+      <p><strong>Power tip:</strong> Set up OpenClaw with Anthropic API as the default model but with Ollama as a fallback for simple tasks. You get quality responses when it matters and free local inference for heartbeats, file operations, and low-stakes queries.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Running OpenClaw on Unusual Hardware?</h2>
+    <p>We've set up OpenClaw on Pi, NUC, VPS, Mac mini, and Windows WSL. If your setup has quirks, we've probably seen them. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
