@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anthropic Blocked Claude Subscriptions for OpenClaw — What It Actually Costs You Now — ClawReady</title>
+  <meta name="description" content="Anthropic's April 4 change killed Claude Pro/Max access for OpenClaw operators. Here's the real cost math, your 3 options, and which one makes sense depending on your usage.">
+  <meta property="og:title" content="Anthropic Blocked Claude Subscriptions for OpenClaw — What It Actually Costs You Now">
+  <meta property="og:description" content="The April 4 change killed Claude Pro/Max for OpenClaw operators. Real cost math, 3 options, and which one makes sense for your usage level.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-anthropic-cost-now-what">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-anthropic-cost-now-what">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.9rem;color:var(--accent)}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .cost-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.9rem}
+    .cost-table th{background:var(--surface);padding:12px 16px;text-align:left;border:1px solid var(--border);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+    .cost-table td{padding:12px 16px;border:1px solid var(--border);vertical-align:top}
+    .cost-table tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+    .cost-table .good{color:var(--green)}
+    .cost-table .bad{color:var(--accent)}
+    .cost-table .neutral{color:var(--yellow)}
+    .option-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin:16px 0}
+    .option-card.recommended{border-color:var(--green);background:rgba(39,174,96,.04)}
+    .option-card .opt-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+    .option-card.recommended .opt-label{color:var(--green)}
+    .option-card h3{font-size:1.1rem;font-weight:700;margin-bottom:10px}
+    .option-card p{font-size:.92rem;color:var(--muted);margin-bottom:10px}
+    .option-card .verdict{font-size:.88rem;font-weight:600}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">🚨 Breaking</div>
+    <h1>Anthropic Blocked Claude Subscriptions for OpenClaw — What It Actually Costs You Now</h1>
+    <p class="subtitle">On April 4, 2026, Anthropic quietly moved third-party agent tools off Claude Pro/Max subscription credits. Here's the real cost math — and what to do about it.</p>
+    <p class="meta">By ClawReady — April 6, 2026 · 7 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>If you woke up on April 5th and found your OpenClaw session throwing authentication errors or unexpected billing charges, you're not alone. Anthropic officially changed third-party harness billing on <strong>April 4, 2026 at 12:00 PM PT</strong> — and it affects every OpenClaw operator using Claude Pro or Max subscription credentials.</p>
+
+    <div class="callout">
+      <p><strong>What changed:</strong> Claude Pro ($20/mo) and Max ($100/mo) subscription credits no longer cover usage through third-party tools like OpenClaw. If you were using your Claude subscription to power your agent, that stopped working April 4th. Going forward, only pay-as-you-go API keys work for third-party agent access.</p>
+    </div>
+
+    <h2>Why Anthropic Did This</h2>
+
+    <p>The OpenClaw creator posted a pointed response — "first they copy, then they block" — noting that Anthropic launched their own Claude Code product while simultaneously restricting third-party tools that competed with it.</p>
+
+    <p>Anthropic's official position: subscription plans are priced for "human interactive use," not autonomous agent workloads that run 24/7 and can consume far more tokens per dollar than a human user.</p>
+
+    <p>That's not entirely wrong. A heartbeat-driven OpenClaw agent running on Claude Opus can burn through $50–$200/day in heavy use — far more than what a $20/mo Claude Pro plan was priced to cover. The real question is whether the change is about unit economics or competitive positioning. Probably both.</p>
+
+    <h2>The Real Cost Impact by Usage Level</h2>
+
+    <table class="cost-table">
+      <thead>
+        <tr>
+          <th>Usage Level</th>
+          <th>Old Cost (Subscription)</th>
+          <th>New Cost (API)</th>
+          <th>Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Light</strong><br><span style="color:var(--muted);font-size:.85rem">A few hours/day, Sonnet, basic tasks</span></td>
+          <td>$20/mo (Pro)</td>
+          <td>$15–30/mo</td>
+          <td class="good">Neutral or better</td>
+        </tr>
+        <tr>
+          <td><strong>Moderate</strong><br><span style="color:var(--muted);font-size:.85rem">Always-on, Sonnet, heartbeat + real work</span></td>
+          <td>$20/mo (Pro)</td>
+          <td>$40–80/mo</td>
+          <td class="neutral">2–4x more</td>
+        </tr>
+        <tr>
+          <td><strong>Heavy</strong><br><span style="color:var(--muted);font-size:.85rem">Always-on, Opus, complex reasoning tasks</span></td>
+          <td>$100/mo (Max)</td>
+          <td>$150–400/mo</td>
+          <td class="bad">1.5–4x more</td>
+        </tr>
+        <tr>
+          <td><strong>Business</strong><br><span style="color:var(--muted);font-size:.85rem">Multiple agents, sub-agents, coding tasks</span></td>
+          <td>$100/mo (Max)</td>
+          <td>$300–800/mo</td>
+          <td class="bad">3–8x more</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Light users may actually pay <em>less</em> on pay-as-you-go — you only pay for what you use. The pain is concentrated on always-on operators running powerful models.</p>
+
+    <h2>Your 3 Options Right Now</h2>
+
+    <div class="option-card">
+      <div class="opt-label">Option 1</div>
+      <h3>Switch to Pay-as-You-Go API Key</h3>
+      <p>Create an Anthropic API key at console.anthropic.com, add it to your openclaw.json, and set a hard spend cap. This is the simplest path — your setup stays identical, you just pay differently.</p>
+      <p><strong>Best for:</strong> Anyone using OpenClaw for real work. The cost is predictable and you only pay for actual usage.</p>
+      <p><strong>Critical step:</strong> Set a spend limit before anything else. Without it, a heartbeat loop can run up $50+ overnight.</p>
+      <div class="verdict" style="color:var(--blue)">→ Recommended starting point for most operators</div>
+    </div>
+
+    <div class="option-card recommended">
+      <div class="opt-label">Option 2 — Cost Winner</div>
+      <h3>Switch to a Local Model (Ollama + Gemma 4 / Qwen)</h3>
+      <p>Run Ollama locally with Gemma 4 or Qwen 2.5 for routine tasks. Use Claude API only for complex reasoning. A hybrid setup can cut your API bill by 60–80% while keeping quality high where it matters.</p>
+      <p><strong>Best for:</strong> Moderate to heavy users on capable hardware (16GB+ RAM). Heartbeat cycles, research tasks, and most writing can run on local models. Route only deep reasoning to Claude.</p>
+      <p><strong>Setup:</strong> Install Ollama, pull your model, add it as a secondary provider in openclaw.json with model-routing rules.</p>
+      <div class="verdict" style="color:var(--green)">→ Best long-term cost profile for serious operators</div>
+    </div>
+
+    <div class="option-card">
+      <div class="opt-label">Option 3</div>
+      <h3>Switch Primary Model to Gemini or GPT</h3>
+      <p>Google Gemini 2.0 Flash and GPT-4.1-mini are both meaningfully cheaper than Claude Sonnet for most agent tasks. If Claude's quality advantage doesn't matter for your workload, switching primary provider can cut costs 40–60%.</p>
+      <p><strong>Best for:</strong> Budget-conscious operators where task quality on cheaper models is acceptable.</p>
+      <p><strong>Watch out:</strong> Gemini has higher context-handling variability for long agent sessions. Test before committing.</p>
+      <div class="verdict" style="color:var(--yellow)">→ Worth testing if cost is the primary concern</div>
+    </div>
+
+    <h2>The Spend Cap You Need Right Now</h2>
+
+    <p>If you're switching to API key billing, do this before anything else:</p>
+
+    <ol>
+      <li>Go to <strong>console.anthropic.com → Settings → Limits</strong></li>
+      <li>Set a <strong>monthly spend limit</strong> — start at 2x what you expect to spend. $50 is a reasonable starting cap for light use.</li>
+      <li>Set an <strong>email alert at 75%</strong> so you're notified before you hit the cap.</li>
+      <li>Add the API key to your openclaw.json and remove any subscription credential references.</li>
+    </ol>
+
+    <div class="callout yellow">
+      <p><strong>Do not skip the spend cap.</strong> A runaway heartbeat loop or a sub-agent task that spawns unexpectedly on Opus can generate $100+ in charges in a few hours. The cap is free insurance.</p>
+    </div>
+
+    <h2>The Bigger Picture</h2>
+
+    <p>This change is almost certainly not the last one. As autonomous agent usage grows, model providers will continue to separate "human interactive" pricing from "agent workload" pricing. The operators who win long-term are the ones who:</p>
+
+    <ul>
+      <li>Run local models for routine work and reserve API calls for high-value reasoning</li>
+      <li>Have model-provider flexibility built into their setup (not locked into one provider)</li>
+      <li>Monitor spend actively rather than discovering overages on their credit card statement</li>
+    </ul>
+
+    <p>The OpenClaw creator's frustration is understandable. But the practical response isn't to fight Anthropic's pricing — it's to architect your setup so you're not dependent on any single provider's policy decisions.</p>
+
+    <div class="callout green">
+      <p>ClawReady setups include multi-provider configuration out of the box — Claude for reasoning, local model for routine tasks, spend limits on every API key. If you want this done properly, <a href="https://calendly.com/grofresh2018" target="_blank" style="color:var(--green)">book a call</a>.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Need Help Reconfiguring After the Change?</h2>
+    <p>We'll audit your current setup, reconfigure your model routing, and make sure you have spend limits in place before anything runs. Starting at $49.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
