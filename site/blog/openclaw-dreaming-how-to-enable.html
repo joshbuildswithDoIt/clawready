@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Dreaming Is Finally Live in 2026.4.5 — Here's How to Enable It — ClawReady</title>
+  <meta name="description" content="Dreaming shipped in OpenClaw 2026.4.5. It's opt-in and off by default. Here's how to enable it, what the config options mean, and what to expect in practice.">
+  <meta property="og:title" content="OpenClaw Dreaming Is Finally Live in 2026.4.5 — Here's How to Enable It">
+  <meta property="og:description" content="The Dreaming memory feature shipped in 2026.4.5 — opt-in, experimental, off by default. Full enable guide: config, modes, where it stores state, and what actually happens during a dream cycle.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-dreaming-how-to-enable">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-dreaming-how-to-enable">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--purple:#9b59b6}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(155,89,182,.15);color:var(--purple);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout.purple{border-left-color:var(--purple)}
+    .callout p{margin:0;font-size:.95rem}
+    .new-badge{display:inline-block;background:rgba(39,174,96,.2);color:var(--green);padding:3px 10px;border-radius:4px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-left:8px;vertical-align:middle}
+    .mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+    @media(max-width:600px){.mode-grid{grid-template-columns:1fr}}
+    .mode-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+    .mode-card h3{font-size:.95rem;font-weight:700;margin-bottom:8px;color:#fff;margin-top:0;border-top:none;padding-top:0}
+    .mode-card p{font-size:.85rem;color:var(--muted);margin:0}
+    .mode-card .mode-name{display:inline-block;background:#1a1a1a;border:1px solid var(--border);padding:3px 8px;border-radius:4px;font-family:monospace;font-size:.82rem;margin-bottom:10px;color:var(--yellow)}
+    .file-tree{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin:20px 0;font-family:monospace;font-size:.88em;line-height:1.9;color:var(--muted)}
+    .file-tree .dir{color:var(--blue)}
+    .file-tree .file{color:var(--text)}
+    .file-tree .comment{color:#444}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">✨ New Feature — Memory</span>
+    <h1>OpenClaw Dreaming Is Finally Live <span class="new-badge">NEW in 2026.4.5</span></h1>
+    <p class="subtitle">Dreaming shipped in 2026.4.5 as an opt-in experimental feature. It's off by default. Here's what it does, how to enable it, and what to realistically expect.</p>
+    <p class="meta">April 6, 2026 · 6 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Earlier this week we wrote that <a href="/blog/openclaw-dreaming-not-available" style="color:var(--accent)">Dreaming wasn't available in 2026.4.x</a> — the docs were ahead of the release. That changed today. <strong>Dreaming shipped as part of 2026.4.5</strong>, making the <code>/dreaming</code> workflow generally available for the first time.</p>
+
+    <p>It's experimental, opt-in, and disabled by default. But it's real and it works. Here's how to turn it on.</p>
+
+    <div class="callout yellow">
+      <p><strong>Before enabling:</strong> Make sure you're actually on 2026.4.5. Run <code>openclaw --version</code>. Note that 2026.4.5 also has a <a href="/blog/openclaw-4-5-update-broken-cli" style="color:var(--yellow)">known CLI breakage bug</a> on some installs — if your CLI is broken, fix that first, then enable Dreaming.</p>
+    </div>
+
+    <h2>What Dreaming Actually Does</h2>
+
+    <p>Dreaming is a background memory consolidation process. During and after conversations, your agent accumulates short-term context — facts, preferences, decisions, things you mentioned in passing. Dreaming runs a periodic background job that:</p>
+
+    <ol>
+      <li>Scans recent conversation history</li>
+      <li>Identifies facts worth retaining long-term</li>
+      <li>Writes them to a persistent recall store in <code>memory/.dreams/</code></li>
+      <li>Deduplicates and merges with existing memories</li>
+    </ol>
+
+    <p>Think of it as your agent's equivalent of sleep — it processes the day's conversations and decides what to keep. The result: your agent gradually builds up a persistent knowledge base about you, your preferences, and your context without you having to manually maintain memory files.</p>
+
+    <h2>Step 1 — Enable Dreaming in Config</h2>
+
+    <p>Open <code>~/.openclaw/openclaw.json</code> and add the Dreaming config to the <code>plugins.entries.memory-core</code> section:</p>
+
+    <pre>"plugins": {
+  "entries": {
+    "memory-core": {
+      "enabled": true,
+      "config": {
+        "dreaming": {
+          "enabled": true,
+          "mode": "passive"
+        }
+      }
+    }
+  }
+}</pre>
+
+    <p>Then restart the gateway:</p>
+    <pre>openclaw gateway restart</pre>
+
+    <h2>Dreaming Modes</h2>
+
+    <div class="mode-grid">
+      <div class="mode-card">
+        <div class="mode-name">passive</div>
+        <h3>Passive</h3>
+        <p>Runs during natural idle periods. Lowest API cost. Best for most users. Doesn't interrupt conversations.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-name">scheduled</div>
+        <h3>Scheduled</h3>
+        <p>Runs on a cron-like schedule you define. Predictable behavior, slightly higher cost. Good for heartbeat setups.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-name">active</div>
+        <h3>Active</h3>
+        <p>Runs more aggressively after each session. Best memory retention, highest API cost. For power users.</p>
+      </div>
+    </div>
+
+    <p>Start with <code>passive</code> — it's the lowest risk and lowest cost way to try Dreaming. You can tune from there.</p>
+
+    <h2>Step 2 — Configure Scheduled Mode (Optional)</h2>
+
+    <p>If you want Dreaming to run on a schedule — for example, every night at 2 AM — use <code>scheduled</code> mode with a cron expression:</p>
+
+    <pre>"dreaming": {
+  "enabled": true,
+  "mode": "scheduled",
+  "schedule": "0 2 * * *"
+}</pre>
+
+    <p>This pairs well with heartbeat setups where the agent is already doing overnight work. Add Dreaming to the overnight cycle and your agent wakes up each morning with consolidated memory from the previous day.</p>
+
+    <h2>Step 3 — Trigger a Dream Manually</h2>
+
+    <p>You can trigger a dream cycle on demand without waiting for the scheduled or passive trigger:</p>
+
+    <pre># From CLI
+openclaw memory promote
+
+# Or from chat
+/dreaming</pre>
+
+    <p>The <code>promote</code> subcommand is the one that wasn't available before 2026.4.5. It now works.</p>
+
+    <h2>Where Dreaming Stores State</h2>
+
+    <p>All Dreaming state lives inside your workspace under <code>memory/.dreams/</code>:</p>
+
+    <div class="file-tree">
+      <span class="dir">memory/</span><br>
+      &nbsp;&nbsp;<span class="dir">.dreams/</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">recall-store.json</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">— the consolidated long-term memory</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">phase-signals.json</span>&nbsp;&nbsp;<span class="comment">— tracks what's been processed</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">ingestion-checkpoints.json</span>&nbsp;&nbsp;<span class="comment">— prevents re-processing old conversations</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">locks/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">— prevents concurrent dream cycles</span>
+    </div>
+
+    <p>These files are plain JSON — you can read, edit, or back them up like any other workspace file. If something goes wrong, delete the <code>.dreams/</code> directory and Dreaming starts fresh.</p>
+
+    <div class="callout purple">
+      <p><strong>Privacy note:</strong> The recall store contains facts your agent extracted from your conversations — preferences, names, decisions, anything it deemed worth remembering. Review <code>memory/.dreams/recall-store.json</code> periodically to see what's being retained and remove anything you don't want persisted.</p>
+    </div>
+
+    <h2>API Cost Implications</h2>
+
+    <p>Dreaming makes LLM calls to process and consolidate conversation history. Each dream cycle costs tokens. Rough estimates:</p>
+
+    <ul>
+      <li><strong>Passive mode:</strong> A few hundred to a few thousand tokens per cycle, depending on conversation volume. Very cheap — less than a cent per day for typical usage.</li>
+      <li><strong>Scheduled mode:</strong> Similar token cost to passive, just predictably timed.</li>
+      <li><strong>Active mode:</strong> Runs more frequently; could add up if you have very high conversation volume.</li>
+    </ul>
+
+    <p>For setups already watching API costs closely, start with passive mode and monitor your usage for a week before switching to active.</p>
+
+    <h2>Dreaming vs. Manual memory.md — Which Should You Use?</h2>
+
+    <p>Both. They complement each other:</p>
+
+    <ul>
+      <li><strong>Dreaming</strong> is automatic and passive — it catches things you didn't think to write down. Good for building ambient context over time.</li>
+      <li><strong>memory.md</strong> is explicit and reliable — you put exactly what you want in there, and it's always injected. Good for critical facts, preferences, and instructions that must be in every context window.</li>
+    </ul>
+
+    <p>The best setup: use <code>memory.md</code> for the things you'd put in an onboarding document ("Josh runs 6 companies, prefers short replies, uses Discord") and let Dreaming handle the rest ("Josh mentioned he's closing on a property in Q3", "Josh prefers Qwen for sub-agent tasks").</p>
+
+    <div class="callout green">
+      <p><strong>Migration note:</strong> If you set up a manual memory system using the <a href="/blog/openclaw-dreaming-not-available" style="color:var(--green)">file-based workaround</a> from our previous guide, you don't need to tear it down. Dreaming reads from and writes to <code>memory/.dreams/</code> — it won't overwrite your existing <code>memory.md</code> or other memory files. They coexist cleanly.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want Your OpenClaw Memory System Set Up Right?</h2>
+    <p>Dreaming + structured memory.md + heartbeat consolidation — we configure the whole stack. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
