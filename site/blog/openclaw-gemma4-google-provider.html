@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemma 4 in OpenClaw via Google Provider: Fix the FailoverError — ClawReady</title>
+  <meta name="description" content="Trying to use Gemma 4 via OpenClaw's native Google provider? You're getting a FailoverError: Unknown model. Here's the workaround until official support lands.">
+  <meta property="og:title" content="Gemma 4 in OpenClaw via Google Provider: Fix the FailoverError">
+  <meta property="og:description" content="Gemma 4 models trigger FailoverError in OpenClaw's Google provider. The workaround: use the OpenAI-compatible Gemini endpoint or Ollama. Full config for both.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-gemma4-google-provider">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-gemma4-google-provider">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.1);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .error-box{background:#1a0a0a;border:1px solid #4a1a1a;border-radius:8px;padding:20px;margin:20px 0;font-family:monospace;font-size:.85em;color:#ff6b6b;line-height:1.6}
+    .option-cards{display:flex;flex-direction:column;gap:14px;margin:20px 0}
+    .option-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px}
+    .option-card h3{font-size:1rem;font-weight:700;margin:0 0 8px;color:#fff;padding:0;border:none}
+    .option-card .badge{display:inline-block;background:rgba(39,174,96,.15);color:var(--green);padding:2px 8px;border-radius:4px;font-size:.78rem;font-weight:600;margin-left:8px}
+    .option-card p{margin-bottom:8px;font-size:.9rem;color:var(--muted)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">🔧 Fix — Google Provider</span>
+    <h1>Gemma 4 in OpenClaw via Google Provider: Fix the FailoverError</h1>
+    <p class="subtitle">Gemma 4 models trigger a <code>FailoverError: Unknown model</code> in OpenClaw's native Google provider. Here's the workaround until official support lands — two paths, both working today.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Gemma 4 landed with impressive benchmarks — 85.5% tool-use accuracy on the 27B MoE variant, genuinely competitive with paid models on many tasks. If you're trying to use it through OpenClaw's native Google provider (the same way you'd use <code>gemini-3-flash</code>), you're hitting this:</p>
+
+    <div class="error-box">
+FailoverError: Unknown model: gemma-4-26b-a4b-it<br>
+&nbsp;&nbsp;at GoogleProvider.resolve (/usr/local/lib/node_modules/openclaw/dist/providers/google.js:284:11)<br>
+&nbsp;&nbsp;at async LLMRouter.route (/usr/local/lib/node_modules/openclaw/dist/llm/router.js:112:22)
+    </div>
+
+    <p>This is a known gap — GitHub issue #61501 was filed requesting native Gemma 4 support in the Google provider. The issue is that Gemma 4 uses a different endpoint structure than Gemini models, and OpenClaw's Google provider currently only knows how to route to the <code>generativelanguage.googleapis.com</code> Gemini family. Gemma 4 via Google AI Studio uses a separate API path.</p>
+
+    <p>Official support is in review but not yet merged. Two workarounds work today.</p>
+
+    <h2>Option 1 — Use the OpenAI-Compatible Gemini Endpoint (Recommended)</h2>
+
+    <p>Google exposes an OpenAI-compatible endpoint at <code>https://generativelanguage.googleapis.com/v1beta/openai/</code> that supports both Gemini and Gemma 4 models. Since OpenClaw's <code>openai-completions</code> provider works correctly, you can route Gemma 4 through it:</p>
+
+    <pre># In ~/.openclaw/openclaw.json
+"models": {
+  "providers": {
+    "google-compat": {
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+      "apiKey": "YOUR_GOOGLE_AI_STUDIO_API_KEY",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "gemma-4-27b-it",
+          "name": "Gemma 4 27B (via Google AI Studio)",
+          "input": ["text", "image"],
+          "contextWindow": 128000,
+          "maxTokens": 8192
+        },
+        {
+          "id": "gemma-4-9b-it",
+          "name": "Gemma 4 9B (via Google AI Studio)",
+          "input": ["text"],
+          "contextWindow": 128000,
+          "maxTokens": 8192
+        }
+      ]
+    }
+  }
+}</pre>
+
+    <p>Get your Google AI Studio API key at <a href="https://aistudio.google.com/apikey" style="color:var(--accent)">aistudio.google.com/apikey</a> — it's free up to the rate limits, which are generous for personal use.</p>
+
+    <p>Then select the model:</p>
+    <pre>/model google-compat/gemma-4-27b-it</pre>
+
+    <div class="callout green">
+      <p><strong>This is the recommended path</strong> for most users. You get Gemma 4's full capability via Google's infrastructure without running anything locally, and it's free within the AI Studio rate limits.</p>
+    </div>
+
+    <h2>Option 2 — Run Gemma 4 Locally via Ollama</h2>
+
+    <p>If you want fully local inference with no API dependency, Ollama supports Gemma 4:</p>
+
+    <pre># Pull Gemma 4 (choose based on your RAM)
+ollama pull gemma4:27b   # needs ~20GB RAM — high quality, slow on CPU
+ollama pull gemma4:12b   # needs ~9GB RAM — good balance
+ollama pull gemma4:4b    # needs ~4GB RAM — fast, limited tool calling</pre>
+
+    <p>Then configure OpenClaw to use it via the OpenAI-compatible endpoint (the same Ollama config that avoids the tool-calling stringification bug):</p>
+
+    <pre>"providers": {
+  "ollama": {
+    "baseUrl": "http://127.0.0.1:11434/v1",
+    "apiKey": "ollama",
+    "api": "openai-completions",
+    "injectNumCtxForOpenAICompat": true,
+    "models": [
+      {
+        "id": "gemma4:12b",
+        "name": "Gemma 4 12B (Local)",
+        "contextWindow": 32768,
+        "cost": {"input": 0, "output": 0}
+      }
+    ]
+  }
+}</pre>
+
+    <div class="callout yellow">
+      <p><strong>Hardware note:</strong> Gemma 4's MoE architecture means the 27B model only activates ~4B parameters per token, which makes it faster than you'd expect for its size. But on a CPU-only machine (no GPU), even the 12B variant will be slow — expect 3–8 tokens/second on a modern desktop CPU. Fine for batch tasks, frustrating for interactive use.</p>
+    </div>
+
+    <h2>Which Variant to Use</h2>
+
+    <p>Google released several Gemma 4 variants. For OpenClaw use:</p>
+
+    <ul>
+      <li><strong>gemma-4-27b-it</strong> — Instruction-tuned, best tool calling. Use via Google AI Studio unless you have 20GB+ RAM for local.</li>
+      <li><strong>gemma-4-9b-it</strong> — Good balance. Free on AI Studio. Works well for most tasks.</li>
+      <li><strong>gemma-4-4b-it</strong> — Fastest locally. Tool calling reliability drops noticeably vs 9B+.</li>
+    </ul>
+
+    <p>The <code>-it</code> suffix means instruction-tuned — always use that variant for OpenClaw, not the base pretrained models.</p>
+
+    <h2>When Will Native Google Provider Support Land?</h2>
+
+    <p>The feature request (GitHub issue #61501) is marked as in review. The OpenClaw team has been responsive on Google provider issues — native Gemma 4 support will likely land in a 4.x release in the next few weeks. Until then, the OpenAI-compatible endpoint workaround above is stable and works well.</p>
+
+    <div class="callout blue">
+      <p><strong>Once native support ships:</strong> You'll be able to add Gemma 4 directly under your existing <code>google</code> provider config the same way you add Gemini models. The OpenAI-compat workaround config above can be removed at that point, though it'll continue to work even after.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Model Config Getting Complicated?</h2>
+    <p>We set up multi-provider routing — local, Google, Anthropic, cost controls — as part of every ClawReady setup. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
