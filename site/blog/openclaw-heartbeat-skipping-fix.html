@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Heartbeat Skipping: What Every Skip Reason Means and How to Fix It — ClawReady</title>
+  <meta name="description" content="Your heartbeat keeps getting skipped and you don't know why. Here's what every skip reason means, what triggers each one, and the fixes — including the local LLM collision avoidance issue.">
+  <meta property="og:title" content="OpenClaw Heartbeat Skipping: What Every Skip Reason Means and How to Fix It">
+  <meta property="og:description" content="NO_REPLY, ANNOUNCE_SKIP, requests-in-flight, LLM-busy — all the heartbeat skip reasons explained with fixes. Including the local model collision avoidance issue.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-heartbeat-skipping-fix">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-heartbeat-skipping-fix">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.1);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .skip-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:16px 0}
+    .skip-card .token{font-family:monospace;background:#1a1a1a;border:1px solid var(--border);padding:3px 10px;border-radius:4px;font-size:.88em;color:var(--yellow);margin-bottom:10px;display:inline-block}
+    .skip-card h3{font-size:1rem;font-weight:700;margin:0 0 8px;padding:0;border:none;color:#fff}
+    .skip-card p{font-size:.9rem;margin-bottom:10px}
+    .skip-card .action{font-size:.85rem;color:var(--green);font-weight:600}
+    .skip-card .noaction{font-size:.85rem;color:var(--muted);font-style:italic}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">🔧 Heartbeat — Diagnostics</span>
+    <h1>OpenClaw Heartbeat Skipping: What Every Skip Reason Means</h1>
+    <p class="subtitle">Your heartbeat fires but nothing happens — or you see cryptic skip notifications. Here's a plain-English explanation of every skip reason, what causes each one, and exactly what to do about it.</p>
+    <p class="meta">April 6, 2026 · 6 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Heartbeats that don't execute are one of the most frustrating OpenClaw experiences because the system appears to be working — the heartbeat fires — but your agent never actually does anything. The skip system exists by design, but the reasons aren't always obvious.</p>
+
+    <p>Here's every skip reason you might encounter, what it means, and what (if anything) to do about it.</p>
+
+    <h2>Skip Reasons Reference</h2>
+
+    <div class="skip-card">
+      <div class="token">NO_REPLY</div>
+      <h3>Agent replied with nothing</h3>
+      <p>Your HEARTBEAT.md instructions resulted in the agent deciding there was nothing to do, and it replied with the special <code>NO_REPLY</code> token. OpenClaw suppresses the announce (notification) and skips the cycle cleanly.</p>
+      <p class="noaction">✓ This is correct behavior. No action needed unless you expected something to run.</p>
+      <p>If you want to confirm your heartbeat actually ran and just had nothing to do, check the heartbeat log file in your workspace.</p>
+    </div>
+
+    <div class="skip-card">
+      <div class="token">ANNOUNCE_SKIP</div>
+      <h3>Agent suppressed its own output</h3>
+      <p>The agent completed a turn but its last visible reply was exactly <code>ANNOUNCE_SKIP</code>. OpenClaw treats this as an intentional signal to suppress the notification — the agent did something but decided the result didn't warrant a ping.</p>
+      <p class="noaction">✓ Expected behavior if you've instructed your agent to avoid spammy notifications.</p>
+      <p>To see what ran, check your heartbeat-log.md in the workspace — the agent should still be logging its actions there.</p>
+    </div>
+
+    <div class="skip-card">
+      <div class="token">requests-in-flight</div>
+      <h3>Previous turn still running</h3>
+      <p>The heartbeat scheduler tried to fire but an existing agent turn was still in progress. OpenClaw doesn't run overlapping turns — it skips and retries after 1 second. If the in-flight turn finishes before the next scheduled heartbeat, everything proceeds normally.</p>
+      <p class="action">⚠ Action needed if this is frequent: Your heartbeat interval is too short relative to how long your agent takes to complete a turn. Increase the heartbeat interval or reduce the scope of work per heartbeat cycle.</p>
+      <pre>// In your heartbeat config — increase interval
+"heartbeat": {
+  "intervalMinutes": 60  // increase from default 30
+}</pre>
+    </div>
+
+    <div class="skip-card">
+      <div class="token">llm-busy (local models)</div>
+      <h3>Local model already running inference</h3>
+      <p>Specific to setups running local models via Ollama. If a conversation turn is already using the local model when the heartbeat fires, the heartbeat skips rather than queueing two inference jobs simultaneously. This is the <em>heartbeat-cron collision avoidance</em> behavior.</p>
+      <p class="action">⚠ Action if frequent: Use a different model for heartbeat vs interactive sessions, or increase the heartbeat interval to reduce collision probability.</p>
+      <pre>// Configure heartbeat to use a different model
+"heartbeat": {
+  "model": "ollama/qwen3.5:9b",  // local model for heartbeats
+  "intervalMinutes": 60
+}
+// Keep interactive sessions on your primary model</pre>
+    </div>
+
+    <div class="skip-card">
+      <div class="token">gateway-offline</div>
+      <h3>Gateway not running when heartbeat fired</h3>
+      <p>The heartbeat scheduler fired but couldn't reach the gateway. Usually means the gateway crashed or was manually stopped. The skip reason logs the timestamp so you can correlate with gateway logs.</p>
+      <p class="action">⚠ Action: Set up the gateway as a systemd service so it auto-restarts on crash. See our <a href="/blog/openclaw-raspberry-pi-arm-setup" style="color:var(--accent)">auto-start guide</a> for the systemd config.</p>
+    </div>
+
+    <div class="skip-card">
+      <div class="token">rate-limited</div>
+      <h3>API provider returned rate limit error</h3>
+      <p>The heartbeat ran but the model API returned a 429 rate limit response. OpenClaw retries with backoff. If you're seeing this frequently, you're hitting provider rate limits — usually token-per-minute limits rather than request limits.</p>
+      <p class="action">⚠ Action: Reduce heartbeat frequency, switch to a lower-tier model for heartbeat tasks, or increase your API tier. Sonnet has higher rate limits than Opus.</p>
+    </div>
+
+    <div class="skip-card">
+      <div class="token">context-compaction-required</div>
+      <h3>Context too long — compaction running</h3>
+      <p>The heartbeat session's context window was nearly full. OpenClaw triggered an automatic compaction (summarization of older context) before allowing new turns. The heartbeat is deferred until compaction completes.</p>
+      <p class="noaction">✓ Usually resolves automatically. If this is recurring, your heartbeat sessions are accumulating too much history.</p>
+      <p>Fix: Add a HEARTBEAT.md instruction to periodically summarize and clear old context:</p>
+      <pre># In HEARTBEAT.md
+## Context Management
+- At the start of each cycle, check if this session is getting long
+- If context feels heavy, summarize key decisions to memory.md and start fresh</pre>
+    </div>
+
+    <h2>How to See Skip Reasons in Your Logs</h2>
+
+    <pre># Recent heartbeat activity with skip reasons
+openclaw logs --filter heartbeat --since 24h
+
+# Or check the gateway log directly
+openclaw gateway logs | grep -i "skip\|heartbeat"</pre>
+
+    <h2>Heartbeat Never Running At All?</h2>
+
+    <p>If your heartbeat isn't firing at all (not skipping — just absent), different diagnosis:</p>
+
+    <ul>
+      <li><strong>HEARTBEAT.md doesn't exist</strong> — OpenClaw looks for this file in your workspace root. Create it if missing.</li>
+      <li><strong>Heartbeat disabled in config</strong> — check <code>openclaw.json</code> for <code>"heartbeat": { "enabled": false }</code></li>
+      <li><strong>Gateway not running</strong> — heartbeats only fire when the gateway is active</li>
+      <li><strong>Isolated sessions misconfigured</strong> — if you're on 4.2+ with isolated heartbeat sessions, check for the sub-agent pairing error (see our <a href="/blog/openclaw-pairing-required-fix" style="color:var(--accent)">pairing fix guide</a>)</li>
+    </ul>
+
+    <div class="callout green">
+      <p><strong>The simplest debug flow:</strong> Set your HEARTBEAT.md to reply with exactly one line: <code>"Heartbeat at [time]: HEARTBEAT_OK"</code>. If that appears in your logs, heartbeats are running. If not, the issue is in the scheduling layer, not your instructions.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Heartbeat Not Working the Way You Expected?</h2>
+    <p>We configure heartbeat schedules, skip logic, and model routing as part of every ClawReady setup. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
