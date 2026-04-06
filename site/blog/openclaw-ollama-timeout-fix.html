@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw + Ollama LLM Timeout: What's Causing It and How to Fix It — ClawReady</title>
+  <meta name="description" content="OpenClaw timing out with Ollama? You're not alone. Here's the exact cause and 4 fixes — from request timeout config to model quantization to hardware tuning.">
+  <meta property="og:title" content="OpenClaw + Ollama LLM Timeout: What's Causing It and How to Fix It">
+  <meta property="og:description" content="The exact cause of OpenClaw → Ollama timeouts and 4 fixes ranked by effort. Works for gemma4, qwen3, and any large local model.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-ollama-timeout-fix">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-ollama-timeout-fix">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.1);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88rem;color:var(--accent)}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-size:.88rem;line-height:1.6}
+    pre code{background:none;border:none;padding:0;color:#e8e8e8}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .fix-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin:16px 0}
+    .fix-card .fix-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .fix-card .fix-num{background:var(--accent);color:#fff;font-weight:800;font-size:.85rem;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .fix-card .fix-title{font-size:1.05rem;font-weight:700}
+    .fix-card .fix-meta{font-size:.8rem;color:var(--muted);margin-top:2px}
+    .fix-card .fix-body p{margin-bottom:10px;font-size:.93rem}
+    .fix-card .fix-body p:last-child{margin:0}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">🔧 Fix Guide</div>
+    <h1>OpenClaw + Ollama LLM Timeout: What's Causing It and How to Fix It</h1>
+    <p class="subtitle">OpenClaw times out waiting for your local model, the conversation dies, nothing gets done. Here's exactly why it happens and 4 fixes ranked by effort.</p>
+    <p class="meta">By ClawReady — April 6, 2026 · 7 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Running OpenClaw with Ollama is a great setup — zero API cost, full privacy, works offline. But large local models (gemma4, qwen3, llama3.3, anything over ~13B) are slow, and OpenClaw's default timeout wasn't designed for slow hardware.</p>
+
+    <p>The result: OpenClaw sends a request to Ollama, waits, and then gives up before the model finishes generating. You get an error like <code>LLM request timed out</code> or <code>Error: connect ECONNREFUSED</code> or just silence.</p>
+
+    <div class="callout yellow">
+      <p><strong>Most common scenario:</strong> Works fine on short prompts, fails on longer ones — complex reasoning, multi-step tasks, or anything with large context. That's the timeout in action: the model is still thinking, OpenClaw already gave up.</p>
+    </div>
+
+    <h2>What's Actually Happening</h2>
+
+    <p>OpenClaw has a configurable LLM request timeout (default: 60 seconds). On fast hardware with a small quantized model, 60 seconds is plenty. On CPU-only hardware with a 31B model at Q4, a single complex response can take 3–8 minutes.</p>
+
+    <p>Two separate timeouts can hit you:</p>
+    <ul>
+      <li><strong>OpenClaw's request timeout</strong> — the time it waits for the first token back from Ollama</li>
+      <li><strong>Ollama's own keep-alive timeout</strong> — if Ollama unloads the model between requests, the next one has to reload from disk, adding 30–90 seconds of latency before the first token</li>
+    </ul>
+
+    <p>Fix both and the problem goes away.</p>
+
+    <h2>The 4 Fixes (Ranked by Effort)</h2>
+
+    <div class="fix-card">
+      <div class="fix-header">
+        <div class="fix-num">1</div>
+        <div>
+          <div class="fix-title">Increase OpenClaw's LLM timeout</div>
+          <div class="fix-meta">⏱ 2 minutes · Fixes most cases immediately</div>
+        </div>
+      </div>
+      <div class="fix-body">
+        <p>In your <code>openclaw.json</code>, add or update the timeout setting for your local model provider:</p>
+        <pre><code>{
+  "models": {
+    "local": {
+      "provider": "ollama",
+      "model": "qwen3.5:9b",
+      "requestTimeoutMs": 300000,
+      "streamTimeoutMs": 600000
+    }
+  }
+}</code></pre>
+        <p><code>requestTimeoutMs: 300000</code> = 5 minutes. <code>streamTimeoutMs: 600000</code> = 10 minutes. Adjust based on your hardware. CPU-only with a 30B+ model may need even higher values.</p>
+      </div>
+    </div>
+
+    <div class="fix-card">
+      <div class="fix-header">
+        <div class="fix-num">2</div>
+        <div>
+          <div class="fix-title">Pin Ollama's keep-alive to prevent model unloading</div>
+          <div class="fix-meta">⏱ 5 minutes · Eliminates reload latency</div>
+        </div>
+      </div>
+      <div class="fix-body">
+        <p>By default Ollama unloads models from memory after 5 minutes of inactivity. When OpenClaw's heartbeat fires 30 minutes later, Ollama has to reload the model — adding a 30–90 second cold-start delay before the first token. That alone can trigger the timeout.</p>
+        <p>Set Ollama's keep-alive to indefinite by adding an environment variable to your Ollama systemd service or startup command:</p>
+        <pre><code># For systemd: edit /etc/systemd/system/ollama.service
+[Service]
+Environment="OLLAMA_KEEP_ALIVE=-1"
+
+# Then reload:
+sudo systemctl daemon-reload && sudo systemctl restart ollama</code></pre>
+        <p><code>OLLAMA_KEEP_ALIVE=-1</code> keeps the model loaded in memory until Ollama exits. Only do this if you have enough RAM. If memory is tight, use <code>OLLAMA_KEEP_ALIVE=30m</code> to extend to 30 minutes instead.</p>
+      </div>
+    </div>
+
+    <div class="fix-card">
+      <div class="fix-header">
+        <div class="fix-num">3</div>
+        <div>
+          <div class="fix-title">Switch to a smaller or more aggressively quantized model</div>
+          <div class="fix-meta">⏱ 15 minutes · Best ROI on CPU-only hardware</div>
+        </div>
+      </div>
+      <div class="fix-body">
+        <p>If you're running a 31B model on a machine without a GPU, you're asking for timeout trouble. CPU inference on a large model is simply too slow for OpenClaw's conversational use case.</p>
+        <p>Practical hardware-to-model guidance:</p>
+        <ul>
+          <li><strong>8–16GB RAM, CPU-only:</strong> qwen2.5:7b Q4, qwen3.5:9b Q4, gemma3:9b Q4 — these generate at 8–15 tokens/sec on modern CPUs</li>
+          <li><strong>16–32GB RAM, CPU-only:</strong> qwen2.5:14b Q4, qwen3:14b Q4 — 4–8 tokens/sec, works but slow</li>
+          <li><strong>GPU available (4–8GB VRAM):</strong> llama3.3:8b, gemma3:12b — fast enough for any timeout setting</li>
+          <li><strong>31B+ models on CPU:</strong> Not recommended for interactive use. Fine for overnight batch tasks, not for heartbeat-driven conversations.</li>
+        </ul>
+        <pre><code># Pull a faster model
+ollama pull qwen3.5:9b
+
+# Update openclaw.json
+"model": "qwen3.5:9b"</code></pre>
+      </div>
+    </div>
+
+    <div class="fix-card">
+      <div class="fix-header">
+        <div class="fix-num">4</div>
+        <div>
+          <div class="fix-title">Use a hybrid routing setup — local for simple, API for complex</div>
+          <div class="fix-meta">⏱ 30 minutes · Best of both worlds</div>
+        </div>
+      </div>
+      <div class="fix-body">
+        <p>OpenClaw supports multiple model profiles. Route fast/simple tasks (heartbeat checks, short responses, memory reads) to your local model and complex reasoning to a cloud API. This cuts your API cost by 70–90% while keeping response quality and speed high where it matters.</p>
+        <pre><code>{
+  "models": {
+    "default": "local",
+    "local": {
+      "provider": "ollama",
+      "model": "qwen3.5:9b",
+      "requestTimeoutMs": 300000
+    },
+    "powerful": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6"
+    }
+  }
+}</code></pre>
+        <p>In your SOUL.md or AGENTS.md, instruct the agent to use <code>model: powerful</code> only for complex multi-step tasks. Heartbeats and simple replies stay on local at $0.</p>
+      </div>
+    </div>
+
+    <h2>Diagnosing Which Timeout You're Hitting</h2>
+
+    <p>Quick way to tell:</p>
+    <ul>
+      <li><strong>Fails after exactly 60 seconds:</strong> OpenClaw timeout. Fix 1.</li>
+      <li><strong>Fails after 30–90 seconds on the first message, then works:</strong> Ollama model reload lag. Fix 2.</li>
+      <li><strong>Fails unpredictably on longer prompts but not short ones:</strong> Model too slow for your hardware. Fix 3.</li>
+      <li><strong>Intermittent failures with no clear pattern:</strong> Memory pressure causing Ollama to swap. Check <code>htop</code> during a request — if RAM is maxed, the model is paging to disk. Fix 3 (smaller model) or add swap space.</li>
+    </ul>
+
+    <h2>Quick Reference: Recommended Settings by Hardware</h2>
+
+    <pre><code># CPU-only (8–16GB RAM) — qwen3.5:9b recommended
+requestTimeoutMs: 180000    # 3 min
+streamTimeoutMs:  360000    # 6 min
+OLLAMA_KEEP_ALIVE: 60m
+
+# CPU-only (16–32GB RAM) — qwen2.5:14b
+requestTimeoutMs: 300000    # 5 min
+streamTimeoutMs:  600000    # 10 min
+OLLAMA_KEEP_ALIVE: 30m
+
+# GPU (4GB+ VRAM) — gemma3:12b or llama3.3:8b
+requestTimeoutMs: 60000     # 1 min (default is fine)
+streamTimeoutMs:  120000    # 2 min
+OLLAMA_KEEP_ALIVE: -1       # keep loaded</code></pre>
+
+    <div class="callout green">
+      <p>Start with Fix 1 (timeout increase) + Fix 2 (keep-alive). Those two changes solve the issue for ~80% of setups in under 10 minutes total.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want This Configured Correctly From the Start?</h2>
+    <p>ClawReady sets up your local model routing, timeout config, and Ollama keep-alive as part of every install. Starting at $99.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>

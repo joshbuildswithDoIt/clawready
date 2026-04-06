@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My OpenClaw Agent Won't Stay Autonomous — Here's What Fixed It — ClawReady</title>
+  <meta name="description" content="Set up OpenClaw, it works in chat, but the agent won't run tasks on its own? 5 specific reasons this happens and exactly how to fix each one.">
+  <meta property="og:title" content="My OpenClaw Agent Won't Stay Autonomous — Here's What Fixed It">
+  <meta property="og:description" content="Your agent talks but won't act. Here are the 5 most common reasons OpenClaw won't run autonomously — and the exact fixes for each.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-autonomous-agent-wont-stay">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-autonomous-agent-wont-stay">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88rem;color:var(--accent)}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-size:.88rem;line-height:1.6}
+    pre code{background:none;border:none;padding:0;color:#e8e8e8}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .cause-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin:20px 0}
+    .cause-block .cause-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+    .cause-block h3{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:12px}
+    .cause-block p{font-size:.93rem;margin-bottom:12px}
+    .cause-block p:last-child{margin:0}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">🔧 Fix Guide</div>
+    <h1>My OpenClaw Agent Won't Stay Autonomous — Here's What Fixed It</h1>
+    <p class="subtitle">The agent responds in chat but won't act on its own. No heartbeats. No proactive tasks. Just sitting there waiting to be asked. Here are the 5 reasons this happens.</p>
+    <p class="meta">By ClawReady — April 6, 2026 · 8 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>This is one of the most common post-setup complaints we hear: "OpenClaw works when I talk to it, but it doesn't do anything on its own." You set it up expecting an autonomous agent that proactively works — and what you got is a very fancy chatbot.</p>
+
+    <p>The gap is almost always one of five things. Here they are, in order of how often we see them.</p>
+
+    <div class="callout yellow">
+      <p><strong>Before you dig in:</strong> Check that OpenClaw is actually running (<code>openclaw status</code>) and that your heartbeat interval is configured. If the process isn't running or heartbeat is disabled, none of the below applies — that's the simpler fix.</p>
+    </div>
+
+    <h2>Cause 1 — HEARTBEAT.md is empty or doesn't exist</h2>
+
+    <div class="cause-block">
+      <div class="cause-label">Most Common Cause</div>
+      <h3>The agent has no instructions for what to do autonomously</h3>
+      <p>OpenClaw's autonomous behavior is driven by your <code>HEARTBEAT.md</code> file in the workspace. If it's missing, blank, or just contains placeholder text, the agent has no idea what to do during idle cycles — so it does nothing.</p>
+      <p>This isn't a bug. OpenClaw is correctly respecting the absence of instructions. The fix is to write a real HEARTBEAT.md that tells the agent exactly what you want it to do when it fires.</p>
+      <p>Minimal working example:</p>
+      <pre><code># HEARTBEAT.md
+
+When idle, do the following in order:
+
+1. Check for any active projects that need attention.
+2. If no active tasks, scan r/[your-niche] for pain points and 
+   log opportunities to memory/opportunities.md.
+3. Send me a daily briefing at 8 AM via Telegram.
+4. Log all work to memory/heartbeat-log.md with timestamp.
+
+## Rules
+- Never sit idle. Always move forward.
+- If something needs my approval, flag it in Telegram. Don't block.
+- Silent mode 11 PM – 7 AM. No messages, just log work.</code></pre>
+      <p>The more specific, the better. Vague instructions produce vague behavior.</p>
+    </div>
+
+    <h2>Cause 2 — SOUL.md tells the agent to wait for instructions</h2>
+
+    <div class="cause-block">
+      <div class="cause-label">Common — Easy to Miss</div>
+      <h3>Your identity file has passive language that overrides heartbeat behavior</h3>
+      <p>Many SOUL.md templates (including some that ship with OpenClaw) include language like "respond when asked" or "wait for the user to initiate." That instruction competes with your HEARTBEAT.md and often wins.</p>
+      <p>Check your SOUL.md for any of these patterns:</p>
+      <ul>
+        <li>"Respond to user requests" (implies waiting)</li>
+        <li>"Do not act without being asked"</li>
+        <li>"Wait for confirmation before proceeding"</li>
+        <li>Any instruction that positions the agent as reactive rather than proactive</li>
+      </ul>
+      <p>Replace passive language with active language:</p>
+      <pre><code># In SOUL.md — change this:
+"Respond helpfully when the user asks questions."
+
+# To this:
+"Proactive — suggest actions, don't wait to be told everything.
+Think like a business partner, not a chatbot."</code></pre>
+    </div>
+
+    <h2>Cause 3 — Heartbeat is firing but exec permissions are blocking action</h2>
+
+    <div class="cause-block">
+      <div class="cause-label">Common Post-v2026.4.1</div>
+      <h3>The agent fires, starts a task, then gets blocked by the approval system</h3>
+      <p>Since v2026.4.1, OpenClaw's exec approval system defaults to blocking all shell commands until explicitly configured. The heartbeat fires, the agent tries to run a task, hits an approval prompt — and since there's no one to approve it autonomously, nothing happens.</p>
+      <p>You'll see this in the logs as repeated <code>approval-pending</code> entries that never resolve. The fix is to configure <code>exec-approvals.json</code>:</p>
+      <pre><code># ~/.openclaw/exec-approvals.json
+{
+  "version": 1,
+  "rules": [
+    {
+      "pattern": "git *",
+      "security": "full",
+      "ask": "off"
+    },
+    {
+      "pattern": "npm *",
+      "security": "full", 
+      "ask": "off"
+    },
+    {
+      "pattern": "curl *",
+      "security": "allowlist",
+      "ask": "off"
+    }
+  ],
+  "defaultAsk": "on-miss"
+}</code></pre>
+      <p>Set <code>"ask": "off"</code> for command patterns you trust the agent to run autonomously. Keep <code>"defaultAsk": "on-miss"</code> so anything not explicitly allowed still requires your approval — don't set default to <code>"off"</code> unless you fully understand the security implications.</p>
+    </div>
+
+    <h2>Cause 4 — No channel configured for outbound messages</h2>
+
+    <div class="cause-block">
+      <div class="cause-label">Surprisingly Common</div>
+      <h3>The agent is working but you can't see it because there's no outbound channel</h3>
+      <p>Sometimes the agent IS running autonomously — it's writing to memory files, doing research, logging work — but it has no configured channel to send you updates. So from your perspective, nothing is happening.</p>
+      <p>Check: is a messaging channel (Telegram, Discord, Signal) properly configured and tested? Run <code>openclaw status</code> and look at the channels section. If no channel shows as "connected," the agent can work but can't reach you.</p>
+      <p>The fix is to set up at least one outbound channel. Telegram is the easiest — a BotFather bot, a token, and your chat ID. Takes about 10 minutes. See our <a href="/blog/openclaw-telegram-whatsapp-imessage" style="color:var(--accent)">channel setup guide</a>.</p>
+    </div>
+
+    <h2>Cause 5 — The agent is completing HEARTBEAT_OK and going silent</h2>
+
+    <div class="cause-block">
+      <div class="cause-label">Less Common but Confusing</div>
+      <h3>Heartbeat fires, agent decides nothing needs attention, returns HEARTBEAT_OK</h3>
+      <p>OpenClaw's heartbeat system expects the agent to return <code>HEARTBEAT_OK</code> when there's nothing to do. If your HEARTBEAT.md has conditions like "if nothing needs attention, reply HEARTBEAT_OK" — and the agent consistently decides nothing needs attention — it will return HEARTBEAT_OK every cycle and do nothing.</p>
+      <p>This is actually correct behavior if your HEARTBEAT.md doesn't give the agent enough to do. The fix is to add a "always do something" fallback:</p>
+      <pre><code># At the bottom of HEARTBEAT.md, add:
+
+## Fallback — if nothing urgent needs attention:
+- Scan [specific source] for new signals
+- Write one blog post / research note / opportunity brief
+- Improve the documentation in memory/
+- Review and update memory.md if it's stale
+
+## Rules
+- Never sit idle. If steps 1–3 have nothing, do the fallback.
+- Log ALL work to memory/heartbeat-log.md (date + summary).
+- Only return HEARTBEAT_OK if you truly have done a full check 
+  and the fallback has nothing worth doing either.</code></pre>
+    </div>
+
+    <h2>Quick Diagnostic Checklist</h2>
+
+    <ol>
+      <li>Run <code>openclaw status</code> — is it running? Is heartbeat enabled?</li>
+      <li>Check <code>~/.openclaw/workspace/HEARTBEAT.md</code> — does it exist and have real instructions?</li>
+      <li>Check <code>~/.openclaw/workspace/SOUL.md</code> — does it have passive/reactive language?</li>
+      <li>Check <code>~/.openclaw/exec-approvals.json</code> — are your core commands approved?</li>
+      <li>Run <code>openclaw channels</code> — is at least one channel connected?</li>
+      <li>Check <code>~/.openclaw/workspace/memory/heartbeat-log.md</code> — is it being written to at all?</li>
+    </ol>
+
+    <p>Step 6 is the most telling. If the log is being written to, the agent IS running — the issue is either output channels (Cause 4) or insufficient instructions (Cause 1). If the log is empty, the agent isn't running at all — check process and heartbeat config first.</p>
+
+    <div class="callout green">
+      <p>All five of these are configuration issues, not bugs. The fixes are 5–30 minutes each. If you're still stuck after working through the list, <a href="https://calendly.com/grofresh2018" target="_blank" style="color:var(--green)">book a free call</a> — we'll look at your config and find it in 20 minutes.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want a Setup That's Autonomous From Day One?</h2>
+    <p>ClawReady configures HEARTBEAT.md, SOUL.md, exec approvals, and channels as part of every install. Your agent works the day it's set up.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
