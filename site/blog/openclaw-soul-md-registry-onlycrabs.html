@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>onlycrabs.ai: The OpenClaw SOUL.md Registry Explained — ClawReady</title>
+  <meta name="description" content="onlycrabs.ai is a new registry for sharing OpenClaw SOUL.md files — agent personas, tones, and behavioral configurations. Here's what it is, why it exists, and how to use it to jumpstart your agent's identity.">
+  <meta property="og:title" content="onlycrabs.ai: The OpenClaw SOUL.md Registry Explained">
+  <meta property="og:description" content="onlycrabs.ai lets you publish and browse OpenClaw SOUL.md configurations — agent personas, tone settings, behavioral rules. Here's why it exists and how to use community-built SOUL files.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-soul-md-registry-onlycrabs">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-soul-md-registry-onlycrabs">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--purple:#9b59b6}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(155,89,182,.15);color:var(--purple);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout.purple{border-left-color:var(--purple)}
+    .callout p{margin:0;font-size:.95rem}
+    .soul-example{background:#0a0814;border:1px solid #2a1a3a;border-radius:8px;padding:20px;margin:20px 0;font-family:monospace;font-size:.88em;line-height:1.8;color:#c8b8e8}
+    .soul-example .comment{color:#554a6a}
+    .soul-example .heading{color:#e8d8f8;font-weight:700}
+    .soul-example .content{color:#c8b8e8}
+    .example-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+    @media(max-width:560px){.example-cards{grid-template-columns:1fr}}
+    .example-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+    .example-card h3{font-size:.9rem;font-weight:700;margin:0 0 8px;padding:0;border:none;color:#fff}
+    .example-card p{font-size:.83rem;color:var(--muted);margin:0}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">✨ Community — Agent Identity</span>
+    <h1>onlycrabs.ai: The OpenClaw SOUL.md Registry Explained</h1>
+    <p class="subtitle">onlycrabs.ai is a registry for sharing OpenClaw SOUL.md files — agent personas, behavioral rules, and "system lore." Here's what it is, why it exists, and how to use community SOUL files to jumpstart your agent's identity.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>If ClawHub is the marketplace for OpenClaw skills (what your agent can <em>do</em>), <strong>onlycrabs.ai</strong> is the registry for what your agent <em>is</em> — its personality, tone, behavioral defaults, and identity. It's referenced in the official ClawHub README as "the SOUL.md registry: publish and share system lore the same way you publish skills."</p>
+
+    <p>The concept is simple but surprisingly useful: instead of writing your SOUL.md from scratch, you can browse community-published agent personas, find one that resonates, download it, and customize it. Or publish your own to share with the community.</p>
+
+    <h2>What SOUL.md Actually Is</h2>
+
+    <p>SOUL.md is the file in your OpenClaw workspace that defines your agent's identity, tone, and behavioral rules. It gets injected into every conversation as part of the system context. A well-written SOUL.md makes an enormous difference in how useful and pleasant the agent is to work with.</p>
+
+    <div class="soul-example">
+      <span class="comment"># Example SOUL.md structure</span><br><br>
+      <span class="heading">## Identity</span><br>
+      <span class="content">- Name: Alex</span><br>
+      <span class="content">- Role: Executive assistant and business strategist</span><br>
+      <span class="content">- Persona: Sharp, direct, action-oriented. Thinks like a founder.</span><br><br>
+      <span class="heading">## Tone</span><br>
+      <span class="content">- Short replies unless depth is needed</span><br>
+      <span class="content">- No corporate speak. Plain English.</span><br>
+      <span class="content">- Proactive: suggest next steps without being asked</span><br><br>
+      <span class="heading">## Boundaries</span><br>
+      <span class="content">- Never run destructive commands without asking</span><br>
+      <span class="content">- Flag decisions that can't be undone</span><br>
+      <span class="content">- Always confirm before spending money or calling paid APIs</span>
+    </div>
+
+    <p>Getting this right takes real thought. onlycrabs.ai lets you start with something tested and adapt it instead of starting from a blank page.</p>
+
+    <h2>What You'll Find on onlycrabs.ai</h2>
+
+    <p>The registry is organized by agent archetype — different personas optimized for different use cases:</p>
+
+    <div class="example-cards">
+      <div class="example-card">
+        <h3>🏢 Executive Assistant</h3>
+        <p>Formal enough for professional communication, proactive on priorities, good at summarizing and delegating.</p>
+      </div>
+      <div class="example-card">
+        <h3>🔨 Builder / Maker</h3>
+        <p>Technical, action-first, low ceremony. Built for developers who want their agent to ship things, not explain things.</p>
+      </div>
+      <div class="example-card">
+        <h3>📚 Researcher</h3>
+        <p>Methodical, cites sources, flags uncertainty. Good for knowledge workers who need reliable information.</p>
+      </div>
+      <div class="example-card">
+        <h3>💬 Companion</h3>
+        <p>Warm, curious, personality-forward. For users who want their agent to feel more like a conversation partner.</p>
+      </div>
+      <div class="example-card">
+        <h3>💰 Business Operator</h3>
+        <p>Revenue-focused, practical, cuts through noise. Thinks in outcomes and metrics.</p>
+      </div>
+      <div class="example-card">
+        <h3>🔒 Security-Focused</h3>
+        <p>Conservative by default, always asks before irreversible actions, surfaces risk proactively.</p>
+      </div>
+    </div>
+
+    <h2>How to Use a Community SOUL.md</h2>
+
+    <p>Browse <a href="https://onlycrabs.ai" style="color:var(--accent)">onlycrabs.ai</a>, find a persona that fits your needs, and download the SOUL.md file. Then:</p>
+
+    <pre># Replace your existing SOUL.md (back up your current one first)
+cp ~/.openclaw/workspace/SOUL.md ~/.openclaw/workspace/SOUL.md.backup
+
+# Copy the downloaded file
+cp ~/Downloads/business-operator-soul.md ~/.openclaw/workspace/SOUL.md</pre>
+
+    <p>Or merge elements from a community SOUL.md into your own — take the tone section from one, the boundaries from another, and keep your own identity section.</p>
+
+    <div class="callout yellow">
+      <p><strong>Apply the same audit mindset as skills:</strong> A SOUL.md file is plain text with no executable code — it can't directly harm your machine. But a maliciously crafted SOUL.md could instruct your agent to behave in harmful ways (disable safety checks, take risky actions without confirmation). Treat community SOUL files like code review: read before applying.</p>
+    </div>
+
+    <h2>How to Publish Your Own</h2>
+
+    <p>If you've built a SOUL.md configuration that works well for a specific use case:</p>
+
+    <pre># Install the clawhub CLI (includes onlycrabs publishing)
+npm install -g clawhub
+
+# Login with your clawhub account
+clawhub login
+
+# Publish your SOUL.md
+clawhub soul publish \
+  --name "founder-operator" \
+  --description "Action-first business operator for founders building digital businesses" \
+  --tags "business,founder,revenue,action-oriented" \
+  --file ~/.openclaw/workspace/SOUL.md</pre>
+
+    <p>Published SOUL files get a version number, changelog support, and can be tagged for discoverability — same system as ClawHub skills.</p>
+
+    <h2>The Bigger Picture: "System Lore"</h2>
+
+    <p>The OpenClaw team calls this "system lore" — the accumulated wisdom about how to configure an agent's identity for different contexts. As the community matures, well-crafted SOUL.md files for specific roles (real estate investor, solo accountant, developer, content creator) will become genuinely valuable starting points.</p>
+
+    <p>It's early. onlycrabs.ai is still building its catalog. But it's the right idea — SOUL.md is arguably more important to daily agent experience than any individual skill, and sharing those configurations publicly accelerates everyone's setup.</p>
+
+    <div class="callout purple">
+      <p><strong>Our SOUL.md files:</strong> The ClawReady setup process includes crafting a custom SOUL.md based on how you work, what you need, and your communication preferences. We're planning to publish vetted versions of common archetypes to onlycrabs.ai — follow ClawReady on GitHub to see when they land.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want a SOUL.md That Actually Fits Your Workflow?</h2>
+    <p>We craft custom SOUL.md configurations as part of every setup — built around your role, style, and how you want to work with your agent. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>

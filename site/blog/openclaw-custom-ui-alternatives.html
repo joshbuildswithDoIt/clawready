@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Custom UIs: Alternatives to the Built-In Control UI — ClawReady</title>
+  <meta name="description" content="The built-in OpenClaw Control UI is functional but limited. Here's what the community is building instead — custom dashboards, mobile interfaces, and lightweight chat UIs that fit different workflows.">
+  <meta property="og:title" content="OpenClaw Custom UIs: Alternatives to the Built-In Control UI">
+  <meta property="og:description" content="Community-built alternatives to the OpenClaw Control UI — from zero-dependency dashboards to mobile-first interfaces. What each option adds and how to set them up.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-custom-ui-alternatives">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-custom-ui-alternatives">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.1);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .ui-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 26px;margin:18px 0}
+    .ui-card h3{font-size:1.05rem;font-weight:700;margin:0 0 6px;padding:0;border:none;color:#fff}
+    .ui-card .meta-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.76rem;font-weight:600}
+    .badge.new{background:rgba(39,174,96,.15);color:var(--green)}
+    .badge.community{background:rgba(52,152,219,.15);color:var(--blue)}
+    .badge.zero-dep{background:rgba(243,156,18,.15);color:var(--yellow)}
+    .badge.mobile{background:rgba(155,89,182,.15);color:#9b59b6}
+    .ui-card p{font-size:.9rem;color:var(--muted);margin:0 0 10px}
+    .ui-card .install{font-family:monospace;font-size:.84em;background:#0f0f0f;border:1px solid var(--border);border-radius:5px;padding:8px 12px;color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">🖥️ Interface — Custom UIs</span>
+    <h1>OpenClaw Custom UIs: Alternatives to the Built-In Control UI</h1>
+    <p class="subtitle">The default Control UI is functional, but the community has been building alternatives — zero-dependency dashboards, mobile-first interfaces, and purpose-built chat UIs. Here's what's available and who each is for.</p>
+    <p class="meta">April 6, 2026 · 6 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>The OpenClaw Control UI does the job — you can chat, check agent status, browse session history. But it's built for breadth, not depth. Users running high-volume setups, wanting mobile access, or building custom workflows have been reaching for alternatives.</p>
+
+    <p>The community has responded. Here's an overview of the main options, from the official built-in to the most interesting third-party alternatives.</p>
+
+    <h2>Option 1 — Built-In Control UI (Default)</h2>
+
+    <div class="ui-card">
+      <h3>OpenClaw Control UI</h3>
+      <div class="meta-row"><span class="badge community">Official</span></div>
+      <p>Ships with every OpenClaw install. Access at <code>http://localhost:3721</code>. Multi-session sidebar, tool call history, model switching, settings panel. The 4.5 update added structured task progress and multilingual support (12 new languages). Sufficient for most daily use. Main limitations: no mobile optimization, dense interface, limited customization.</p>
+      <div class="install">Already installed — open http://localhost:3721 after gateway start</div>
+    </div>
+
+    <h2>Option 2 — openclaw-dashboard (Zero-Dependency)</h2>
+
+    <div class="ui-card">
+      <h3>openclaw-dashboard by mudrii</h3>
+      <div class="meta-row"><span class="badge community">Community</span><span class="badge zero-dep">Zero Dependencies</span></div>
+      <p>A beautiful single-file dashboard that requires no build step, no npm install, and no framework. Drop a single HTML file into your server and it connects to OpenClaw's API. Focused on a cleaner chat interface with cost tracking prominently displayed. Good for users who want a simpler, faster-loading UI without the full Control UI overhead.</p>
+      <div class="install">git clone https://github.com/mudrii/openclaw-dashboard && open site/index.html</div>
+    </div>
+
+    <h2>Option 3 — Jan (Local Model UI with OpenClaw Support)</h2>
+
+    <div class="ui-card">
+      <h3>Jan</h3>
+      <div class="meta-row"><span class="badge community">Community</span></div>
+      <p>Jan is an open-source desktop app primarily for running local AI models, but added OpenClaw support. Runs as a native desktop application — much faster than a browser-based UI. Good option if you use a mix of local models and OpenClaw and want a unified interface. Requires downloading the Jan app separately.</p>
+      <div class="install">jan.ai → download → Settings → Integrations → OpenClaw → add gateway URL</div>
+    </div>
+
+    <h2>Option 4 — Custom Chat UIs via the OpenClaw API</h2>
+
+    <div class="ui-card">
+      <h3>Build Your Own (OpenClaw HTTP API)</h3>
+      <div class="meta-row"><span class="badge community">DIY</span></div>
+      <p>OpenClaw exposes a REST API and WebSocket interface that any chat UI can connect to. The community Reddit post this week was a user who built a dead-simple HTML/JS chat interface in an evening and found it worked better for their specific workflow than the Control UI. The minimal API surface: POST to <code>/api/messages</code>, GET session list from <code>/api/sessions</code>, stream responses via WebSocket at <code>ws://localhost:3721/ws</code>.</p>
+      <pre style="margin-top:10px">// Minimal chat UI example (no framework needed)
+fetch('http://localhost:3721/api/messages', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_TOKEN'
+  },
+  body: JSON.stringify({
+    message: 'Hello',
+    sessionKey: 'main'
+  })
+})</pre>
+    </div>
+
+    <h2>Option 5 — Messaging Channels as the UI (Recommended for Mobile)</h2>
+
+    <div class="ui-card">
+      <h3>Telegram / Discord / Signal as primary interface</h3>
+      <div class="meta-row"><span class="badge mobile">Mobile-First</span><span class="badge community">Built-In</span></div>
+      <p>For mobile access, this is the best answer: configure OpenClaw to connect to a messaging channel you're already on, and just talk to it there. Telegram's bot interface is particularly well-suited — persistent chat history, fast on mobile, notifications work correctly. No custom UI needed. Setup takes 15 minutes and works better than any mobile web UI.</p>
+      <div class="install">openclaw channels add telegram → follow the BotFather setup → done</div>
+    </div>
+
+    <h2>Which Should You Use?</h2>
+
+    <ul>
+      <li><strong>Daily desktop use:</strong> Built-in Control UI is fine. Use 4.5's improved task progress view.</li>
+      <li><strong>Clean/minimal UI preference:</strong> openclaw-dashboard. Zero install friction.</li>
+      <li><strong>Mobile access:</strong> Telegram or Discord channel. Best experience by far.</li>
+      <li><strong>Local models + OpenClaw together:</strong> Jan desktop app.</li>
+      <li><strong>Custom workflow / specific needs:</strong> Build it. The API is clean and well-documented.</li>
+    </ul>
+
+    <div class="callout green">
+      <p><strong>The underused option:</strong> Messaging channels. Most people set up OpenClaw on their desktop and access it via browser. But for anyone who spends significant time on their phone, wiring OpenClaw into Telegram or Discord is a more natural daily driver than any custom web UI. It's already configured as part of a proper ClawReady setup.</p>
+    </div>
+
+    <h2>Building Your Own: Tips from the Community</h2>
+
+    <p>If you want to build a custom UI, a few things the community has learned:</p>
+
+    <ul>
+      <li>Use the WebSocket endpoint for streaming responses — the REST API works but you lose the typing-indicator feel</li>
+      <li>The session key determines conversation continuity — always pass the same key for ongoing conversations</li>
+      <li>Token authentication: grab your token from <code>~/.openclaw/openclaw.json</code> under <code>gateway.token</code></li>
+      <li>CORS is disabled by default on localhost — if hosting your UI elsewhere, set <code>gateway.cors.allowedOrigins</code></li>
+      <li>The <code>/api/sessions</code> endpoint returns full session metadata including cost — useful for building cost dashboards</li>
+    </ul>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want OpenClaw Set Up With Telegram or Discord?</h2>
+    <p>We configure channels as part of every setup — Telegram, Discord, WhatsApp, Signal. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
