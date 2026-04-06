@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Git Install Method: Let Your Agent Read Its Own Source Code — ClawReady</title>
+  <meta name="description" content="The --install-method git option installs OpenClaw from a git checkout so your agent can read its own source code and docs — enabling self-debugging, self-repair, and deeper introspection.">
+  <meta property="og:title" content="OpenClaw Git Install Method: Let Your Agent Read Its Own Source Code">
+  <meta property="og:description" content="Installing via --install-method git gives your agent access to its own code, enabling self-debugging and version-aware reasoning. Here's when to use it and what you get.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-git-install-method">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-git-install-method">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(39,174,96,.1);color:var(--green);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+    @media(max-width:580px){.compare{grid-template-columns:1fr}}
+    .compare-col{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+    .compare-col h3{font-size:.9rem;font-weight:700;margin:0 0 10px;padding:0;border:none;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+    .compare-col ul{margin:0;list-style:none;font-size:.85rem}
+    .compare-col ul li{padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px}
+    .compare-col ul li:last-child{border-bottom:none}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">⚙️ Power Feature — Install</span>
+    <h1>The OpenClaw Git Install Method: Let Your Agent Read Its Own Code</h1>
+    <p class="subtitle">Installing OpenClaw with <code>--install-method git</code> gives your agent access to its own source code and documentation — enabling self-debugging, version-aware reasoning, and self-repair workflows.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Most people install OpenClaw the standard way: <code>npm install -g openclaw</code>. That gets you a compiled package — the agent can run, but it can't read its own internals.</p>
+
+    <p>The git install method is different. When you install from a git checkout, the agent has access to the full source code and documentation. The official FAQ describes it simply: <em>"the agent can read the code and docs and reason about the exact version you are running."</em></p>
+
+    <p>This enables a category of self-repair and self-debugging that's genuinely powerful.</p>
+
+    <h2>How to Install via Git</h2>
+
+    <pre># Clone the repo
+git clone https://github.com/openclaw/openclaw ~/.openclaw-src
+cd ~/.openclaw-src
+
+# Install with the git method flag
+npm install
+npm run build
+
+# Link it globally so the openclaw command works
+npm link</pre>
+
+    <p>Or using the official onboard wizard with the method flag:</p>
+
+    <pre>openclaw onboard --install-method git</pre>
+
+    <p>This clones the repo to a location OpenClaw manages and configures the agent to use it.</p>
+
+    <h2>What Changes with Git Install</h2>
+
+    <div class="compare">
+      <div class="compare-col">
+        <h3>Standard npm install</h3>
+        <ul>
+          <li><span>📦</span><span>Compiled package, no source</span></li>
+          <li><span>❌</span><span>Agent can't read its own code</span></li>
+          <li><span>✓</span><span>Faster setup</span></li>
+          <li><span>✓</span><span>Clean, minimal footprint</span></li>
+          <li><span>✓</span><span>Good for production setups</span></li>
+        </ul>
+      </div>
+      <div class="compare-col">
+        <h3>Git install</h3>
+        <ul>
+          <li><span>📂</span><span>Full source + docs available</span></li>
+          <li><span>✓</span><span>Agent can read and reason about its own code</span></li>
+          <li><span>✓</span><span>Self-debugging enabled</span></li>
+          <li><span>✓</span><span>Easier to inspect what changed between versions</span></li>
+          <li><span>✓</span><span>Good for debugging and advanced users</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>What the Agent Can Do With Source Access</h2>
+
+    <h3>Self-Debugging</h3>
+    <p>When something breaks, instead of guessing at the cause, ask the agent to read the relevant source file:</p>
+
+    <pre>You: "The exec-approvals system isn't behaving as expected. Read the source and explain what's happening."
+
+OpenClaw: [reads ~/.openclaw-src/src/exec-approvals.ts]
+"I can see the issue. The normalization function on line 247 strips invalid enum values but doesn't emit a warning when it does — so if your askFallback value was invalid, it silently fell back to 'deny' without telling you..."</pre>
+
+    <p>This is dramatically more useful than generic troubleshooting advice. The agent is working from the actual code running on your machine.</p>
+
+    <h3>Version-Aware Reasoning</h3>
+    <p>When you upgrade and something changes behavior:</p>
+
+    <pre>You: "Something changed in how heartbeat sessions work after I upgraded. Check the git log and tell me what changed."
+
+OpenClaw: [runs git log --oneline src/heartbeat/ -10]
+"Three commits touched heartbeat in the last release. The main change was in commit 8f3a2b1 — isolated session scope was changed from 'agent' to 'operator.agent' for heartbeat sessions..."</pre>
+
+    <h3>Self-Repair with Supervision</h3>
+    <p>The docs FAQ tip: <em>"ask the agent to plan and supervise the fix (step-by-step), then execute only the necessary commands."</em></p>
+
+    <pre>You: "The gateway keeps crashing on startup. Diagnose the issue from the source and propose a fix, but don't execute anything yet — just show me the plan."
+
+OpenClaw: [reads gateway startup code, checks logs]
+"The crash is in the plugin loader. It's trying to require a module that doesn't exist on your system. Here's the 3-step fix plan:
+1. Run npm install to ensure all dependencies are present
+2. Delete the plugin cache at ~/.openclaw/plugin-cache/
+3. Restart the gateway
+Want me to execute these?"</pre>
+
+    <h2>Updating a Git Install</h2>
+
+    <pre>cd ~/.openclaw-src
+git pull origin main
+npm install
+npm run build</pre>
+
+    <p>This is slightly more involved than <code>npm install -g openclaw@latest</code> but gives you full control — you can review the changes in the diff before pulling, cherry-pick specific commits, or hold at a specific commit.</p>
+
+    <div class="callout yellow">
+      <p><strong>Switching back to npm install:</strong> If the git install approach becomes more trouble than it's worth, you can always switch back: <code>npm unlink openclaw && npm install -g openclaw@VERSION</code>. Your config and workspace files are unchanged — only the binary changes.</p>
+    </div>
+
+    <h2>Who Should Use This</h2>
+
+    <p>Git install makes sense if:</p>
+    <ul>
+      <li>You're debugging a persistent issue and want the agent to help diagnose it from first principles</li>
+      <li>You're building custom skills or plugins and need the agent to understand the plugin API</li>
+      <li>You want to review exactly what changes between releases before applying them</li>
+      <li>You're comfortable with git and want maximum control over your OpenClaw version</li>
+    </ul>
+
+    <p>Stick with npm install if you want the simplest setup, fastest updates, and don't need the agent to introspect its own code.</p>
+
+    <div class="callout blue">
+      <p><strong>The self-repair pattern:</strong> If you're running OpenClaw autonomously (heartbeat, overnight tasks), installing via git + giving the agent permission to read its own source code creates a setup that can diagnose and resolve a wider class of issues without your involvement. Pair with the <a href="/blog/openclaw-doctor-command-guide" style="color:var(--blue)">openclaw doctor</a> habit for a resilient autonomous setup.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want a Production-Grade OpenClaw Setup?</h2>
+    <p>We set up git installs, self-repair configurations, and advanced exec controls as part of our full setup service. From $199.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>

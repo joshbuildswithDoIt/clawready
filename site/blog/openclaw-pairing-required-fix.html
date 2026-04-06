@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw "Pairing Required" Error (close 1008): Causes and Fix — ClawReady</title>
+  <meta name="description" content="Getting 'pairing required' or WebSocket close code 1008 in OpenClaw? This error has several distinct causes. Here's how to diagnose which one you have and the exact fix for each.">
+  <meta property="og:title" content="OpenClaw 'Pairing Required' Error (close 1008): Causes and Fix">
+  <meta property="og:description" content="The pairing-required error appears in multiple contexts — local exec, sub-agent spawning, node clients. Each has a different cause and fix. Full diagnosis guide.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-pairing-required-fix">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-pairing-required-fix">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .error-box{background:#1a0a0a;border:1px solid #4a1a1a;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:monospace;font-size:.85em;color:#ff6b6b;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .cause-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:18px 0}
+    .cause-block h3{font-size:1rem;font-weight:700;margin:0 0 8px;padding:0;border:none;color:#fff}
+    .cause-block .symptoms{font-size:.85rem;color:var(--muted);margin-bottom:12px}
+    .cause-block .symptoms span{color:#e8a0a0}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">🔧 Fix — Auth & Pairing</span>
+    <h1>OpenClaw "Pairing Required" Error (close 1008): All Causes Fixed</h1>
+    <p class="subtitle">This error appears in multiple different contexts and has different causes each time. Here's how to diagnose which variant you have and the exact fix for each one.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>The "pairing required" error is one of OpenClaw's most confusing because it shows up in completely different situations with different root causes. The WebSocket close code 1008 is the common thread, but what causes it varies significantly.</p>
+
+    <p>The OpenClaw team has shipped multiple fixes for different variants of this error across the 3.31 and 4.x release series. If you're hitting it, here's how to identify exactly which variant you have.</p>
+
+    <h2>Step 1 — Identify Your Variant</h2>
+
+    <p>Run the gateway with verbose logging and reproduce the error:</p>
+    <pre>openclaw gateway start --verbose 2>&1 | grep -i "pairing\|1008\|token\|auth"</pre>
+
+    <p>Then match your error message to one of the causes below.</p>
+
+    <h2>Cause 1 — Local Exec Failing After 3.31</h2>
+
+    <div class="cause-block">
+      <h3>Symptoms</h3>
+      <p class="symptoms"><span>Local exec and node clients fail with pairing-required after upgrading to 3.31+. Previously worked fine. Error appears even when running commands from the same machine as the gateway.</span></p>
+      <p><strong>Root cause:</strong> The 3.31 update changed how the gateway handles legacy-role fallback for empty paired-device token maps. If your <code>exec-approvals.json</code> had no paired devices listed, the gateway incorrectly required pairing for local connections.</p>
+      <p><strong>Fix:</strong> Update to a version that includes the loopback fix (3.31+ patch series or 4.x). If you're on an older build:</p>
+      <pre>openclaw gateway restart</pre>
+      <p>If that doesn't help, explicitly add a local device entry:</p>
+      <pre># In ~/.openclaw/openclaw.json
+"gateway": {
+  "bind": "127.0.0.1",
+  "localExec": {
+    "requirePairing": false
+  }
+}</pre>
+    </div>
+
+    <h2>Cause 2 — Sub-Agent Spawning Dies with "pairing required"</h2>
+
+    <div class="cause-block">
+      <h3>Symptoms</h3>
+      <p class="symptoms"><span>sessions_spawn fails. Error in gateway log: <code>close(1008) "pairing required"</code>. Happens when the agent tries to spin up a sub-agent or isolated session.</span></p>
+      <p><strong>Root cause:</strong> The sub-agent's gateway call was making a loopback scope-upgrade request (from agent privilege level to operator.admin) but the pairing requirement was incorrectly enforced on loopback connections. Fixed in a 4.x patch that pins admin-only sub-agent gateway calls to operator.admin while keeping the parent agent at least privilege.</p>
+      <p><strong>Fix:</strong> Upgrade to the patched version. Check the releases page for the sub-agent fix. If you need to stay on your current version:</p>
+      <pre># Explicitly set sub-agent scope in your agent config
+"agents": {
+  "subagents": {
+    "allowGatewaySubagentBinding": true,
+    "scope": "operator.admin"
+  }
+}</pre>
+    </div>
+
+    <h2>Cause 3 — Malformed exec-approvals.json Policy Enums</h2>
+
+    <div class="cause-block">
+      <h3>Symptoms</h3>
+      <p class="symptoms"><span>Pairing errors appear after editing exec-approvals.json. Running <code>openclaw doctor</code> shows schema warnings about invalid policy values.</span></p>
+      <p><strong>Root cause:</strong> If <code>exec-approvals.json</code> contains invalid values for the <code>security</code>, <code>ask</code>, or <code>askFallback</code> fields (typos, outdated enum values from old versions), the runtime policy resolution corrupts and the gateway falls back to blocking everything — which manifests as pairing-required errors.</p>
+      <p><strong>Fix:</strong> Validate your exec-approvals.json and fix any invalid values:</p>
+      <pre>cat ~/.openclaw/exec-approvals.json | python3 -m json.tool
+
+# Valid values:
+# security: "full", "allowlist", "deny"
+# ask: "off", "on-miss", "always"
+# askFallback: "deny", "allow"</pre>
+      <p>Or delete the file and let OpenClaw regenerate it with defaults:</p>
+      <pre>rm ~/.openclaw/exec-approvals.json
+openclaw gateway restart</pre>
+    </div>
+
+    <h2>Cause 4 — DM Policy Requiring Pairing for New Users</h2>
+
+    <div class="cause-block">
+      <h3>Symptoms</h3>
+      <p class="symptoms"><span>A specific Discord or Telegram user can't reach your agent — they get "pairing required" or the agent simply doesn't respond to their DMs.</span></p>
+      <p><strong>Root cause:</strong> By design. OpenClaw's <code>dmPolicy: "pairing"</code> requires new users to complete a pairing flow before they can interact with your agent via DM. This is a security feature, not a bug.</p>
+      <p><strong>Fix:</strong> Either the user completes the pairing flow (recommended), or you change the DM policy:</p>
+      <pre># In openclaw.json — less secure, use only for trusted channels
+"channels": {
+  "discord": {
+    "dmPolicy": "allowlist",
+    "dm": {
+      "allowedUsers": ["USER_ID_1", "USER_ID_2"]
+    }
+  }
+}</pre>
+    </div>
+
+    <h2>Quick Diagnostic Script</h2>
+
+    <pre>#!/bin/bash
+echo "=== OpenClaw Pairing Diagnostic ==="
+echo ""
+echo "Version: $(openclaw --version)"
+echo ""
+echo "--- exec-approvals.json ---"
+cat ~/.openclaw/exec-approvals.json 2>/dev/null | python3 -m json.tool 2>&1 | head -20
+echo ""
+echo "--- doctor output ---"
+openclaw doctor 2>&1 | grep -i "pairing\|exec\|approval\|token\|error\|warning"</pre>
+
+    <p>Paste the output when asking for help on r/openclaw — it'll immediately narrow down which cause applies to you.</p>
+
+    <div class="callout green">
+      <p><strong>Most common fix in practice:</strong> Delete <code>exec-approvals.json</code>, restart the gateway, then reconfigure it correctly using our <a href="/blog/openclaw-exec-approvals-2026-4-1" style="color:var(--green)">exec-approvals guide</a>. This resolves Causes 1, 2, and 3 in one shot by clearing any corrupt state.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Auth and Pairing Issues Getting Complicated?</h2>
+    <p>Our $49 audit diagnoses and fixes config issues like this. Remote session, written report, done in an hour.</p>
+    <a href="https://calendly.com/grofresh2018/openclaw-audit" class="cta-btn">Book a $49 Audit →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
