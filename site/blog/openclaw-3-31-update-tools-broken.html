@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 3.31 Update Broke Your Tools? Here's the Fix — ClawReady</title>
+  <meta name="description" content="OpenClaw v2026.3.31 broke tool access and exec behavior for thousands of users. Here's what changed, the beta fix that works, and how to restore normal behavior.">
+  <meta property="og:title" content="OpenClaw 3.31 Update Broke Your Tools? Here's the Fix">
+  <meta property="og:description" content="v2026.3.31 broke tool access for thousands of users. Here's exactly what changed and how to fix it — including the beta patch that restores normal behavior.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-3-31-update-tools-broken">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-3-31-update-tools-broken">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.4rem;font-weight:700;margin:36px 0 14px;padding-top:20px;border-top:1px solid var(--border)}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body code,.article-body pre code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88rem;color:var(--accent)}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;overflow-x:auto;margin:20px 0}
+    pre code{background:none;border:none;padding:0;font-size:.88rem;color:#ccc}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .symptom-list{list-style:none;margin:0 0 20px!important;display:flex;flex-direction:column;gap:8px}
+    .symptom-list li{background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.2);border-radius:7px;padding:10px 14px;font-size:.92rem;display:flex;gap:10px}
+    .symptom-list li::before{content:"✗";color:var(--accent);flex-shrink:0;font-weight:700}
+    .fix-steps{counter-reset:steps;list-style:none;margin:0!important;display:flex;flex-direction:column;gap:12px}
+    .fix-steps li{counter-increment:steps;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px 16px 52px;position:relative;font-size:.93rem}
+    .fix-steps li::before{content:counter(steps);position:absolute;left:16px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:32px 36px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:13px 30px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">🔧 Fix Guide</div>
+    <h1>OpenClaw 3.31 Update Broke Your Tools? Here's the Fix.</h1>
+    <p class="subtitle">v2026.3.31's node/exec architecture overhaul broke tool access and exec behavior for a large chunk of users. The beta patch helps — here's exactly what to do.</p>
+    <p class="meta">By ClawReady — April 5, 2026 · 5 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>If you updated to OpenClaw v2026.3.31 and your tools stopped working, you're not alone. The r/openclaw thread on this hit hundreds of upvotes within days. The update rewrote the node/exec architecture — and while the intention was to make sub-agent workflows more reliable, it broke standard tool access for a lot of existing setups.</p>
+
+    <h2>What Broke</h2>
+
+    <ul class="symptom-list">
+      <li>Tools that worked before the update now return errors or silently fail</li>
+      <li>Exec commands time out or hang indefinitely</li>
+      <li>Access to workspace files behaves differently than before</li>
+      <li>Sub-agent workflows that relied on exec no longer function</li>
+      <li>Everything worked fine before running <code>npm update</code></li>
+    </ul>
+
+    <h2>What Changed in 3.31</h2>
+
+    <p>The 3.31 release introduced a significant internal restructuring of how OpenClaw routes commands between the main agent process, node processes, and exec sessions. Specifically:</p>
+
+    <ul>
+      <li><strong>The exec security model changed.</strong> Commands that previously ran in a trusted local context now pass through a new permission layer. If your <code>exec-approvals.json</code> isn't configured correctly for the new architecture, commands get silently blocked.</li>
+      <li><strong>Node/gateway separation tightened.</strong> The boundary between node-hosted and gateway-hosted execution changed. Tools that relied on implicit node context need explicit routing now.</li>
+      <li><strong>Legacy config values are no longer auto-repaired.</strong> Prior versions would silently fix known bad config patterns on startup. 3.31 removed that safety net — bad configs now just fail.</li>
+    </ul>
+
+    <div class="callout yellow">
+      <p><strong>The community-confirmed good news:</strong> A beta version is available that addresses most of these issues. The fixes below include both the beta path and manual workarounds if you prefer to stay on stable.</p>
+    </div>
+
+    <h2>Fix Option 1 — Install the Beta (Recommended)</h2>
+
+    <p>The beta that "almost fixes the whole issue" according to multiple r/openclaw reports:</p>
+
+    <pre><code># Backup first — always
+cp -r ~/.openclaw ~/.openclaw-backup-$(date +%Y%m%d)
+
+# Install the current beta
+npm install -g openclaw@beta
+
+# Restart OpenClaw
+openclaw restart</code></pre>
+
+    <p>After installing, verify your tools are working again with a simple test — ask your agent to read a file or run a basic command. Most users report normal behavior returns immediately after the beta install.</p>
+
+    <h2>Fix Option 2 — Patch Your exec-approvals.json</h2>
+
+    <p>If you'd rather stay on stable or the beta doesn't resolve your issue, the most common root cause is a misconfigured <code>exec-approvals.json</code>. Check and fix it:</p>
+
+    <pre><code># Check what's in your approvals file
+cat ~/.openclaw/exec-approvals.json
+
+# If it's missing or malformed, reset it
+openclaw exec-approvals --reset</code></pre>
+
+    <p>Then open the file and verify the structure matches what 3.31 expects — the new format requires explicit <code>security</code> and <code>host</code> fields that older configs didn't include.</p>
+
+    <h2>Fix Option 3 — Run openclaw doctor</h2>
+
+    <p>The built-in diagnostic tool catches most 3.31 migration issues automatically:</p>
+
+    <pre><code>openclaw doctor</code></pre>
+
+    <p>Look for warnings about <code>exec.security</code>, <code>node.routing</code>, or <code>legacy config</code>. Each warning includes a suggested fix command. Run them in order, then restart.</p>
+
+    <h2>Fix Option 4 — Roll Back to 3.28</h2>
+
+    <p>If you need things working right now and can't debug, rolling back is the safest option:</p>
+
+    <pre><code># Roll back to the last stable version before 3.31
+npm install -g openclaw@2026.3.28
+
+# Restore your backup config
+cp -r ~/.openclaw-backup-[date]/* ~/.openclaw/
+
+# Restart
+openclaw restart</code></pre>
+
+    <p>Note: 3.28 contains the CVE-2026-33579 patch, so rolling back here is safe from a security standpoint. Don't roll back further than 3.28.</p>
+
+    <h2>Preventing This Next Time</h2>
+
+    <ul>
+      <li><strong>Always back up before updating.</strong> <code>cp -r ~/.openclaw ~/.openclaw-backup-$(date +%Y%m%d)</code> — one command, 30 seconds.</li>
+      <li><strong>Read the full changelog before running npm update.</strong> 3.31's breaking changes were documented — the architecture changes were flagged. It's easy to miss if you're skimming.</li>
+      <li><strong>Test immediately after updating.</strong> Send one message, run one exec command. Catch breakage before you need the agent for something real.</li>
+    </ul>
+
+    <div class="callout green">
+      <p>If you're on ClawReady Care, we handle all of this — we evaluate every release, run the migration steps, and verify your setup works before the update goes anywhere near your production agent.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Tired of Updates Breaking Things?</h2>
+    <p>ClawReady Care handles every update, migration, and CVE patch for you. From $99/mo.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
