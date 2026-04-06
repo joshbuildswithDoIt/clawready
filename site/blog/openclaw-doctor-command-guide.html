@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>openclaw doctor: The Built-In Diagnostic Tool Nobody Talks About — ClawReady</title>
+  <meta name="description" content="openclaw doctor catches config errors, invalid JSON, missing dependencies, and port conflicts before they cause mysterious failures. Here's what it checks and how to read its output.">
+  <meta property="og:title" content="openclaw doctor: The Built-In Diagnostic Tool Nobody Uses">
+  <meta property="og:description" content="Most OpenClaw setups don't use openclaw doctor — and that's why they spend hours debugging issues the tool would catch in 10 seconds. Here's everything it checks.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-doctor-command-guide">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-doctor-command-guide">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(39,174,96,.1);color:var(--green);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .check-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.9rem}
+    .check-table th{background:var(--surface);border:1px solid var(--border);padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:.8rem}
+    .check-table td{border:1px solid var(--border);padding:10px 14px;vertical-align:top}
+    .check-table tr:nth-child(even) td{background:#0f0f0f}
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.78rem;font-weight:600}
+    .badge.warn{background:rgba(243,156,18,.15);color:var(--yellow)}
+    .badge.error{background:rgba(231,76,60,.15);color:var(--accent)}
+    .badge.info{background:rgba(52,152,219,.15);color:var(--blue)}
+    .output-block{background:#0a0f0a;border:1px solid #1a3a1a;border-radius:8px;padding:20px;margin:20px 0;font-family:monospace;font-size:.85em;line-height:1.8}
+    .output-block .ok{color:#27ae60}
+    .output-block .warn{color:#f39c12}
+    .output-block .err{color:#e74c3c}
+    .output-block .info{color:#3498db}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">💡 Pro Tip — Diagnostics</span>
+    <h1><code style="background:transparent;border:none;font-size:inherit;">openclaw doctor</code>: The Built-In Diagnostic Tool Nobody Uses</h1>
+    <p class="subtitle">Most people debug OpenClaw by restarting the gateway and guessing. There's a better way — and it's been built in since day one.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Here's a pattern we see constantly in support: someone spends two hours debugging a mysterious gateway failure. They restart, check logs, Google the error, post on Reddit. Eventually they find the culprit — a missing comma in <code>openclaw.json</code> or a port conflict or a bad env var.</p>
+
+    <p>What they didn't know: <code>openclaw doctor</code> would have found it in 10 seconds.</p>
+
+    <pre>openclaw doctor</pre>
+
+    <p>That's it. Run that before you do anything else when something's broken. Here's everything it actually checks.</p>
+
+    <h2>What openclaw doctor Checks</h2>
+
+    <table class="check-table">
+      <thead>
+        <tr>
+          <th>Check</th>
+          <th>What It Catches</th>
+          <th>Severity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>JSON validity</strong></td>
+          <td>Syntax errors in <code>openclaw.json</code> — missing commas, unclosed braces, trailing commas</td>
+          <td><span class="badge error">Error</span></td>
+        </tr>
+        <tr>
+          <td><strong>Schema validation</strong></td>
+          <td>Unknown keys, wrong types, deprecated field names that no longer work</td>
+          <td><span class="badge error">Error</span></td>
+        </tr>
+        <tr>
+          <td><strong>Gateway port</strong></td>
+          <td>Whether port 3721 (or your configured port) is already in use</td>
+          <td><span class="badge error">Error</span></td>
+        </tr>
+        <tr>
+          <td><strong>Auth config</strong></td>
+          <td>Missing or malformed API keys, expired auth tokens</td>
+          <td><span class="badge error">Error</span></td>
+        </tr>
+        <tr>
+          <td><strong>Model reachability</strong></td>
+          <td>Whether configured providers (Anthropic, Ollama, etc.) are actually reachable</td>
+          <td><span class="badge warn">Warning</span></td>
+        </tr>
+        <tr>
+          <td><strong>Workspace path</strong></td>
+          <td>Whether the configured workspace directory exists and is writable</td>
+          <td><span class="badge warn">Warning</span></td>
+        </tr>
+        <tr>
+          <td><strong>Skills/plugins</strong></td>
+          <td>Installed skills with missing dependencies or incompatible versions</td>
+          <td><span class="badge warn">Warning</span></td>
+        </tr>
+        <tr>
+          <td><strong>Node.js version</strong></td>
+          <td>Whether your Node version meets the minimum requirement (v20+ required, v22 recommended)</td>
+          <td><span class="badge info">Info</span></td>
+        </tr>
+        <tr>
+          <td><strong>Channel config</strong></td>
+          <td>Telegram/Discord/Signal config issues — missing tokens, incorrect IDs</td>
+          <td><span class="badge warn">Warning</span></td>
+        </tr>
+        <tr>
+          <td><strong>exec-approvals.json</strong></td>
+          <td>Missing or malformed approvals file (added in 2026.4.1)</td>
+          <td><span class="badge warn">Warning</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Reading the Output</h2>
+
+    <p>A healthy setup looks like this:</p>
+
+    <div class="output-block">
+      <span class="ok">✓</span> Config JSON valid<br>
+      <span class="ok">✓</span> Schema: all fields recognized<br>
+      <span class="ok">✓</span> Gateway port 3721 available<br>
+      <span class="ok">✓</span> Auth: anthropic API key present<br>
+      <span class="ok">✓</span> Provider reachable: anthropic (200ms)<br>
+      <span class="ok">✓</span> Workspace: /home/user/.openclaw/workspace (writable)<br>
+      <span class="ok">✓</span> Node.js v22.0.0 (recommended)<br>
+      <span class="ok">✓</span> exec-approvals.json present<br>
+      <br>
+      <span class="info">ℹ</span> 3 skills installed, all dependencies met<br>
+      <br>
+      <span class="ok">All checks passed. Gateway should start cleanly.</span>
+    </div>
+
+    <p>A setup with problems:</p>
+
+    <div class="output-block">
+      <span class="ok">✓</span> Config JSON valid<br>
+      <span class="err">✗</span> Schema: unknown key "tools.exec.elevated" — did you mean "tools.elevated"?<br>
+      <span class="err">✗</span> Gateway port 3721 already in use (PID 18432)<br>
+      <span class="ok">✓</span> Auth: anthropic API key present<br>
+      <span class="warn">⚠</span> Provider: ollama not reachable at http://127.0.0.1:11434 — is Ollama running?<br>
+      <span class="ok">✓</span> Workspace: /home/user/.openclaw/workspace (writable)<br>
+      <span class="warn">⚠</span> exec-approvals.json not found — exec commands will be blocked<br>
+      <br>
+      <span class="err">2 errors, 2 warnings. Gateway will not start until errors are resolved.</span>
+    </div>
+
+    <p>The output tells you exactly what's wrong and often suggests the fix inline. <strong>Errors block gateway startup. Warnings don't — but they usually mean something won't work as expected.</strong></p>
+
+    <h2>Most Common Issues Doctor Catches</h2>
+
+    <h3>1. Port already in use</h3>
+    <p>The previous gateway process didn't shut down cleanly. Doctor tells you the PID. Kill it:</p>
+    <pre>kill $(lsof -ti:3721)
+openclaw gateway start</pre>
+
+    <h3>2. Unknown config keys after an update</h3>
+    <p>OpenClaw's config schema changes between releases. Keys that worked in 3.x sometimes get moved or renamed in 4.x. Doctor catches these immediately instead of letting you discover them when something silently fails at runtime.</p>
+
+    <h3>3. Ollama not running</h3>
+    <p>If you've configured Ollama as a provider, doctor checks whether it's actually reachable. Common cause: you rebooted and Ollama isn't set to start automatically.</p>
+    <pre># Start Ollama
+ollama serve &
+
+# Or add it to startup (systemd)
+sudo systemctl enable ollama</pre>
+
+    <h3>4. exec-approvals.json missing</h3>
+    <p>Introduced in 2026.4.1. Doctor flags this as a warning — the gateway will start, but all exec commands will be blocked until you create the file. See our <a href="/blog/openclaw-exec-approvals-2026-4-1" style="color:var(--accent)">exec-approvals guide</a> for the fix.</p>
+
+    <h2>Run Doctor Automatically Before Updates</h2>
+
+    <p>One pattern we use in every ClawReady setup: run doctor before and after updates to quickly spot what changed.</p>
+
+    <pre># Before update — save baseline
+openclaw doctor > /tmp/doctor-before.txt
+
+# Update
+npm install -g openclaw@latest
+
+# After update — compare
+openclaw doctor > /tmp/doctor-after.txt
+diff /tmp/doctor-before.txt /tmp/doctor-after.txt</pre>
+
+    <p>Any new errors or warnings in the diff point directly to what the update changed. This turns a mystery into a 30-second investigation.</p>
+
+    <div class="callout blue">
+      <p><strong>TL;DR:</strong> Before posting in r/openclaw, before restarting for the tenth time, before Googling the error — run <code>openclaw doctor</code>. It catches the most common issues instantly and often tells you exactly how to fix them.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want an OpenClaw Setup That Passes Doctor Clean?</h2>
+    <p>Every ClawReady install is audited against the doctor checklist before we hand it over. Zero errors, zero warnings.</p>
+    <a href="https://calendly.com/grofresh2018/clawready" class="cta-btn">Book a Setup Call →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>

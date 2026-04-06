@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw + Ollama Tool Calling Broken in Multi-Turn? Here's the Fix — ClawReady</title>
+  <meta name="description" content="When using Ollama with OpenClaw, tool call arguments get stringified instead of passed as JSON — causing multi-turn conversations to silently fail or corrupt parameters. Here's the diagnosis and workaround.">
+  <meta property="og:title" content="OpenClaw + Ollama Tool Calling Broken in Multi-Turn? Here's the Fix">
+  <meta property="og:description" content="Ollama native provider stringifies tool call arguments instead of passing proper JSON objects. Multi-turn conversations break silently. Full diagnosis and workaround.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-ollama-tool-calling-broken">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-ollama-tool-calling-broken">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .symptom-list{list-style:none;margin:0 0 24px!important;display:flex;flex-direction:column;gap:8px}
+    .symptom-list li{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:.95rem}
+    .symptom-list li .icon{flex-shrink:0;font-size:1rem}
+    .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+    @media(max-width:580px){.compare{grid-template-columns:1fr}}
+    .compare-col{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+    .compare-col h3{font-size:.85rem;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:0;border-top:none}
+    .compare-col pre{margin:0;background:transparent;border:none;padding:0;font-size:.82em}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">Bug — Local Models</span>
+    <h1>OpenClaw + Ollama Tool Calling Breaks in Multi-Turn Conversations</h1>
+    <p class="subtitle">Ollama's native provider stringifies tool call arguments instead of passing proper JSON objects. Your agent talks about using tools — but doesn't actually use them correctly. Here's the diagnosis and fix.</p>
+    <p class="meta">April 6, 2026 · 6 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>You set up OpenClaw with Ollama, tested it, and it seemed to work. Then you asked it to do something multi-step — search a file, then summarize the result, then write it somewhere — and things got weird. The agent described what it <em>would</em> do instead of doing it. Or it called the right tool with obviously wrong parameters. Or it just stopped mid-chain.</p>
+
+    <p>This is a <strong>known bug in OpenClaw's Ollama native provider</strong> (GitHub issue #57103): tool call arguments are incorrectly stringified as a string instead of passed as a JSON object. In single-turn interactions it often goes unnoticed. In multi-turn tool chains, it compounds into silent failures and corrupted parameters.</p>
+
+    <div class="callout">
+      <p><strong>Affected:</strong> Any setup using Ollama as the provider via the native Ollama API (<code>api: "ollama-completions"</code> or similar). The OpenAI-compatible endpoint workaround (below) does not have this bug.</p>
+    </div>
+
+    <h2>How to Tell If This Is Your Problem</h2>
+
+    <ul class="symptom-list">
+      <li><span class="icon">🔴</span><span>Agent says "I'll now use the search tool…" and then either does nothing or the tool call fails silently</span></li>
+      <li><span class="icon">🔴</span><span>Tool calls in turn 1 work fine; tool calls in turn 3+ start failing or receiving garbage parameters</span></li>
+      <li><span class="icon">🔴</span><span>You see stringified JSON in tool arguments — e.g., <code>"{\"path\":\"/home/user/file.txt\"}"</code> instead of <code>{"path": "/home/user/file.txt"}</code></span></li>
+      <li><span class="icon">🟡</span><span>Agent completes simple one-tool tasks but fails on anything that requires chaining two or more tools</span></li>
+      <li><span class="icon">🟡</span><span>Verbose logs show the tool being "called" but with parameters that don't match what you asked for</span></li>
+    </ul>
+
+    <p>You can confirm by checking your agent logs. Run OpenClaw with verbose output:</p>
+    <pre>openclaw gateway start --verbose 2>&1 | grep -i "tool"</pre>
+
+    <p>If you see tool arguments wrapped in extra string quotes (<code>"{...}"</code> instead of <code>{...}</code>), you've confirmed the bug.</p>
+
+    <h2>What's Actually Happening</h2>
+
+    <p>When Ollama returns a tool call from a local model, it sends back the arguments as a JSON object. OpenClaw's Ollama native provider then takes those arguments and — due to a serialization bug — wraps them in an extra <code>JSON.stringify()</code> call. The result:</p>
+
+    <div class="compare">
+      <div class="compare-col">
+        <h3>Expected (correct)</h3>
+        <pre>{
+  "name": "read_file",
+  "arguments": {
+    "path": "/workspace/notes.md"
+  }
+}</pre>
+      </div>
+      <div class="compare-col">
+        <h3>What Ollama provider sends</h3>
+        <pre>{
+  "name": "read_file",
+  "arguments": "{\"path\":\"/workspace/notes.md\"}"
+}</pre>
+      </div>
+    </div>
+
+    <p>OpenClaw's tool dispatcher then tries to parse the arguments but receives a string instead of an object. In turn 1, the model often recovers. By turn 2 or 3, the conversation history contains malformed tool results, and the model starts hallucinating what tools returned or stops calling them entirely.</p>
+
+    <h2>The Fix — Switch to OpenAI-Compatible Endpoint</h2>
+
+    <p>Ollama exposes an OpenAI-compatible API at <code>http://localhost:11434/v1</code>. This endpoint does <strong>not</strong> have the stringification bug because it uses a different serialization path. Switching to it fixes multi-turn tool calling completely.</p>
+
+    <p>In your <code>~/.openclaw/openclaw.json</code>, change your Ollama provider config:</p>
+
+    <pre># Before (Ollama native — has the bug)
+"providers": {
+  "ollama": {
+    "baseUrl": "http://127.0.0.1:11434",
+    "api": "ollama-completions"
+  }
+}
+
+# After (OpenAI-compatible — no bug)
+"providers": {
+  "ollama": {
+    "baseUrl": "http://127.0.0.1:11434/v1",
+    "apiKey": "ollama",
+    "api": "openai-completions"
+  }
+}</pre>
+
+    <p>The key changes:</p>
+    <ul>
+      <li>Add <code>/v1</code> to the base URL</li>
+      <li>Set <code>"api": "openai-completions"</code> instead of <code>"ollama-completions"</code></li>
+      <li>Add <code>"apiKey": "ollama"</code> (required by the OpenAI-compatible endpoint — the value doesn't matter, just needs to be present)</li>
+    </ul>
+
+    <p>Then restart:</p>
+    <pre>openclaw gateway restart</pre>
+
+    <div class="callout green">
+      <p><strong>This works with all Ollama models</strong> — Qwen, Llama, Gemma, Mistral, etc. The OpenAI-compatible endpoint supports the same models, just through a different API path that handles tool calling correctly.</p>
+    </div>
+
+    <h2>If You Want to Keep Using the Native Provider</h2>
+
+    <p>The native provider has one small advantage: it supports some Ollama-specific parameters (like <code>num_ctx</code> for context window size) that the OpenAI-compatible endpoint doesn't always honor. If that matters to you, there's a partial workaround:</p>
+
+    <p>Set <code>injectNumCtxForOpenAICompat: true</code> in your provider config. OpenClaw will inject the context window size as a custom parameter even through the OpenAI-compatible endpoint:</p>
+
+    <pre>"providers": {
+  "ollama": {
+    "baseUrl": "http://127.0.0.1:11434/v1",
+    "apiKey": "ollama",
+    "api": "openai-completions",
+    "injectNumCtxForOpenAICompat": true,
+    "models": [
+      {
+        "id": "qwen3.5:9b",
+        "contextWindow": 32768
+      }
+    ]
+  }
+}</pre>
+
+    <div class="callout yellow">
+      <p><strong>The native provider bug is tracked</strong> at GitHub issue #57103. A fix is in review. Once it lands (likely in a future 4.x release), you can switch back to the native provider if you prefer — but the OpenAI-compatible path works great and there's no real reason to switch back.</p>
+    </div>
+
+    <h2>Which Local Models Actually Work Well for Tool Calling?</h2>
+
+    <p>Even with the provider bug fixed, model capability matters. Not all local models handle tool calling reliably:</p>
+
+    <ul>
+      <li><strong>Qwen 2.5 7B / Qwen 3.5 9B</strong> — Best tool calling in the sub-10B range. Reliable for single and multi-turn. Good choice for most OpenClaw setups.</li>
+      <li><strong>Llama 3.1 8B</strong> — Decent tool calling, occasional hallucinations on complex parameter schemas.</li>
+      <li><strong>Gemma 4 27B (MoE)</strong> — Excellent (85%+ tool accuracy) but needs more RAM. Overkill for simple setups.</li>
+      <li><strong>Mistral 7B</strong> — Unreliable tool calling. Works for simple cases, breaks on complex schemas or multi-turn chains.</li>
+      <li><strong>Models under 4B parameters</strong> — Generally not recommended for tool-heavy OpenClaw use. They'll describe using tools but often fail to format the calls correctly.</li>
+    </ul>
+
+    <p>For a NUC or mini-PC with 14–16GB RAM, Qwen 3.5 9B via the OpenAI-compatible endpoint is the sweet spot: free, fast enough, and reliable tool calling.</p>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Local Model Setup Getting Complicated?</h2>
+    <p>We configure Ollama + OpenClaw correctly the first time — right provider settings, right model, right context window. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
