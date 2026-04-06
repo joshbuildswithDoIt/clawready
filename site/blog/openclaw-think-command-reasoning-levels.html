@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw /think Command: Reasoning Levels Explained (and the "Reasoning Required" Fix) — ClawReady</title>
+  <meta name="description" content="The /think command controls how much reasoning effort OpenClaw's model applies before responding. Here's what each level does, when to use them, and how to fix the 'Reasoning is required for this model endpoint' error.">
+  <meta property="og:title" content="OpenClaw /think Command: Reasoning Levels Explained + 'Reasoning Required' Error Fix">
+  <meta property="og:description" content="off, minimal, low, medium, high, max — what each /think level actually does to response quality and token cost, and why some models require a non-off level.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-think-command-reasoning-levels">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-think-command-reasoning-levels">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--purple:#9b59b6}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.1);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .level-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.88rem}
+    .level-table th{background:var(--surface);border:1px solid var(--border);padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:.78rem}
+    .level-table td{border:1px solid var(--border);padding:10px 14px;vertical-align:top}
+    .level-table tr:nth-child(even) td{background:#0f0f0f}
+    .level-table td:first-child{font-family:monospace;color:var(--yellow);font-weight:600}
+    .cost-bar{display:inline-flex;gap:3px;vertical-align:middle}
+    .cost-bar .dot{width:10px;height:10px;border-radius:2px;background:var(--accent)}
+    .cost-bar .dot.empty{background:var(--border)}
+    .error-box{background:#1a0a0a;border:1px solid #4a1a1a;border-radius:8px;padding:20px;margin:20px 0;font-family:monospace;font-size:.85em;color:#ff6b6b;line-height:1.6}
+    .use-case-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+    @media(max-width:580px){.use-case-grid{grid-template-columns:1fr}}
+    .use-case-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+    .use-case-card h3{font-size:.9rem;font-weight:700;margin-bottom:8px;color:#fff;margin-top:0;border-top:none;padding-top:0}
+    .use-case-card .level-tag{display:inline-block;background:#1a1a1a;border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-family:monospace;font-size:.8rem;color:var(--yellow);margin-bottom:8px}
+    .use-case-card ul{margin:0;font-size:.85rem;color:var(--muted)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">🧠 Feature — Reasoning</span>
+    <h1>OpenClaw <code style="background:transparent;border:none;font-size:inherit;">/think</code> Command: Reasoning Levels Explained</h1>
+    <p class="subtitle">What each thinking level actually does to response quality and token cost — and how to fix the "Reasoning is required for this model endpoint" error that breaks some setups after updates.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>OpenClaw's <code>/think</code> command controls how much reasoning effort the model applies before generating a response. It's one of those features that's easy to ignore until you either want better answers or you start seeing errors about it.</p>
+
+    <p>New in 2026.4.5, thinking levels are also exposed in the Control UI as a setting you can toggle per-session without typing a command. But the command interface still works and is more precise.</p>
+
+    <h2>The Six Thinking Levels</h2>
+
+    <table class="level-table">
+      <thead>
+        <tr>
+          <th>Level</th>
+          <th>What It Does</th>
+          <th>Token Cost</th>
+          <th>Speed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>/think off</td>
+          <td>No extended reasoning. Model answers directly from training. Fastest, cheapest. Some models require a non-off level.</td>
+          <td><span class="cost-bar"><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+          <td>Fastest</td>
+        </tr>
+        <tr>
+          <td>/think minimal</td>
+          <td>Very lightweight reasoning pass. Catches obvious errors without significant overhead. The safe default for most setups.</td>
+          <td><span class="cost-bar"><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+          <td>Fast</td>
+        </tr>
+        <tr>
+          <td>/think low</td>
+          <td>Light reasoning. Good for factual questions, straightforward tasks. Noticeable improvement over off for ambiguous requests.</td>
+          <td><span class="cost-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+          <td>Moderate</td>
+        </tr>
+        <tr>
+          <td>/think medium</td>
+          <td>Balanced. The most common practical setting. Better multi-step reasoning without excessive cost.</td>
+          <td><span class="cost-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span></span></td>
+          <td>Moderate</td>
+        </tr>
+        <tr>
+          <td>/think high</td>
+          <td>Extended reasoning before responding. Noticeably better on complex tasks, planning, and ambiguous instructions. Higher cost and latency.</td>
+          <td><span class="cost-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></td>
+          <td>Slow</td>
+        </tr>
+        <tr>
+          <td>/think max</td>
+          <td>Maximum reasoning budget. Best quality, highest cost. Use for critical one-off tasks where quality matters more than speed or cost.</td>
+          <td><span class="cost-bar"><span class="dot" style="background:var(--accent)"></span><span class="dot" style="background:var(--accent)"></span><span class="dot" style="background:var(--accent)"></span><span class="dot" style="background:var(--accent)"></span><span class="dot" style="background:var(--accent)"></span></span></td>
+          <td>Slowest</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>When to Use Each Level</h2>
+
+    <div class="use-case-grid">
+      <div class="use-case-card">
+        <div class="level-tag">/think off</div>
+        <h3>Use for:</h3>
+        <ul>
+          <li>Simple factual lookups</li>
+          <li>Formatting existing content</li>
+          <li>Heartbeat / background tasks</li>
+          <li>Models that don't support reasoning</li>
+        </ul>
+      </div>
+      <div class="use-case-card">
+        <div class="level-tag">/think minimal</div>
+        <h3>Use for:</h3>
+        <ul>
+          <li>General daily assistant work</li>
+          <li>Default for most conversations</li>
+          <li>Models that require non-off (safe fallback)</li>
+        </ul>
+      </div>
+      <div class="use-case-card">
+        <div class="level-tag">/think medium</div>
+        <h3>Use for:</h3>
+        <ul>
+          <li>Writing tasks needing structure</li>
+          <li>Multi-step research queries</li>
+          <li>Code generation and review</li>
+        </ul>
+      </div>
+      <div class="use-case-card">
+        <div class="level-tag">/think high / max</div>
+        <h3>Use for:</h3>
+        <ul>
+          <li>Complex planning and strategy</li>
+          <li>Debugging tricky code issues</li>
+          <li>High-stakes one-off decisions</li>
+          <li>Tasks where you'd otherwise iterate 3–5 times</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>The "Reasoning is Required" Error — and How to Fix It</h2>
+
+    <p>After the 2026.3.28 update, some users started seeing this error on every call:</p>
+
+    <div class="error-box">
+Reasoning is required for this model endpoint. Use /think minimal (or any non-off level) and try again.
+    </div>
+
+    <p>This isn't a bug in OpenClaw — it's a model-side requirement. Some model endpoints (particularly newer reasoning-first models from Anthropic and certain OpenAI-compatible providers) require extended thinking to be enabled. They won't process requests with <code>/think off</code>.</p>
+
+    <p><strong>Fix 1 — Set a default thinking level in your config:</strong></p>
+    <pre>"agents": {
+  "defaults": {
+    "thinking": "minimal"
+  }
+}</pre>
+
+    <p>This sets <code>minimal</code> as the default for all sessions, which satisfies models that require a non-off level without significantly increasing cost.</p>
+
+    <p><strong>Fix 2 — Set it per-model:</strong></p>
+    <pre>"models": {
+  "providers": {
+    "anthropic": {
+      "models": [
+        {
+          "id": "claude-opus-4-6",
+          "thinking": "minimal"
+        }
+      ]
+    }
+  }
+}</pre>
+
+    <p><strong>Fix 3 — Set it in the current session:</strong></p>
+    <pre>/think minimal</pre>
+
+    <p>This only applies to the current session and resets on restart. Use the config approach for a permanent fix.</p>
+
+    <div class="callout yellow">
+      <p><strong>Why this error appeared after 3.28:</strong> That update changed the default thinking level from <code>minimal</code> to <code>off</code> for performance reasons. Models that previously worked fine now fail because their endpoint requires a non-off level. The config fix above restores the previous behavior.</p>
+    </div>
+
+    <h2>Setting a Per-Session Default in SOUL.md</h2>
+
+    <p>If you want different thinking levels for different types of work without typing <code>/think</code> every time, you can instruct your agent in SOUL.md:</p>
+
+    <pre># In SOUL.md
+## Reasoning
+- Use /think minimal for routine tasks and daily questions
+- Use /think high for planning, strategy, or anything I explicitly say is important
+- Use /think max only when I say "think hard about this" or similar</pre>
+
+    <p>This gives the model context to self-select the appropriate level based on task type, rather than applying one level uniformly to everything.</p>
+
+    <h2>Thinking Levels and API Cost</h2>
+
+    <p>Extended thinking uses additional tokens — both input (the reasoning prompt overhead) and output (the reasoning trace, which is billed even if it's not shown to you). Rough multipliers:</p>
+
+    <ul>
+      <li><strong>minimal:</strong> ~1.1–1.2x base cost</li>
+      <li><strong>low:</strong> ~1.3–1.5x</li>
+      <li><strong>medium:</strong> ~1.5–2x</li>
+      <li><strong>high:</strong> ~2–3x</li>
+      <li><strong>max:</strong> ~3–5x or more depending on model and task complexity</li>
+    </ul>
+
+    <p>For a setup spending ~$3/day at <code>off</code>, switching to <code>minimal</code> adds maybe 20–30 cents. Switching to <code>high</code> for everything could triple your bill. Use the higher levels intentionally.</p>
+
+    <div class="callout blue">
+      <p><strong>Practical recommendation:</strong> Set <code>minimal</code> as your config default to avoid the "reasoning required" errors. Use <code>/think high</code> or <code>/think max</code> explicitly for tasks that need it. Never set <code>max</code> as your default — it will meaningfully increase costs for no benefit on simple tasks.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>OpenClaw Config Getting Complex?</h2>
+    <p>We set up thinking levels, model routing, and cost controls as part of every ClawReady setup. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
