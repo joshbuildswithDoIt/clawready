@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Pin Your OpenClaw Version and Stay Safe on Older Builds — ClawReady</title>
+  <meta name="description" content="The 4.x release series has been rough. If you're staying on an older build deliberately, here's how to pin your version, get security patches without breaking changes, and know when to upgrade.">
+  <meta property="og:title" content="How to Pin Your OpenClaw Version and Stay Safe on Older Builds">
+  <meta property="og:description" content="Running OpenClaw on March 13 or another older build by choice? Smart. Here's how to pin your version, selectively apply security patches, and safely evaluate new releases before committing.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-pin-version-stable">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-pin-version-stable">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(243,156,18,.1);color:var(--yellow);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .version-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.87rem}
+    .version-table th{background:var(--surface);border:1px solid var(--border);padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:.78rem}
+    .version-table td{border:1px solid var(--border);padding:10px 14px;vertical-align:top}
+    .version-table tr:nth-child(even) td{background:#0f0f0f}
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.78rem;font-weight:600}
+    .badge.stable{background:rgba(39,174,96,.15);color:var(--green)}
+    .badge.caution{background:rgba(243,156,18,.15);color:var(--yellow)}
+    .badge.broken{background:rgba(231,76,60,.15);color:var(--accent)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">📌 Version Management</span>
+    <h1>How to Pin Your OpenClaw Version and Stay Safe on Older Builds</h1>
+    <p class="subtitle">The 4.x series has been rough. If you're deliberately running an older build, here's how to pin it, get critical security patches without the breaking changes, and know when it's actually safe to upgrade.</p>
+    <p class="meta">April 6, 2026 · 6 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>"I'm still running March 13 build because we had a string of crap builds come out." — r/openclaw, this week.</p>
+
+    <p>This is a legitimate strategy. The OpenClaw team ships fast — five 4.x releases in the first week of April alone — and not every release is stable. If you have a working setup, staying put while the new releases bake is often smarter than chasing the latest version.</p>
+
+    <p>Here's how to do it correctly: pin your version, monitor for CVEs that affect your version, and have a tested upgrade path ready when the time comes.</p>
+
+    <h2>Recent Release Stability (Community Assessment)</h2>
+
+    <table class="version-table">
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Community Stability</th>
+          <th>Known Issues</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>2026.3.13</strong> (March 13)</td>
+          <td><span class="badge stable">Stable</span></td>
+          <td>Older; missing 4.x features, but solid for daily use</td>
+        </tr>
+        <tr>
+          <td><strong>2026.3.22</strong></td>
+          <td><span class="badge stable">Stable</span></td>
+          <td>Breaking config key rename during upgrade; see <a href="/blog/openclaw-3-22-migration-guide" style="color:var(--accent)">migration guide</a></td>
+        </tr>
+        <tr>
+          <td><strong>2026.3.31</strong></td>
+          <td><span class="badge caution">Caution</span></td>
+          <td>Tools broken post-update for some users</td>
+        </tr>
+        <tr>
+          <td><strong>2026.4.1</strong></td>
+          <td><span class="badge caution">Caution</span></td>
+          <td>exec-approvals.json reset silently blocks exec; <a href="/blog/openclaw-exec-approvals-2026-4-1" style="color:var(--accent)">fix here</a></td>
+        </tr>
+        <tr>
+          <td><strong>2026.4.2</strong></td>
+          <td><span class="badge caution">Caution</span></td>
+          <td>Dreaming docs ahead of release; heartbeat isolated sessions issues</td>
+        </tr>
+        <tr>
+          <td><strong>2026.4.5</strong></td>
+          <td><span class="badge caution">Caution</span></td>
+          <td>CLI breakage on some npm updates; Dreaming ships as experimental; <a href="/blog/openclaw-4-5-update-broken-cli" style="color:var(--accent)">fix here</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Step 1 — Pin Your Current Version</h2>
+
+    <p>The simplest protection against accidental upgrades: use a pinned version in any install commands, and stop using <code>@latest</code>.</p>
+
+    <p>First, check what you're running:</p>
+    <pre>openclaw --version</pre>
+
+    <p>Then install that exact version explicitly (this re-pins it in npm's global registry):</p>
+    <pre># Example: pin to 3.22
+npm install -g openclaw@2026.3.22
+
+# Or pin to 4.4 (last stable before 4.5 issues)
+npm install -g openclaw@2026.4.4</pre>
+
+    <p>Add a reminder alias to your shell profile so you never accidentally run a bare <code>npm install -g openclaw</code>:</p>
+    <pre># In ~/.bashrc or ~/.zshrc
+alias openclaw-update='echo "Pinned version. To upgrade intentionally: npm install -g openclaw@VERSION"'</pre>
+
+    <h2>Step 2 — Prevent Automatic Updates</h2>
+
+    <p>If you have any automation (cron jobs, systemd services, update scripts) that could touch openclaw's npm package, lock them down:</p>
+
+    <pre># Check for npm auto-update scripts
+crontab -l | grep npm
+grep -r "npm update" ~/.bashrc ~/.zshrc ~/.profile /etc/cron.d/</pre>
+
+    <p>Also check if your system has unattended-upgrades or a Node version manager that might touch global packages.</p>
+
+    <div class="callout yellow">
+      <p><strong>WSL users:</strong> If you run Windows Update or upgrade WSL, your global npm packages are usually preserved. But if you ever reinstall Node.js or your Node version manager, be explicit about which openclaw version to reinstall — don't let it default to <code>@latest</code>.</p>
+    </div>
+
+    <h2>Step 3 — Monitor CVEs on Your Pinned Version</h2>
+
+    <p>Staying on an older version is only safe if you know what vulnerabilities affect it. Your monitoring checklist:</p>
+
+    <ul>
+      <li><strong><a href="https://github.com/jgamblin/OpenClawCVEs" style="color:var(--accent)">github.com/jgamblin/OpenClawCVEs</a></strong> — community-maintained CVE tracker. Star it and check monthly.</li>
+      <li><strong>OpenClaw GitHub releases page</strong> — release notes always call out security fixes. Scan for "security", "CVE", "patch" in each release you've skipped.</li>
+      <li><strong>r/openclaw</strong> — active exploits get flagged here within hours of disclosure.</li>
+    </ul>
+
+    <p>The key question for each skipped release: <em>does this fix a CVE that affects my version?</em> If yes, upgrade just for that. If not, skip it.</p>
+
+    <h2>Step 4 — Safe Upgrade Testing Pattern</h2>
+
+    <p>When you're ready to evaluate a new release, test it without committing your production setup:</p>
+
+    <pre># Backup current config first
+openclaw backup create
+
+# Note your current version
+openclaw --version > /tmp/openclaw-version-before.txt
+
+# Test the new version in a temp directory
+cd /tmp
+mkdir openclaw-test && cd openclaw-test
+npm install openclaw@2026.4.5
+
+# Run doctor against the new version's requirements
+./node_modules/.bin/openclaw doctor
+
+# If doctor passes cleanly, check the changelog against your config
+# If not, see what changed and whether it affects you</pre>
+
+    <p>This way you're evaluating the new version without having already overwritten your working global install.</p>
+
+    <h2>When to Actually Upgrade</h2>
+
+    <p>Three scenarios where staying pinned stops being smart:</p>
+
+    <ol>
+      <li><strong>A CVE with active exploitation affects your version.</strong> ClawBleed (CVE-2026-25253) patched in 2026.2.2 is the example. No patch = active risk. Upgrade for security, even if the release has other issues.</li>
+      <li><strong>You need a feature that only exists in a newer release.</strong> Dreaming (4.5), video generation (4.5), isolated heartbeat sessions (4.x) — these require upgrading. Only upgrade when the feature value exceeds the upgrade risk for your setup.</li>
+      <li><strong>Your current version falls out of active maintenance.</strong> The OpenClaw team doesn't explicitly publish an EOL date, but releases older than ~3 months stop getting CVE backports. At that point, staying pinned becomes risky.</li>
+    </ol>
+
+    <div class="callout green">
+      <p><strong>The practical policy:</strong> Run <code>openclaw backup create</code> weekly. Check CVEs monthly. Upgrade only when a security fix or a feature you need ships. Never upgrade the day a release drops — wait 48–72 hours for the community to surface any breakage first.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want Someone to Handle Updates for You?</h2>
+    <p>Our managed care tier monitors CVEs, tests releases before upgrading your setup, and handles config migration. $99/mo.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>

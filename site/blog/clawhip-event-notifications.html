@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>clawhip: Send OpenClaw Notifications Without Polluting Your Agent's Context — ClawReady</title>
+  <meta name="description" content="clawhip is a lightweight event-to-channel router that sends notifications to your messaging channels without going through the OpenClaw gateway session — keeping your agent's context clean.">
+  <meta property="og:title" content="clawhip: Event Notifications for OpenClaw Without Context Pollution">
+  <meta property="og:description" content="clawhip bypasses the gateway session to send channel notifications. No context pollution, no token waste, no agent involvement for simple alerts. Here's how to set it up.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/clawhip-event-notifications">
+  <link rel="canonical" href="https://clawreadynow.com/blog/clawhip-event-notifications">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.1);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .arch-diagram{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;margin:22px 0;font-family:monospace;font-size:.85em;line-height:2.4}
+    .arch-diagram .label{color:var(--muted);font-size:.78em;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px}
+    .arch-diagram .box{display:inline-block;background:#1a1a1a;border:1px solid var(--border);padding:5px 14px;border-radius:5px}
+    .arch-diagram .box.highlight{border-color:var(--green);color:var(--green)}
+    .arch-diagram .arrow{color:#444;margin:0 8px}
+    .arch-diagram .bad{color:var(--accent);font-size:.82em}
+    .arch-diagram .good{color:var(--green);font-size:.82em}
+    .use-cases{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+    @media(max-width:560px){.use-cases{grid-template-columns:1fr}}
+    .use-case{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
+    .use-case h3{font-size:.85rem;font-weight:700;margin:0 0 6px;padding:0;border:none;color:#fff}
+    .use-case p{font-size:.82rem;color:var(--muted);margin:0}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">🔔 Tool — Notifications</span>
+    <h1>clawhip: Send OpenClaw Notifications Without Polluting Your Agent's Context</h1>
+    <p class="subtitle">clawhip is a lightweight event-to-channel notification router that bypasses the OpenClaw gateway session entirely. Pure notifications, zero context pollution, no token cost.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>Here's a problem power OpenClaw users hit eventually: you want your agent to send you a notification when a long-running task completes, when a monitored file changes, or when a background script encounters an error. So you pipe the event back through OpenClaw — and it works, but it's wasteful.</p>
+
+    <p>Every notification routed through the gateway session gets added to the conversation history. If your agent is running a long overnight task and pinging you every 10 minutes with status updates, those pings consume context tokens on every subsequent turn. By morning, a significant chunk of your context window is status messages.</p>
+
+    <p><strong>clawhip</strong> is the solution: an event-to-channel notification router that sends messages to your configured channels (Discord, Telegram, etc.) without going through the OpenClaw gateway session at all.</p>
+
+    <h2>The Context Pollution Problem, Illustrated</h2>
+
+    <div class="arch-diagram">
+      <span class="label">Without clawhip (context pollution)</span>
+      <span class="box">Script/Event</span>
+      <span class="arrow">→</span>
+      <span class="box">OpenClaw Gateway</span>
+      <span class="arrow">→</span>
+      <span class="box">Agent Session</span>
+      <span class="arrow">→</span>
+      <span class="box">Channel</span>
+      <br>
+      <span class="bad">Every notification adds to conversation history → bloats context → wastes tokens on future turns</span>
+      <br><br>
+      <span class="label">With clawhip (clean)</span>
+      <span class="box">Script/Event</span>
+      <span class="arrow">→</span>
+      <span class="box highlight">clawhip</span>
+      <span class="arrow">→</span>
+      <span class="box">Channel (direct)</span>
+      <br>
+      <span class="good">Agent session untouched. No history. No tokens. Just a notification.</span>
+    </div>
+
+    <h2>Installation</h2>
+
+    <pre>npm install -g clawhip</pre>
+
+    <p>Then configure it with your channel ID and credentials:</p>
+
+    <pre>clawhip config set channel YOUR_DISCORD_CHANNEL_ID
+clawhip config set token YOUR_OPENCLAW_DISCORD_TOKEN
+clawhip config set mention "@your-user-id"</pre>
+
+    <p>Test it:</p>
+    <pre>clawhip send "Hello from clawhip"</pre>
+
+    <h2>Usage in Scripts and Automation</h2>
+
+    <p>The primary use case is wrapping long-running processes to notify you when they complete or hit certain output keywords:</p>
+
+    <pre># Basic: notify when a command finishes
+clawhip run -- python my_long_script.py
+
+# With keyword monitoring: notify when specific output appears
+clawhip run \
+  --channel YOUR_CHANNEL_ID \
+  --mention "@your-user-id" \
+  --keywords "error,complete,failed,success" \
+  -- bash my_deployment.sh</pre>
+
+    <p>The <code>--keywords</code> flag is particularly useful — clawhip watches stdout/stderr and pings you immediately when any of those strings appear, without waiting for the process to finish.</p>
+
+    <h2>tmux Integration</h2>
+
+    <p>For monitoring persistent tmux sessions (a common pattern for OpenClaw background work):</p>
+
+    <pre>clawhip tmux new -s background-job \
+  --channel YOUR_CHANNEL_ID \
+  --mention "@your-user-id" \
+  --keywords "error,PR created,complete" \
+  -- 'source ~/.zshrc && openclaw gateway start --foreground'</pre>
+
+    <p>This starts a tmux session, watches its output, and notifies you when any of the keywords appear. You don't need to manually tail logs or keep a terminal open.</p>
+
+    <h2>Good Use Cases for clawhip</h2>
+
+    <div class="use-cases">
+      <div class="use-case">
+        <h3>🚀 Deployment monitoring</h3>
+        <p>Notify when a Netlify/Vercel deploy completes or fails, without the agent needing to be involved.</p>
+      </div>
+      <div class="use-case">
+        <h3>🔄 Background script alerts</h3>
+        <p>Long-running Python/bash scripts that should ping you on completion or error.</p>
+      </div>
+      <div class="use-case">
+        <h3>📊 Cron job status</h3>
+        <p>Send a notification when a scheduled cron job starts and finishes — clean audit trail.</p>
+      </div>
+      <div class="use-case">
+        <h3>🤖 Sub-agent handoff</h3>
+        <p>When one agent spins up a sub-agent, clawhip can notify you when the sub-agent completes without polluting the main session.</p>
+      </div>
+      <div class="use-case">
+        <h3>⚠️ File system monitoring</h3>
+        <p>Watch for file changes (new invoices, config changes, log growth) and notify immediately.</p>
+      </div>
+      <div class="use-case">
+        <h3>💰 Cost threshold alerts</h3>
+        <p>Wire it to a usage monitoring script — notify when API spend crosses a threshold.</p>
+      </div>
+    </div>
+
+    <h2>What clawhip Is Not</h2>
+
+    <p>clawhip sends messages — it doesn't receive or process them. It's a one-way notification pipe, not an alternative to OpenClaw's bidirectional agent sessions. If you need the agent to react to the notification (approve something, take action), that still needs to go through OpenClaw.</p>
+
+    <p>Think of clawhip as a lightweight sidecar: OpenClaw handles the intelligent, interactive work; clawhip handles the "just tell me when this thing happens" use cases that don't need model intelligence.</p>
+
+    <div class="callout green">
+      <p><strong>Pro setup:</strong> Use clawhip for all your status/monitoring notifications, and reserve your OpenClaw agent sessions for actual interactive work. This keeps conversation history clean, reduces token costs on long sessions, and makes agent responses sharper because the context isn't cluttered with status pings.</p>
+    </div>
+
+    <div class="callout blue">
+      <p><strong>Project status:</strong> clawhip is new (published ~24 hours ago). Watch the <a href="https://github.com/Yeachan-Heo/clawhip" style="color:var(--blue)">GitHub repo</a> for updates. The core functionality is solid; expect the configuration UX and channel support to expand quickly.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want Your OpenClaw Setup Fully Optimized?</h2>
+    <p>Context management, cost controls, smart routing, clawhip integration — we set up the whole stack. From $99.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
