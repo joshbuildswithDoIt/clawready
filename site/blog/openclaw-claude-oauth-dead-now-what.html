@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anthropic Killed Claude OAuth for OpenClaw — What to Do Now — ClawReady</title>
+  <meta name="description" content="Anthropic removed Claude Max OAuth access for OpenClaw as of April 4th. Here's exactly what changed, your 3 options, and the 10-minute fix if you're using an API key.">
+  <meta property="og:title" content="Anthropic Killed Claude OAuth for OpenClaw — What to Do Now">
+  <meta property="og:description" content="Claude Max OAuth is gone for OpenClaw users. Here are your 3 options and the 10-minute fix that gets you back online today.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-claude-oauth-dead-now-what">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-claude-oauth-dead-now-what">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:20px 0 8px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.9rem;color:var(--accent)}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .option-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin:16px 0}
+    .option-card .opt-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .option-card .opt-num{background:var(--accent);color:#fff;font-weight:800;font-size:.85rem;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .option-card .opt-title{font-weight:700;font-size:1.05rem}
+    .option-card .opt-meta{font-size:.82rem;color:var(--muted);margin-bottom:12px}
+    .option-card p{font-size:.92rem;margin-bottom:8px}
+    .option-card ul{font-size:.9rem}
+    .option-card.recommended{border-color:var(--green);background:rgba(39,174,96,.04)}
+    .option-card.recommended .opt-num{background:var(--green)}
+    .step-list{list-style:none;margin:0 0 16px 0!important;counter-reset:steps;display:flex;flex-direction:column;gap:10px}
+    .step-list li{counter-increment:steps;display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 18px;font-size:.92rem}
+    .step-list li::before{content:counter(steps);background:var(--accent);color:#fff;font-weight:800;font-size:.8rem;min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .cost-note{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin:16px 0;font-size:.88rem}
+    .cost-note .label{font-weight:700;color:var(--yellow);margin-bottom:6px}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:40px 0;margin-top:80px;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+  </style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="/" class="logo">Claw<span>Ready</span></a><div class="nav-links"><a href="/blog">Blog</a><a href="/#pricing">Pricing</a><a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a></div></div></nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">🚨 Breaking Change</div>
+    <h1>Anthropic Killed Claude OAuth for OpenClaw — What to Do Now</h1>
+    <p class="subtitle">As of April 4th, Anthropic removed Claude Max subscription access for third-party harnesses including OpenClaw. If your agent stopped working, here's why — and the 10-minute fix.</p>
+    <p class="meta">By ClawReady — April 6, 2026 · 5 min read</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>On April 4th, Anthropic ended support for using Claude Max subscriptions via OAuth in third-party tools. This affects every OpenClaw user who was using their Claude subscription — rather than an API key — to power their agent.</p>
+
+    <p>If your agent suddenly stopped responding or started throwing authentication errors, this is almost certainly why.</p>
+
+    <h2>What Exactly Changed</h2>
+
+    <p>Previously, you could connect OpenClaw to Claude by authenticating with your Claude.ai account or Claude Code CLI token. This let Claude Max subscribers use their subscription's "unlimited" usage in OpenClaw.</p>
+
+    <p>Anthropic has revoked this access path. The reason isn't hard to figure out: OpenClaw heartbeats and autonomous agent workflows generate sustained API load that Claude Max wasn't priced for. From Anthropic's perspective, one OpenClaw user with a $20/mo subscription could be consuming the equivalent of 10–20 regular Claude users.</p>
+
+    <div class="callout yellow">
+      <p><strong>This is not an OpenClaw bug.</strong> OpenClaw hasn't changed. Anthropic revoked the token class that enabled this usage pattern. Blaming OpenClaw for this is like blaming your browser when a website changes its login system.</p>
+    </div>
+
+    <h2>Your 3 Options</h2>
+
+    <div class="option-card recommended">
+      <div class="opt-header"><div class="opt-num">1</div><div class="opt-title">Switch to Anthropic API Key (Recommended)</div></div>
+      <div class="opt-meta">⏱ 10 minutes · 💰 Pay-per-use · ✅ Fully supported</div>
+      <p>This is the cleanest fix. An API key bypasses the OAuth restriction entirely — it's a separate billing relationship directly with Anthropic, not tied to your Claude Max subscription.</p>
+      <ul>
+        <li>Go to <strong>console.anthropic.com</strong> → API Keys → Create Key</li>
+        <li>Set a spend limit immediately (Settings → Limits) — $20–50/mo is plenty for most users</li>
+        <li>Update your <code>openclaw.json</code> model config to use the API key</li>
+        <li>Restart OpenClaw</li>
+      </ul>
+      <p style="margin-top:12px;font-size:.88rem;color:var(--muted)">Cost reality: Most OpenClaw users on Claude Sonnet spend $5–30/mo via API. Haiku is cheaper still. You're not going to burn $200/mo unless you have very aggressive heartbeat configs.</p>
+    </div>
+
+    <div class="option-card">
+      <div class="opt-header"><div class="opt-num">2</div><div class="opt-title">Route Through Claude Code CLI (Advanced)</div></div>
+      <div class="opt-meta">⏱ 30–60 minutes · 💰 Uses Claude Code subscription · ⚠️ May not be long-term stable</div>
+      <p>Some users have found a workaround: route OpenClaw through the Claude Code CLI as a proxy, which preserves subscription access. The community has posted step-by-step instructions for this.</p>
+      <p>Honest caveat: this is a workaround, not a supported path. Anthropic may close this gap in a future update. If you go this route, have a fallback plan.</p>
+    </div>
+
+    <div class="option-card">
+      <div class="opt-header"><div class="opt-num">3</div><div class="opt-title">Switch to a Different Model Provider</div></div>
+      <div class="opt-meta">⏱ 15 minutes · 💰 Varies · ✅ Fully supported</div>
+      <p>OpenClaw supports multiple providers. If you don't want to pay Anthropic's API rates, alternatives include:</p>
+      <ul>
+        <li><strong>OpenAI</strong> — GPT-4o is strong for most agent tasks</li>
+        <li><strong>Google Gemini</strong> — competitive pricing, good context window</li>
+        <li><strong>Ollama (local)</strong> — free, runs on your hardware, quality depends on your machine</li>
+        <li><strong>Groq</strong> — very fast, good for high-frequency heartbeat tasks</li>
+      </ul>
+    </div>
+
+    <h2>The 10-Minute API Key Fix (Step by Step)</h2>
+
+    <ol class="step-list">
+      <li>Go to <strong>console.anthropic.com</strong> and sign in (create account if needed — separate from Claude.ai)</li>
+      <li>Click <strong>API Keys</strong> in the left sidebar → <strong>Create Key</strong> → name it "openclaw" → copy it immediately (you won't see it again)</li>
+      <li>Go to <strong>Settings → Limits</strong> → set a monthly spend limit ($20 is a safe start)</li>
+      <li>Add $5–10 of credit to get started (Settings → Billing)</li>
+      <li>Open your OpenClaw config: <code>nano ~/.openclaw/openclaw.json</code></li>
+      <li>Find your model config and replace the OAuth/token field with your new API key</li>
+      <li>Save and restart OpenClaw: <code>sudo systemctl restart openclaw</code> (or however you run it)</li>
+      <li>Send a test message — you should be back online within 60 seconds</li>
+    </ol>
+
+    <div class="cost-note">
+      <div class="label">💡 Cost Estimate</div>
+      A typical OpenClaw user on Claude Sonnet 4 via API: <strong>$8–25/month</strong> depending on heartbeat frequency and session volume. Claude Haiku for lightweight tasks: <strong>$2–8/month</strong>. Set your limit at $30 and you'll never get surprised.
+    </div>
+
+    <h2>What If You're Not Technical Enough to Edit the Config?</h2>
+
+    <p>This is exactly the kind of thing ClawReady handles. Book a call and we'll do the migration for you — usually takes under 30 minutes, and we'll clean up your config while we're in there.</p>
+
+    <div class="callout green">
+      <p>If you were powering OpenClaw with Claude Max and this broke your setup, now is a good time to get everything else properly configured too. An API key migration is a 10-minute fix — a fully secured, production-ready setup takes 48 hours and costs $99.</p>
+    </div>
+
+    <h2>Will Claude OAuth Ever Come Back?</h2>
+
+    <p>Unlikely in the near term. Anthropic's business model depends on API revenue, and autonomous agents are exactly the sustained-usage case they need to price correctly. The Claude Max subscription was designed for human-paced usage, not 24/7 agent heartbeats.</p>
+
+    <p>The silver lining: the API is actually the better long-term foundation. You control costs, you're not dependent on subscription tier changes, and your setup doesn't break when Anthropic adjusts their OAuth policies.</p>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Need Help With the Migration?</h2>
+    <p>We'll handle the API key setup, config update, and while we're in there — make sure everything else is properly secured too.</p>
+    <a href="https://calendly.com/grofresh2018" target="_blank" class="cta-btn">Book a Free Call →</a>
+  </div>
+</div>
+
+<footer><p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="mailto:growfresh2018@gmail.com">Contact</a></p></footer>
+</body>
+</html>
