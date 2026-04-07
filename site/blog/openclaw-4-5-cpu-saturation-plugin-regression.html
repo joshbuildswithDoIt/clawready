@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 2026.4.5 CPU Saturation Bug: Plugin Loading Regression Fix — ClawReady</title>
+  <meta name="description" content="2026.4.5 has a regression where every worker process loads all plugins independently, causing CPU saturation. Here's the diagnosis and the fix while you wait for the patch.">
+  <meta property="og:title" content="OpenClaw 2026.4.5 CPU Saturation: Plugin Loading Regression Fix">
+  <meta property="og:description" content="Upgrading to 4.5 and your machine is suddenly running hot? Every worker process is loading all plugins — CPU saturation bug. Fix: rollback to 4.4 or limit worker concurrency.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-4-5-cpu-saturation-plugin-regression">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-5-cpu-saturation-plugin-regression">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .symptom-list{list-style:none;margin:0 0 16px!important;display:flex;flex-direction:column;gap:8px}
+    .symptom-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:7px;font-size:.9rem}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">🚨 Bug — 2026.4.5 Regression</span>
+    <h1>OpenClaw 2026.4.5 CPU Saturation: Plugin Loading Regression</h1>
+    <p class="subtitle">Every worker process in 4.5 independently loads all plugins — causing CPU and memory saturation, especially on machines with many installed plugins. Here's the diagnosis and mitigation while the patch is in review.</p>
+    <p class="meta">April 6, 2026 · 4 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>GitHub issue #62051, filed 7 hours ago: upgrading from 2026.4.2 to 2026.4.5 causes every worker child process — <code>openclaw</code>, <code>openclaw-cron</code>, <code>openclaw-approvals</code> — to independently register all plugins. On a machine with a dozen or more skills/plugins installed, this multiplies plugin initialization work by the number of workers, saturating CPU and memory at startup.</p>
+
+    <p>The issue is a plugin loader regression introduced alongside the Dreaming feature. The root cause: an unstable <code>runtimeSubagentMode</code> cache key causes redundant <code>register()</code> calls. Each worker thinks it needs to re-register plugins that are already registered, leading to the saturation.</p>
+
+    <h2>Symptoms</h2>
+
+    <ul class="symptom-list">
+      <li><span>🔴</span><span>CPU spikes to 100% for 30–90 seconds immediately after <code>openclaw gateway start</code></span></li>
+      <li><span>🔴</span><span>Machine becomes sluggish or unresponsive during gateway startup on 4.5</span></li>
+      <li><span>🟡</span><span>Gateway eventually stabilizes but startup is much slower than before</span></li>
+      <li><span>🟡</span><span>Memory usage elevated compared to 4.4 with the same plugin set</span></li>
+      <li><span>ℹ️</span><span>Affects you more if you have many skills/plugins installed; minimal impact with very few plugins</span></li>
+    </ul>
+
+    <p>Confirm with:</p>
+    <pre># Watch CPU during gateway start
+watch -n 1 "ps aux | grep openclaw | grep -v grep"
+
+# Or check startup time
+time openclaw gateway start 2>&1 | tail -5</pre>
+
+    <h2>Fix 1 — Rollback to 2026.4.4 (Cleanest)</h2>
+
+    <pre>npm install -g openclaw@2026.4.4
+openclaw gateway restart</pre>
+
+    <p>This is the same rollback as the CLI breakage bug. If you rolled back earlier this week and then re-upgraded for a specific feature, roll back again until the patch lands.</p>
+
+    <h2>Fix 2 — Reduce Worker Count (Stay on 4.5)</h2>
+
+    <p>If you need 4.5 features (Dreaming, video generation), you can limit the damage by reducing the number of worker processes. This reduces the multiplication factor:</p>
+
+    <pre># In ~/.openclaw/openclaw.json
+"gateway": {
+  "workers": 1
+}</pre>
+
+    <p>Default is typically 2–4 workers depending on your CPU. Setting to 1 eliminates the redundant plugin registration from multiple workers, at the cost of reduced parallelism for concurrent requests.</p>
+
+    <div class="callout yellow">
+      <p><strong>For most personal setups, workers=1 is fine.</strong> The multi-worker config provides benefit primarily for setups handling many concurrent agent sessions. A single-user personal assistant rarely needs more than one worker.</p>
+    </div>
+
+    <h2>Fix 3 — Uninstall Unused Plugins</h2>
+
+    <p>The more plugins installed, the worse the impact. Now is a good time to audit:</p>
+
+    <pre>openclaw skills list
+
+# Remove anything you don't actively use
+openclaw skills remove [skill-name]</pre>
+
+    <p>Every removed skill reduces the per-worker registration work. If you installed 20 skills experimentally and only use 5 regularly, removing the other 15 cuts startup saturation by 75%.</p>
+
+    <h2>When Will the Patch Land?</h2>
+
+    <p>Issue #62051 was filed 7 hours ago and is confirmed by the team. The prior plugin loader fix in 4.x (issue #61756 — redundant register() calls) was patched within 48 hours of being filed. Expect a 2026.4.6 release within 24–72 hours that addresses both this regression and the earlier CLI breakage bug.</p>
+
+    <p>Watch <a href="https://github.com/openclaw/openclaw/releases" style="color:var(--accent)">github.com/openclaw/openclaw/releases</a> for 4.6.</p>
+
+    <div class="callout green">
+      <p><strong>Summary of 4.5 known issues:</strong> CLI breakage on some npm updates, CPU saturation from plugin loading regression, and Dreaming experimental status. If stability matters more than new features, 2026.4.4 remains the recommended version. Upgrade to 4.6 once it drops and the community confirms it's clean.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Too Many OpenClaw Updates to Keep Track Of?</h2>
+    <p>Our managed care tier monitors releases, tests before upgrading, and handles config migration. $99/mo.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>

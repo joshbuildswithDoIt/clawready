@@ -202,6 +202,13 @@
 
     <div class="articles">
 
+      <a href="/blog/openclaw-4-5-cpu-saturation-plugin-regression" class="article-card">
+        <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">🚨 Bug — 2026.4.5 Regression</span>
+        <h2>OpenClaw 2026.4.5 CPU Saturation: Plugin Loading Regression</h2>
+        <p>Every worker process independently loads all plugins in 4.5 — causing CPU saturation at gateway startup. GitHub issue filed 7 hours ago. Fix: rollback to 4.4, set workers=1, or uninstall unused plugins. Patch expected in 4.6.</p>
+        <div class="meta">4 min read · April 2026</div>
+      </a>
+
       <a href="/blog/anthropic-openclaw-refund-credit-april-17" class="article-card">
         <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">⏰ Time-Sensitive — April 17</span>
         <h2>Anthropic OpenClaw Credit: Claim Your Refund Before April 17</h2>
