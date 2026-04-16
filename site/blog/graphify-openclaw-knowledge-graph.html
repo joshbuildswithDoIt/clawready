@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Graphify: Turn Any Codebase or Notes Folder Into a Knowledge Graph via OpenClaw | ClawReady</title>
+  <meta name="description" content="Graphify is a new /graphify slash command for OpenClaw that builds a queryable knowledge graph from any folder — code, PDFs, screenshots, videos. 71.5x fewer tokens per query." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/graphify-openclaw-knowledge-graph.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Tools & Ecosystem</span>
+      <span class="date">April 15, 2026</span>
+    </div>
+
+    <h1>Graphify: Turn Any Folder Into a Knowledge Graph Your OpenClaw Agent Can Query</h1>
+
+    <p class="lead">
+      <a href="https://github.com/safishamsi/graphify" target="_blank">Graphify</a> is a new
+      open-source skill that adds a <code>/graphify</code> command to OpenClaw (and a dozen other
+      AI agents). Point it at any folder — a codebase, a notes dump, a research archive — and it
+      builds a persistent, queryable knowledge graph. The headline number: <strong>71.5x fewer
+      tokens per query</strong> compared to reading raw files.
+    </p>
+
+    <h2>The Problem It Solves</h2>
+
+    <p>
+      Andrej Karpathy has a <code>/raw</code> folder where he drops papers, tweets, screenshots,
+      and notes. The graphify README calls this out directly: that folder is a classic problem for
+      AI agents — too much unstructured content to dump into context, no structure to query against.
+    </p>
+
+    <p>
+      The same problem shows up everywhere: a codebase you're trying to understand, a research
+      dump, years of markdown notes, a client project folder. Your agent can read individual files,
+      but it can't reason about the relationships between them without loading all of them — which
+      burns tokens and blows context limits.
+    </p>
+
+    <p>
+      Graphify builds a persistent graph of concepts and relationships across all those files once,
+      then your agent queries the graph instead of re-reading the raw files every session.
+    </p>
+
+    <h2>What It Produces</h2>
+
+    <p>Running <code>/graphify .</code> on any folder outputs:</p>
+
+    <pre><code>graphify-out/
+├── graph.html        # interactive graph — click nodes, search, filter
+├── GRAPH_REPORT.md   # god nodes, surprising connections, suggested questions
+├── graph.json        # persistent graph — query weeks later without re-reading
+└── cache/            # SHA256 cache — re-runs only process changed files</code></pre>
+
+    <p>
+      The <code>GRAPH_REPORT.md</code> is particularly useful — it surfaces "god nodes" (concepts
+      that appear everywhere), surprising connections you wouldn't have found manually, and
+      suggested questions worth exploring. The <code>graph.html</code> is an interactive visual
+      you can open in any browser.
+    </p>
+
+    <h2>Fully Multimodal</h2>
+
+    <p>
+      Graphify doesn't just handle code. It processes:
+    </p>
+    <ul>
+      <li>Source code — 25 languages via tree-sitter AST (Python, JS/TS, Go, Rust, Java, C/C++, Ruby, C#, Kotlin, Swift, and more)</li>
+      <li>PDFs and markdown</li>
+      <li>Screenshots and diagrams (including whiteboard photos and images in foreign languages)</li>
+      <li>Video and audio — transcribed with Whisper using a domain-aware prompt derived from your corpus</li>
+    </ul>
+
+    <p>Everything goes into one unified graph, cross-referenced.</p>
+
+    <h2>How to Use It With OpenClaw</h2>
+
+    <p>Install via pip:</p>
+
+    <pre><code>pip install graphifyy</code></pre>
+
+    <p>Then in your OpenClaw agent, just type:</p>
+
+    <pre><code>/graphify /path/to/your/folder</code></pre>
+
+    <p>
+      The agent runs the extraction, builds the graph, and saves the output. On subsequent
+      sessions, it queries <code>graph.json</code> directly — no re-reading files, no re-running
+      extraction unless files changed (SHA256 cache handles that).
+    </p>
+
+    <p>
+      To exclude folders (same syntax as <code>.gitignore</code>):
+    </p>
+
+    <pre><code># .graphifyignore
+node_modules/
+dist/
+vendor/
+*.generated.py</code></pre>
+
+    <h2>The Token Math</h2>
+
+    <p>
+      The 71.5x token reduction claim comes from querying the graph structure vs. loading raw
+      files. A codebase with hundreds of files might take 500K+ tokens to load entirely; querying
+      the graph for "what calls the payment module?" returns the relevant subgraph in a fraction
+      of that.
+    </p>
+
+    <p>
+      For OpenClaw users running on API billing, this is directly relevant. Large workspace
+      contexts are one of the biggest drivers of API cost. If you're working with a complex
+      codebase or large research archive, graphify could cut your per-session token spend
+      significantly.
+    </p>
+
+    <h2>OpenClaw-Specific Notes</h2>
+
+    <p>
+      The graphify README notes that OpenClaw uses sequential extraction (parallel agent support
+      is still early). This means large folders will take longer to process on first run compared
+      to Codex or Claude Code (which support parallel extraction). For most use cases this is a
+      one-time cost — the cache handles incremental updates efficiently.
+    </p>
+
+    <h2>Use Cases Worth Trying</h2>
+
+    <ul>
+      <li><strong>Understanding a new codebase</strong> — run graphify before diving in, let the GRAPH_REPORT.md orient you</li>
+      <li><strong>Research archive</strong> — papers, notes, bookmarks accumulated over years; ask "what themes show up?" without reading everything</li>
+      <li><strong>Client project context</strong> — index all project files so your agent can answer questions about any part without context overflow</li>
+      <li><strong>Workspace memory extension</strong> — complement OpenClaw's built-in memory.md with structured graph knowledge for large/complex domains</li>
+    </ul>
+
+    <p>
+      GitHub: <a href="https://github.com/safishamsi/graphify" target="_blank">safishamsi/graphify</a>
+      · PyPI: <a href="https://pypi.org/project/graphifyy/" target="_blank">graphifyy</a>
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Want your OpenClaw set up to handle complex projects like this?</h3>
+      <p>ClawReady configures your agent's memory architecture, workspace structure, and tooling
+      so it can actually handle real workloads — not just answer simple questions. Starting at $99.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
