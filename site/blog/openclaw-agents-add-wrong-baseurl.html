@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 4.14: New Agents Get Wrong baseUrl — Breaks OpenRouter, Copilot, Codex Instantly | ClawReady</title>
+  <meta name="description" content="OpenClaw 4.14 'agents add' writes wrong baseUrl values in models.json for new agents. OpenRouter, GitHub Copilot, openai-codex, and Arcee all break with stopReason=stop, payloads=0. Here's the manual fix." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-agents-add-wrong-baseurl.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Report</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw 4.14: <code>agents add</code> Writes Wrong baseUrls — New Agents Silent-Fail Instantly</h1>
+
+    <p class="lead">
+      If you created a new agent on OpenClaw 2026.4.14 and it immediately returns
+      <em>"Agent couldn't generate a response"</em> with no actual model activity — the bug is
+      in <code>models.json</code>. The <code>openclaw agents add</code> command writes incorrect
+      <code>baseUrl</code> values for several providers, causing every outbound LLM call to 404
+      silently. GitHub issue
+      <a href="https://github.com/openclaw/openclaw/issues/67295" target="_blank">#67295</a>.
+    </p>
+
+    <h2>What's Broken</h2>
+
+    <p>
+      When <code>openclaw agents add</code> creates a new agent on 4.14, it writes a per-agent
+      <code>models.json</code> with wrong <code>baseUrl</code> values. The result: every outbound
+      LLM call returns <code>stopReason=stop, payloads=0</code> instantly — no HTTP request
+      is actually reaching the provider. The agent runtime treats the 404 as an empty turn.
+    </p>
+
+    <p>Affected providers and the specific URL errors:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>Correct baseUrl</th>
+          <th>What 4.14 writes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>openrouter</td>
+          <td><code>https://openrouter.ai/api/v1</code></td>
+          <td><code>https://openrouter.ai/v1</code> ❌</td>
+        </tr>
+        <tr>
+          <td>arcee (via OpenRouter)</td>
+          <td><code>https://openrouter.ai/api/v1</code></td>
+          <td><code>https://openrouter.ai/v1</code> ❌</td>
+        </tr>
+        <tr>
+          <td>openai-codex</td>
+          <td><code>https://chatgpt.com/backend-api</code></td>
+          <td><code>https://chatgpt.com/backend-api/v1</code> ❌</td>
+        </tr>
+        <tr>
+          <td>github-copilot</td>
+          <td><code>https://api.individual.githubcopilot.com</code></td>
+          <td><code>https://api.individual.githubcopilot.com/v1</code> ❌</td>
+        </tr>
+        <tr>
+          <td>deepseek</td>
+          <td><code>https://api.deepseek.com/v1</code></td>
+          <td><code>https://api.deepseek.com/v1</code> ✅</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      The pattern: 4.14 is appending <code>/v1</code> to providers that don't want it on
+      their base URL, or missing <code>/api</code> where it's required. DeepSeek is unaffected
+      because its correct URL already includes <code>/v1</code>.
+    </p>
+
+    <h2>How to Confirm This Is Your Problem</h2>
+
+    <p>Check your new agent's <code>models.json</code>:</p>
+
+    <pre><code>cat ~/.openclaw/agents/&lt;your-agent-name&gt;/agent/models.json</code></pre>
+
+    <p>
+      If you see <code>https://openrouter.ai/v1</code> instead of
+      <code>https://openrouter.ai/api/v1</code> (or the other wrong URLs from the table above),
+      this is your issue.
+    </p>
+
+    <p>
+      You can also test directly — curl the correct URL with your API key to confirm it works,
+      then curl the broken URL to confirm it 404s:
+    </p>
+
+    <pre><code># Should work (correct URL)
+curl -sS https://openrouter.ai/api/v1/chat/completions \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+  -d '{"model":"anthropic/claude-sonnet-4.6","messages":[{"role":"user","content":"hi"}]}'
+
+# Will 404 (broken URL that 4.14 writes)
+curl -sS https://openrouter.ai/v1/chat/completions \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+  -d '{"model":"anthropic/claude-sonnet-4.6","messages":[{"role":"user","content":"hi"}]}'</code></pre>
+
+    <h2>The Fix: Edit models.json Manually</h2>
+
+    <p>
+      Open your agent's <code>models.json</code> and correct the baseUrl values:
+    </p>
+
+    <pre><code>~/.openclaw/agents/&lt;agent-name&gt;/agent/models.json</code></pre>
+
+    <p>Find and replace the wrong URLs:</p>
+
+    <ul>
+      <li><code>https://openrouter.ai/v1</code> → <code>https://openrouter.ai/api/v1</code></li>
+      <li><code>https://chatgpt.com/backend-api/v1</code> → <code>https://chatgpt.com/backend-api</code></li>
+      <li><code>https://api.individual.githubcopilot.com/v1</code> → <code>https://api.individual.githubcopilot.com</code></li>
+    </ul>
+
+    <p>Restart the gateway after editing:</p>
+
+    <pre><code>openclaw gateway restart</code></pre>
+
+    <h2>Workaround: Copy models.json from a Working Agent</h2>
+
+    <p>
+      If you have an older working agent (created before 4.14), you can copy its
+      <code>models.json</code> to your new agent and adjust as needed:
+    </p>
+
+    <pre><code>cp ~/.openclaw/agents/&lt;old-working-agent&gt;/agent/models.json \
+   ~/.openclaw/agents/&lt;new-broken-agent&gt;/agent/models.json</code></pre>
+
+    <p>
+      The issue report confirms older agents created with the same command still work correctly —
+      the bug is only in newly-created agents on 4.14.
+    </p>
+
+    <h2>Does This Affect Existing Agents?</h2>
+
+    <p>
+      No. Only agents created with <code>openclaw agents add</code> on 4.14 are affected.
+      Existing agents that were working before the 4.14 update will continue to work — their
+      <code>models.json</code> has the correct values.
+    </p>
+
+    <h2>Status</h2>
+
+    <p>
+      GitHub issue <a href="https://github.com/openclaw/openclaw/issues/67295" target="_blank">#67295</a>
+      filed April 15, currently open. Given that this completely breaks new agent creation for
+      several major providers simultaneously, expect a quick patch. Watch for 2026.4.15.
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Getting buried in OpenClaw config bugs?</h3>
+      <p>ClawReady handles the full setup — correct provider config, working models, gateway
+      security — so you're not debugging JSON at 1 AM. Starting at $99.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
