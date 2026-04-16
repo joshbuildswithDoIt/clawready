@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Docker Setup Guide 2026: alpine/openclaw, Portainer, WSL2 & Version Pinning | ClawReady</title>
+  <meta name="description" content="The complete practical guide to running OpenClaw in Docker in 2026 — which image to use, how to avoid broken versions, persistent config and memory, WSL2 notes, and when Docker actually makes sense vs native install." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-docker-setup-guide-2026.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Setup Guide</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw Docker Setup Guide 2026: The Practical Version</h1>
+
+    <p class="lead">
+      Running OpenClaw in Docker sounds appealing — clean, portable, easy to update, easy
+      to roll back. The reality is a bit more nuanced. This guide covers which image to use,
+      how to handle the instability that comes with OpenClaw's fast release cadence, how to
+      keep your config and memory persistent, and when Docker actually makes more sense than
+      a native install.
+    </p>
+
+    <h2>Which Image to Use</h2>
+
+    <p>
+      The official image is at <strong>ghcr.io/openclaw/openclaw</strong> (GitHub Container
+      Registry). The most widely used community mirror is <strong>alpine/openclaw</strong>
+      on Docker Hub, which auto-mirrors from the official source.
+    </p>
+
+    <div class="warning-box" style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;margin-bottom:24px;border-radius:4px;">
+      <strong>Note:</strong> Despite the name, alpine/openclaw is currently built on Debian
+      (not Alpine Linux) due to musl compatibility issues. The maintainer is working on a
+      true Alpine build. Functionally it works the same — just don't be surprised by the
+      base image.
+    </div>
+
+    <h3>Quick Start</h3>
+
+    <pre><code>git clone https://github.com/ozbillwang/openclaw-in-docker.git
+cd openclaw-in-docker
+export OPENCLAW_IMAGE="alpine/openclaw:latest"
+docker pull alpine/openclaw:latest
+./docker-setup.sh</code></pre>
+
+    <p>
+      Full official Docker docs: <a href="https://docs.openclaw.ai/install/docker" target="_blank">docs.openclaw.ai/install/docker</a>
+    </p>
+
+    <h2>The Version Pinning Problem</h2>
+
+    <p>
+      OpenClaw releases fast — multiple versions per week sometimes. Not all of them are
+      stable. The community has documented several versions that broke badly:
+    </p>
+
+    <ul>
+      <li><strong>2026.4.14</strong> — GPT-5.4 / openai-codex Cloudflare 403 bug, ACP lane congestion</li>
+      <li><strong>2026.3.2</strong> — Known broken in Docker</li>
+      <li><strong>2026.2.26</strong> — Known broken in Docker</li>
+      <li><strong>2026.4.5</strong> — CPU saturation plugin regression</li>
+    </ul>
+
+    <p>
+      <strong>Don't run <code>:latest</code> in production.</strong> Pin to a known-good version:
+    </p>
+
+    <pre><code># Pin to a specific version tag
+export OPENCLAW_IMAGE="alpine/openclaw:2026.4.12"
+docker pull alpine/openclaw:2026.4.12</code></pre>
+
+    <p>
+      Currently stable recommendation: <strong>2026.4.12</strong> (pre-4.14 regression cluster).
+      Wait for 4.15 stable before upgrading if you're running anything critical.
+    </p>
+
+    <h2>Persistent Config and Memory</h2>
+
+    <p>
+      The most common Docker mistake with OpenClaw: losing your workspace and config on
+      container restart. Always mount volumes for the paths that matter:
+    </p>
+
+    <pre><code>docker run -d \
+  --name openclaw \
+  --restart unless-stopped \
+  -p 18789:18789 \
+  -v ~/.openclaw/workspace:/root/.openclaw/workspace \
+  -v ~/.openclaw/openclaw.json:/root/.openclaw/openclaw.json \
+  -e ANTHROPIC_API_KEY="sk-ant-..." \
+  alpine/openclaw:2026.4.12</code></pre>
+
+    <p>Key volumes to mount:</p>
+    <ul>
+      <li><code>~/.openclaw/workspace</code> — your memory, SOUL.md, AGENTS.md, everything</li>
+      <li><code>~/.openclaw/openclaw.json</code> — API keys, provider config, channel config</li>
+      <li><code>~/.openclaw/logs</code> — optional, useful for debugging</li>
+    </ul>
+
+    <h2>WSL2 Notes</h2>
+
+    <p>
+      If you're running Docker on Windows via WSL2 (the most common setup), a few things
+      to know:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Port forwarding:</strong> Docker Desktop handles this automatically, but if
+        you're using Docker Engine directly in WSL2, you may need to manually forward port
+        18789 for the gateway to be reachable from Windows.
+      </li>
+      <li>
+        <strong>Volume paths:</strong> Use WSL2 paths (<code>/home/user/</code>) not Windows
+        paths (<code>C:\Users\</code>) when mounting volumes from within WSL2.
+      </li>
+      <li>
+        <strong>Systemd in WSL2:</strong> Docker itself doesn't need systemd, but if you're
+        running OpenClaw both in Docker and natively (testing), make sure the native gateway
+        isn't competing on port 18789.
+      </li>
+    </ul>
+
+    <h2>Running OpenClaw With a Local LLM (Zero API Cost)</h2>
+
+    <p>
+      One of the best Docker use cases: running OpenClaw alongside Ollama in the same
+      Docker network, with zero API costs. The pattern:
+    </p>
+
+    <pre><code># docker-compose.yml
+version: '3'
+services:
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  openclaw:
+    image: alpine/openclaw:2026.4.12
+    ports:
+      - "18789:18789"
+    volumes:
+      - ./workspace:/root/.openclaw/workspace
+      - ./openclaw.json:/root/.openclaw/openclaw.json
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    depends_on:
+      - ollama
+
+volumes:
+  ollama_data:</code></pre>
+
+    <p>
+      In your openclaw.json, point the Ollama provider at <code>http://ollama:11434</code>
+      (the Docker service name) rather than <code>localhost</code>.
+    </p>
+
+    <h2>When Docker Makes Sense vs Native Install</h2>
+
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <thead>
+        <tr style="background:#f5f5f5;">
+          <th style="padding:8px;text-align:left;border:1px solid #ddd;">Use Docker when</th>
+          <th style="padding:8px;text-align:left;border:1px solid #ddd;">Use native install when</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">Running on a server/VPS (no desktop)</td>
+          <td style="padding:8px;border:1px solid #ddd;">Running on your personal laptop/NUC</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">You want easy rollbacks between versions</td>
+          <td style="padding:8px;border:1px solid #ddd;">You want simpler setup (npm install is 1 command)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">Running multiple OpenClaw instances</td>
+          <td style="padding:8px;border:1px solid #ddd;">You need full system access (exec tool, file access)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">Part of a larger Docker Compose stack</td>
+          <td style="padding:8px;border:1px solid #ddd;">First-time setup — native is easier to debug</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">CI/CD or ephemeral environments</td>
+          <td style="padding:8px;border:1px solid #ddd;">Raspberry Pi / ARM (native has better support)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Updating Safely</h2>
+
+    <pre><code># Test the new version before switching
+docker pull alpine/openclaw:2026.4.15
+docker run --rm -it alpine/openclaw:2026.4.15 openclaw --version
+
+# If it looks good, swap your running container
+docker stop openclaw
+docker rm openclaw
+# re-run with new version tag</code></pre>
+
+    <p>
+      Always check the release notes before pulling a new version. The OpenClaw GitHub
+      releases page and this blog are the two fastest places to learn about breaking changes
+      before they hit your setup.
+    </p>
+
+    <div class="cta-box">
+      <h3>Want a Docker-based OpenClaw setup that actually works?</h3>
+      <p>
+        ClawReady can set up a properly configured Docker deployment — pinned versions,
+        persistent volumes, Ollama integration if you want it, and channel config so
+        your agent talks to you on Telegram or Discord from day one.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

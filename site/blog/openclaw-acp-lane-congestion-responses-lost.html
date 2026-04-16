@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw ACP Bug: Responses Lost During Long Claude Code Runs (Lane Congestion Fix) | ClawReady</title>
+  <meta name="description" content="OpenClaw 4.14 bug: when an ACP Claude Code run takes 7-14 minutes, it blocks the nested lane — and your agent's response gets generated but never delivered to Discord. Here's what's happening and how to work around it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-acp-lane-congestion-responses-lost.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw ACP Bug: Agent Responses Generated But Never Delivered During Long Claude Code Runs</h1>
+
+    <p class="lead">
+      If you're running multi-agent setups with ACP (Claude Code) and your Discord messages
+      sometimes vanish into the void after a long coding task — this is why. A GitHub issue
+      filed today (#67502) documents the exact failure: nested lane congestion causes silent
+      delivery corruption, and responses that appear in the session transcript simply never
+      reach the channel.
+    </p>
+
+    <h2>What's Happening</h2>
+
+    <p>
+      OpenClaw uses an internal "nested lane" for ACP (Claude Code) runs. When a coding task
+      takes a long time — 7 to 14 minutes is the range in the bug report — that lane stays
+      occupied the entire time. Other agent sessions trying to deliver responses queue behind it.
+    </p>
+
+    <p>
+      Here's where it gets nasty: when the queue finally clears, OpenClaw generates the backed-up
+      responses (you can see them in the session transcript with <code>stopReason: "stop"</code>)
+      but the delivery mechanism has already timed out or gotten confused. The response exists
+      — it just never gets sent to Discord.
+    </p>
+
+    <p>
+      There's a second failure mode on top of that: after a long ACP run completes, the
+      agent session's channel field can silently flip from <code>discord</code> to
+      <code>webchat</code>. So even if delivery resumes, it's going to the wrong place.
+    </p>
+
+    <h2>The Timeline From the Bug Report</h2>
+
+    <pre style="background:#f8f8f8;padding:16px;border-radius:4px;font-size:0.85rem;overflow-x:auto;"><code>T+0:00  ACP Claude Code starts (TASK-RTE-001-A)
+        Nested lane: OCCUPIED
+
+T+9:36  WARN lane wait exceeded: waitedMs=576497 queueAhead=1
+T+9:37  ACP run completes — but channel flipped to "webchat" ❌
+
+T+9:37  Second agent kicks off ACP run
+        Nested lane: OCCUPIED AGAIN
+
+T+14:12 WARN lane wait exceeded: waitedMs=851678 queueAhead=1
+T+14:19 All lanes finally release
+
+        Agent A generates summary response
+        Response appears in session transcript ✅
+        Response never arrives in Discord ❌</code></pre>
+
+    <h2>Who Gets Hit By This</h2>
+
+    <p>This affects you if you're running:</p>
+    <ul>
+      <li>Multi-agent setups where one agent dispatches to others via <code>sessions_send</code></li>
+      <li>ACP (Claude Code) for long coding tasks (file creation, compilation loops, type fixing)</li>
+      <li>Persistent agent sessions bound to Discord channels</li>
+      <li>Any workflow where response delivery timing matters</li>
+    </ul>
+
+    <p>
+      Single-agent setups doing quick tasks are unlikely to trigger this — you need both
+      long ACP runs AND queued responses for the congestion to cause dropped delivery.
+    </p>
+
+    <h2>Workarounds While Waiting for the Fix</h2>
+
+    <h3>1. Add timeoutSeconds to your sessions_send calls</h3>
+    <p>
+      The bug report was using <code>sessions_send(timeoutSeconds: 0)</code> — fire and forget.
+      Setting a non-zero timeout won't prevent the lane congestion, but it at least makes
+      the caller aware when something is stuck rather than silently moving on.
+    </p>
+
+    <h3>2. Serialize long ACP tasks rather than parallelizing</h3>
+    <p>
+      If you're dispatching multiple long coding tasks simultaneously, try running them
+      sequentially instead. The nested lane congestion is caused by multiple long-running
+      tasks competing for the same lane. One at a time avoids the queue buildup.
+    </p>
+
+    <h3>3. Check channel field after ACP runs complete</h3>
+    <p>
+      Until the channel flip bug is fixed, add a verification step after long ACP runs:
+      have your orchestrator agent confirm it's still routing to <code>discord</code> before
+      sending summaries. You can do this with a simple check in your SOUL.md workflow or
+      a post-task prompt.
+    </p>
+
+    <h3>4. Break long tasks into shorter chunks</h3>
+    <p>
+      Tasks that take 7–14 minutes can often be broken into smaller sub-tasks of 2–3 minutes
+      each. This keeps lane occupation time short and lets the queue clear between tasks.
+      Slower wall-clock, but more reliable delivery.
+    </p>
+
+    <h3>5. Roll back to 4.12 for ACP-heavy setups</h3>
+    <p>
+      If multi-agent ACP workflows are central to your setup and reliability matters more
+      than 4.14's new features, pinning to 4.12 is the safest option:
+    </p>
+    <pre><code>npm install -g openclaw@2026.4.12
+openclaw gateway restart</code></pre>
+
+    <h2>Status</h2>
+
+    <p>
+      Issue #67502 is open as of April 16, 2026. No fix timeline confirmed yet — watching
+      for 4.15 stable. This is marked as a regression (worked before 4.14), which typically
+      gets prioritized.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>Long ACP runs (7–14 min) block OpenClaw's nested lane and corrupt response delivery</li>
+      <li>Responses appear in session transcripts but never reach Discord</li>
+      <li>Channel field can silently flip from discord → webchat after ACP completes</li>
+      <li>Workarounds: serialize tasks, avoid timeoutSeconds: 0, roll back to 4.12 for critical setups</li>
+      <li>Official fix tracking: GitHub issue #67502</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Multi-agent setups are tricky to get right</h3>
+      <p>
+        ClawReady helps configure multi-agent OpenClaw architectures that are actually
+        reliable — with the right lane management, session patterns, and fallback handling.
+        If your agent org is dropping responses, let's fix it.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
