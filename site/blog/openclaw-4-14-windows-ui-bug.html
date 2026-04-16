@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 2026.4.14 Windows UI Bug: Input Swallowed, Replies Not Streaming | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.14 introduced a Windows chat UI regression. Input text disappears, streamed replies require a manual refresh, typing indicator flashes blank. Here's the workaround." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-14-windows-ui-bug.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Report</span>
+      <span class="date">April 15, 2026</span>
+    </div>
+
+    <h1>OpenClaw 2026.4.14 Windows UI Regression: What's Broken and What to Do</h1>
+
+    <p class="lead">
+      OpenClaw 2026.4.14 introduced a significant chat UI regression on Windows. If you updated and
+      your text is disappearing, replies aren't streaming live, or the typing indicator flashes once
+      and goes blank — this is a known bug (GitHub <a href="https://github.com/openclaw/openclaw/issues/67035" target="_blank">#67035</a>),
+      not your setup.
+    </p>
+
+    <h2>What's Broken</h2>
+
+    <p>The regression affects the web/dashboard UI on Windows (10 and 11). Reported symptoms:</p>
+
+    <ul>
+      <li>Typed input often doesn't appear in the chat input field immediately</li>
+      <li>Some input text appears with a significant delay</li>
+      <li>Some input text is dropped entirely and never appears</li>
+      <li>Assistant replies don't stream live — content only appears after manually refreshing the page</li>
+      <li>The "assistant is typing" animated indicator flashes once, then disappears, leaving a blank area</li>
+      <li>The UI briefly shows activity and then goes blank</li>
+    </ul>
+
+    <p>
+      The issue was confirmed on OpenClaw 2026.4.14 (build 323493f) and is specific to Windows.
+      Users on macOS and Linux are not reporting the same symptoms. It also appears independent of
+      model choice — the bug affects setups using LM Studio, Ollama, and cloud providers.
+    </p>
+
+    <h2>Is This a Model Latency Issue?</h2>
+
+    <p>
+      No. The input field regression (text not appearing while typing) happens before any model is
+      involved. That's a frontend render issue, not a slow model. If your replies aren't streaming,
+      that's also a rendering regression — the content is being generated but the UI isn't updating.
+      Refreshing the page reveals the content, which confirms it arrived, just wasn't displayed.
+    </p>
+
+    <h2>Workarounds While You Wait for a Patch</h2>
+
+    <h3>Option 1: Roll Back to 2026.4.13</h3>
+
+    <p>If you can pin versions, roll back:</p>
+
+    <pre><code>npm install -g openclaw@2026.4.13
+openclaw gateway restart</code></pre>
+
+    <p>
+      The 4.13 build doesn't have the Windows UI regression. See our
+      <a href="/blog/openclaw-pin-version-stable.html">version pinning guide</a> to stay on 4.13
+      until a fix ships.
+    </p>
+
+    <h3>Option 2: Use a Messaging Channel Instead</h3>
+
+    <p>
+      If you have Telegram, Discord, or WhatsApp connected to OpenClaw, these channels are unaffected
+      by the browser UI regression. You can continue working through your messaging app while the
+      dashboard bug gets patched.
+    </p>
+
+    <h3>Option 3: Hard Refresh / Clear Browser Cache</h3>
+
+    <p>
+      Some users report that a hard refresh (<kbd>Ctrl+Shift+R</kbd>) or clearing the browser cache
+      temporarily restores normal behavior. This is not a permanent fix but can unblock you in a
+      pinch.
+    </p>
+
+    <h3>Option 4: Try a Different Browser</h3>
+
+    <p>
+      The issue appears most consistently in Chrome on Windows. Firefox and Edge have been reported
+      to behave better in some cases — worth trying if you're blocked.
+    </p>
+
+    <h2>Status</h2>
+
+    <p>
+      GitHub issue <a href="https://github.com/openclaw/openclaw/issues/67035" target="_blank">#67035</a>
+      was filed April 15 and is open as of this writing. Given the severity (broken input on the
+      primary UI surface), expect a patch release quickly — the OpenClaw team has historically
+      turned around regression fixes within 24-48 hours.
+    </p>
+
+    <p>
+      Watch the <a href="https://github.com/openclaw/openclaw/releases" target="_blank">releases page</a>
+      for 2026.4.15 which should include the fix.
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Tired of chasing regression fixes?</h3>
+      <p>ClawReady monitors OpenClaw releases and flags breaking changes before they hit your setup.
+      Starting at $99 for a full audit + setup review.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
