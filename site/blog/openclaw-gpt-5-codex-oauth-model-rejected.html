@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw GPT-5.1/5.2/5.3 Rejected via Codex OAuth — Only gpt-5.4 Works | ClawReady</title>
+  <meta name="description" content="OpenClaw users hitting 'model not supported' errors with gpt-5.1, 5.2, 5.3 via ChatGPT/Codex OAuth. Only gpt-5.4 is currently accepted. Here's the fix and workarounds." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-gpt-5-codex-oauth-model-rejected.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Report</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw: GPT-5.1, 5.2, and 5.3 Rejected via Codex OAuth — Only gpt-5.4 Works</h1>
+
+    <p class="lead">
+      If you're using the <code>openai-codex</code> provider with ChatGPT/Codex OAuth and
+      hitting <em>"The 'gpt-5.x' model is not supported when using Codex with a ChatGPT account"</em>
+      errors — this is a known regression (GitHub
+      <a href="https://github.com/openclaw/openclaw/issues/67158" target="_blank">#67158</a>),
+      not your config. Here's what's happening and how to work around it.
+    </p>
+
+    <h2>What's Breaking</h2>
+
+    <p>
+      When authenticating with OpenClaw via the <code>openai-codex</code> / ChatGPT-Codex OAuth
+      path, only <code>gpt-5.4</code> is currently accepted. Requests to <code>gpt-5.1</code>,
+      <code>gpt-5.2</code>, and <code>gpt-5.3</code> variants all fail with:
+    </p>
+
+    <pre><code>{"detail":"The 'gpt-5.1' model is not supported when using Codex with a ChatGPT account."}</code></pre>
+
+    <p>
+      The model name in the error changes to match whichever variant you tried. The underlying
+      cause appears to be a server-side policy change on OpenAI's end — the Codex OAuth path
+      now only permits the latest <code>gpt-5.4</code> model, regardless of what OpenClaw
+      has configured.
+    </p>
+
+    <p>
+      This is a regression — these models worked previously through the same auth path.
+    </p>
+
+    <h2>Secondary Issue: Refresh Token Reuse Errors</h2>
+
+    <p>Some users hitting this bug are also seeing a second error in the auth status:</p>
+
+    <pre><code>[openai-codex] Token refresh failed: 401
+"message": "Your refresh token has already been used to generate a new access token. Please try signing in again."
+"code": "refresh_token_reused"</code></pre>
+
+    <p>
+      This is a separate problem — a stale OAuth refresh token that needs to be re-issued.
+      If you're seeing both errors, fix the refresh token first (re-auth), then verify the
+      model issue.
+    </p>
+
+    <h2>Immediate Fix: Set gpt-5.4 as Default, Remove Fallbacks</h2>
+
+    <p>
+      Update your <code>openclaw.json</code> to use only <code>openai-codex/gpt-5.4</code>
+      and remove any fallback entries pointing to older model variants:
+    </p>
+
+    <pre><code>{
+  "models": {
+    "default": "openai-codex/gpt-5.4"
+  }
+}</code></pre>
+
+    <p>
+      If you had fallbacks configured like <code>gpt-5.3-codex</code> or <code>gpt-5.2-codex</code>,
+      remove them — they'll just cause failed requests when the primary model is unavailable.
+      Either remove fallbacks entirely or switch them to a different provider (see below).
+    </p>
+
+    <h2>Fix the Refresh Token Error</h2>
+
+    <p>If you're also seeing the <code>refresh_token_reused</code> error, re-authenticate:</p>
+
+    <pre><code>openclaw auth logout openai-codex
+openclaw auth login openai-codex</code></pre>
+
+    <p>
+      This re-issues a fresh OAuth token pair. The "already been used" error means your
+      current refresh token was invalidated server-side — logging out and back in gets you
+      a clean token.
+    </p>
+
+    <h2>Longer-Term Workaround: Use the OpenAI API Key Instead</h2>
+
+    <p>
+      The ChatGPT/Codex OAuth path is inherently dependent on what OpenAI chooses to allow
+      through it. If you need access to specific GPT-5 model variants and don't want to be
+      subject to OAuth-tier policy restrictions, switch to a direct OpenAI API key:
+    </p>
+
+    <pre><code>{
+  "providers": {
+    "openai": {
+      "apiKey": "sk-..."
+    }
+  },
+  "models": {
+    "default": "openai/gpt-5.1"
+  }
+}</code></pre>
+
+    <p>
+      Direct API access gives you full model selection control. The tradeoff is that it
+      bills against your OpenAI API account rather than your ChatGPT subscription — check
+      your pricing tier before switching.
+    </p>
+
+    <h2>Context Window Comparison</h2>
+
+    <p>
+      If you were using older model variants specifically for their context window, here's
+      what you're working with on gpt-5.4 via Codex OAuth:
+    </p>
+
+    <ul>
+      <li><code>openai-codex/gpt-5.4</code> — 1,025K context (as reported by <code>openclaw models list</code>)</li>
+      <li><code>openai-codex/gpt-5.3-codex</code> — 266K (fallback, now rejected via OAuth)</li>
+    </ul>
+
+    <p>
+      gpt-5.4 actually has a larger context window than the 5.3 fallback, so for most use
+      cases this is a net neutral or improvement once you remove the broken fallbacks.
+    </p>
+
+    <h2>Status</h2>
+
+    <p>
+      GitHub issue <a href="https://github.com/openclaw/openclaw/issues/67158" target="_blank">#67158</a>
+      is open. The fix may need to come from OpenAI re-enabling those models on the OAuth
+      path — there's no OpenClaw config change that forces OpenAI to accept a rejected model.
+      If you need gpt-5.1/5.2/5.3 specifically, the direct API key route is the cleanest path.
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>OpenAI provider config tripping you up?</h3>
+      <p>ClawReady reviews your full model and provider config and makes sure your fallbacks
+      are set up correctly — no broken auth, no silent failures. $49 audit.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
