@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GBrain: The OpenClaw Memory System Built by the YC President | ClawReady</title>
+  <meta name="description" content="GBrain is Garry Tan's open-source memory brain for OpenClaw and Hermes — 25 skills, PGLite database, hybrid search, 30-minute install. Here's what it is and whether you need it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/gbrain-openclaw-memory-system.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Tools & Ecosystem</span>
+      <span class="date">April 15, 2026</span>
+    </div>
+
+    <h1>GBrain: Garry Tan's OpenClaw Memory System (And Whether You Need It)</h1>
+
+    <p class="lead">
+      Garry Tan — president and CEO of Y Combinator — just open-sourced the memory system powering
+      his personal OpenClaw and Hermes agent deployments. It's called
+      <a href="https://github.com/garrytan/gbrain" target="_blank">GBrain</a>, and it's one of the
+      more impressive agent memory setups published publicly. Here's what it does and how to think
+      about it for your own setup.
+    </p>
+
+    <h2>What GBrain Is</h2>
+
+    <p>
+      GBrain is a structured memory and knowledge brain for AI agents. Garry describes the
+      production numbers that motivated it:
+    </p>
+
+    <blockquote>
+      "17,888 pages, 4,383 people, 723 companies, 21 cron jobs running autonomously, built in 12
+      days. The agent ingests meetings, emails, tweets, voice calls, and original ideas while you
+      sleep."
+    </blockquote>
+
+    <p>
+      In practical terms: GBrain is a local database + skill system that lets your OpenClaw agent
+      index, search, and enrich your personal knowledge base — contacts, companies, notes, meetings,
+      ideas — using hybrid semantic search (vector + keyword).
+    </p>
+
+    <p>Key technical specs:</p>
+    <ul>
+      <li><strong>Database:</strong> PGLite (embedded Postgres, no server required) — ready in 2 seconds</li>
+      <li><strong>Search:</strong> Hybrid search (vector + BM25), results in ~0.12s</li>
+      <li><strong>Skills:</strong> 25 pre-built skills covering people enrichment, company research, meeting ingestion, idea capture, overnight memory consolidation, and citation repair</li>
+      <li><strong>Install time:</strong> ~30 minutes (agent-driven setup)</li>
+      <li><strong>Runtime:</strong> Bun</li>
+    </ul>
+
+    <h2>What It Actually Does</h2>
+
+    <p>
+      The core loop GBrain enables:
+    </p>
+
+    <ol>
+      <li>Your agent ingests raw inputs — meeting notes, emails, voice call transcripts, tweets, ideas — and stores them in the local PGLite database</li>
+      <li>Every person or company the agent encounters gets automatically enriched (LinkedIn, Clearbit-style data pulls)</li>
+      <li>Overnight cron jobs consolidate memory, fix broken citations, and surface cross-connections between entries</li>
+      <li>You query it conversationally: "what themes show up across my notes?" or "what do I know about [person]?"</li>
+    </ol>
+
+    <p>
+      The hybrid search means results are genuinely good — not just keyword matches. The example
+      from the repo: searching for a PG essay concept returns results ranked by semantic similarity
+      (0.94, 0.87, 0.81) across 12ms.
+    </p>
+
+    <h2>How Installation Works</h2>
+
+    <p>
+      GBrain is designed to be installed by your agent, not by you. The entire install flow is:
+    </p>
+
+    <pre><code>Retrieve and follow the instructions at:
+https://raw.githubusercontent.com/garrytan/gbrain/master/INSTALL_FOR_AGENTS.md</code></pre>
+
+    <p>
+      Paste that into your OpenClaw agent. It clones the repo, installs GBrain, sets up the
+      database, loads all 25 skills, and configures the recurring cron jobs. You answer a few
+      questions about API keys. That's it.
+    </p>
+
+    <p>Manual install is also documented for those who prefer it:</p>
+
+    <pre><code>git clone https://github.com/garrytan/gbrain.git
+cd gbrain
+bun install && bun link
+gbrain init       # local brain, ready in 2 seconds
+gbrain import ~/notes/  # index your markdown
+gbrain query "what themes show up across my notes?"</code></pre>
+
+    <h2>GBrain vs. OpenClaw's Built-In Memory</h2>
+
+    <p>
+      OpenClaw has its own memory system — <code>memory.md</code>, the workspace compiler, and
+      optional LanceDB/vector memory. GBrain sits on top of that and adds structured relational
+      data (people, companies, meetings as actual records), hybrid search, and automated
+      enrichment pipelines.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>OpenClaw Built-In Memory</th>
+          <th>GBrain</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Setup time</td>
+          <td>Minutes (just markdown)</td>
+          <td>~30 min (agent-driven)</td>
+        </tr>
+        <tr>
+          <td>Storage</td>
+          <td>Flat markdown files</td>
+          <td>Embedded Postgres (PGLite)</td>
+        </tr>
+        <tr>
+          <td>Search</td>
+          <td>Keyword / LanceDB vector (optional)</td>
+          <td>Hybrid vector + BM25</td>
+        </tr>
+        <tr>
+          <td>People/company records</td>
+          <td>❌</td>
+          <td>✅ (with auto-enrichment)</td>
+        </tr>
+        <tr>
+          <td>Overnight consolidation</td>
+          <td>❌ (manual)</td>
+          <td>✅ (21 cron jobs)</td>
+        </tr>
+        <tr>
+          <td>No server required</td>
+          <td>✅</td>
+          <td>✅ (PGLite is embedded)</td>
+        </tr>
+        <tr>
+          <td>Bun required</td>
+          <td>❌</td>
+          <td>✅</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Who Should Install GBrain</h2>
+
+    <p><strong>Good fit if you:</strong></p>
+    <ul>
+      <li>Deal with a large network of people and companies (investors, sales, recruiting, partnerships)</li>
+      <li>Want your agent to remember people across sessions and auto-enrich contact context</li>
+      <li>Are ingesting lots of unstructured inputs — calls, meetings, notes — and want semantic search across them</li>
+      <li>Already have OpenClaw running well and want to extend its memory capabilities</li>
+    </ul>
+
+    <p><strong>Skip it for now if:</strong></p>
+    <ul>
+      <li>You're still getting your basic OpenClaw setup working — don't add complexity before the foundation is solid</li>
+      <li>Your memory needs are simple (task tracking, decisions, project notes) — <code>memory.md</code> + heartbeat handles that fine</li>
+      <li>You don't have Bun installed and don't want another runtime dependency</li>
+    </ul>
+
+    <h2>The Bigger Picture</h2>
+
+    <p>
+      GBrain is notable beyond the feature list. It's the first time a major tech figure has
+      published the actual production agent brain they run daily — with real numbers and a
+      working install path. The "21 cron jobs running autonomously" detail signals where serious
+      agent operators are heading: not chat sessions, but persistent autonomous systems doing
+      continuous background work.
+    </p>
+
+    <p>
+      That's the same direction ClawReady setups are built for. If you're using OpenClaw for
+      serious business operations, GBrain is worth watching — even if you don't install it today.
+    </p>
+
+    <p>
+      GitHub: <a href="https://github.com/garrytan/gbrain" target="_blank">garrytan/gbrain</a>
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Want a production-grade OpenClaw setup like this?</h3>
+      <p>ClawReady builds the full stack — gateway, memory architecture, channels, cron jobs,
+      SOUL.md — so your agent is doing real work from day one. Starting at $99.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
