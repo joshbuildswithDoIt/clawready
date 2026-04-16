@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Persistent Sub-Agent Sessions Broken: mode="session" + thread=true Fix | ClawReady</title>
+  <meta name="description" content="OpenClaw can't create persistent sub-agent sessions when mode='session' and thread=true are combined — circular dependency bug. Here's what's broken and the workarounds." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-persistent-sub-agent-session-broken.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix — Multi-Agent</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw Persistent Sub-Agent Sessions Broken: mode="session" + thread=true Circular Dependency</h1>
+
+    <p class="lead">
+      If your orchestrator agent can't spawn persistent sub-agent sessions — the spawning call
+      hangs, returns an error, or the sub-agent never initializes — you've likely hit issue
+      #67400. Combining <code>mode="session"</code> and <code>thread=true</code> creates a
+      circular dependency that prevents the session from being created. Here's the workaround.
+    </p>
+
+    <h2>What's Broken</h2>
+
+    <p>
+      In OpenClaw's <code>sessions_spawn</code> tool, using both <code>mode="session"</code>
+      (persistent session) and <code>thread=true</code> (bind to a channel thread) together
+      triggers a circular dependency in the session resolution logic. The session can't
+      initialize because each parameter depends on the other being resolved first.
+    </p>
+
+    <p>Symptoms:</p>
+    <ul>
+      <li>Sub-agent spawn call hangs or times out</li>
+      <li>Error in logs: session initialization failure or circular dependency reference</li>
+      <li>The sub-agent appears briefly then disappears without completing initialization</li>
+      <li>Orchestrator agent receives no session key back from the spawn call</li>
+    </ul>
+
+    <h2>Who's Affected</h2>
+
+    <p>
+      This primarily hits users building multi-agent Discord or Slack setups where the
+      orchestrator spawns specialized sub-agents as persistent, thread-bound sessions.
+      It's a common pattern for teams running agent orgs that report back in dedicated
+      threads — exactly the architecture OpenClaw's ACP harness is designed for.
+    </p>
+
+    <h2>Workaround #1 — Use mode="run" Instead of mode="session"</h2>
+
+    <p>
+      If the sub-agent doesn't need to maintain persistent state across multiple calls,
+      switch to <code>mode="run"</code>:
+    </p>
+
+    <pre><code>// Broken
+sessions_spawn({
+  task: "...",
+  mode: "session",
+  thread: true,
+  runtime: "acp"
+})
+
+// Workaround
+sessions_spawn({
+  task: "...",
+  mode: "run",   // one-shot instead of persistent
+  thread: true,
+  runtime: "acp"
+})</code></pre>
+
+    <p>
+      Trade-off: <code>mode="run"</code> sessions don't persist history. If your sub-agent
+      needs to remember context across calls, this workaround loses that.
+    </p>
+
+    <h2>Workaround #2 — Create the Thread First, Then Spawn Without thread=true</h2>
+
+    <p>
+      Pre-create the thread manually, then spawn the sub-agent targeting that thread's
+      channel ID — without passing <code>thread=true</code>:
+    </p>
+
+    <pre><code>// Step 1: Create thread via message tool
+message({
+  action: "thread-create",
+  channel: "discord",
+  channelId: "YOUR_CHANNEL_ID",
+  threadName: "Agent Task Thread"
+})
+// Returns: threadId
+
+// Step 2: Spawn sub-agent targeting the thread channel directly
+sessions_spawn({
+  task: "...",
+  mode: "session",
+  runtime: "acp",
+  // pass channel context in task description instead of thread=true
+})</code></pre>
+
+    <p>
+      This splits the two concerns — thread creation and session persistence — into
+      separate steps, avoiding the circular dependency.
+    </p>
+
+    <h2>Workaround #3 — Pin to 4.12 for Critical Multi-Agent Setups</h2>
+
+    <p>
+      If persistent thread-bound sub-agent sessions are core to your setup and neither
+      workaround above works for your use case:
+    </p>
+
+    <pre><code>npm install -g openclaw@2026.4.12
+openclaw gateway restart</code></pre>
+
+    <p>
+      4.12 predates the regression that introduced this circular dependency.
+    </p>
+
+    <h2>Status</h2>
+
+    <p>
+      Issue #67400 is open and marked as a regression. It's on the radar for the 4.15
+      stable release. Watch the issue for updates — this is a common enough pattern that
+      it should get prioritized.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li><code>mode="session"</code> + <code>thread=true</code> = circular dependency = sub-agent spawn fails</li>
+      <li>Workaround A: use <code>mode="run"</code> if persistence isn't required</li>
+      <li>Workaround B: pre-create the thread, then spawn without <code>thread=true</code></li>
+      <li>Workaround C: pin to 4.12 for critical setups</li>
+      <li>Tracking: GitHub issue #67400</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Building a multi-agent OpenClaw setup?</h3>
+      <p>
+        ClawReady has configured multi-agent architectures across dozens of setups —
+        we know the current bugs and stable patterns. Skip the debugging and get it
+        right the first time.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

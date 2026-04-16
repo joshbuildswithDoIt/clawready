@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw + OpenRouter "payloads=0" Fix: Double Prefix Bug | ClawReady</title>
+  <meta name="description" content="OpenClaw is sending 'openrouter/openrouter/auto' to the OpenRouter API — the double prefix causes silent failures with payloads=0 on every turn. Here's the fix." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-openrouter-payloads-zero-fix.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw + OpenRouter: "payloads=0" Silent Failure from Double Provider Prefix</h1>
+
+    <p class="lead">
+      If your OpenRouter-backed OpenClaw agent completes turns but never actually responds —
+      logs show <code>payloads=0</code>, WhatsApp or Telegram gets nothing — you've likely
+      hit the double-prefix bug. OpenClaw is sending <code>openrouter/openrouter/auto</code>
+      to the API instead of <code>openrouter/auto</code>. Here's the fix.
+    </p>
+
+    <h2>What's Happening</h2>
+
+    <p>
+      GitHub issue #67698 documents it: when OpenRouter is configured via Docker Compose's
+      <code>models auth paste-token</code>, the resulting config writes the provider prefix
+      twice. The gateway logs give it away:
+    </p>
+
+    <pre><code>agent model: openrouter/openrouter/auto</code></pre>
+
+    <p>
+      The OpenRouter API receives a model ID of <code>openrouter/openrouter/auto</code>,
+      which it doesn't recognize. The call returns an incomplete turn. OpenClaw logs
+      <code>payloads=0</code> — meaning it sent a request and got back nothing usable.
+      Your agent appears to be thinking, then silently produces no response.
+    </p>
+
+    <p>
+      This is distinct from a network error or auth failure (both of which throw explicit
+      errors). <code>payloads=0</code> means the API call technically succeeded but
+      returned empty content — a harder bug to spot.
+    </p>
+
+    <h2>Diagnosis</h2>
+
+    <p>Check your gateway logs for the double prefix:</p>
+
+    <pre><code>openclaw gateway logs | grep "agent model"</code></pre>
+
+    <p>If you see <code>openrouter/openrouter/</code> — you have this bug.</p>
+
+    <p>Also check your models.json:</p>
+
+    <pre><code>cat ~/.openclaw/models.json | grep -A3 openrouter</code></pre>
+
+    <p>
+      Look for a <code>baseUrl</code> or model ID field that doubles the prefix.
+    </p>
+
+    <h2>Fix #1 — Edit models.json Directly (Fastest)</h2>
+
+    <p>
+      Open <code>~/.openclaw/models.json</code> (or the per-agent equivalent at
+      <code>~/.openclaw/agents/&lt;name&gt;/models.json</code>) and fix the model ID:
+    </p>
+
+    <pre><code>// Wrong
+"model": "openrouter/openrouter/auto"
+
+// Correct
+"model": "openrouter/auto"</code></pre>
+
+    <p>
+      Also check the <code>baseUrl</code> field — it should be
+      <code>https://openrouter.ai/api/v1</code> with no extra path segments.
+    </p>
+
+    <pre><code>openclaw gateway restart</code></pre>
+
+    <h2>Fix #2 — Re-authenticate Without the Docker Prefix Issue</h2>
+
+    <p>
+      If you're running in Docker and the <code>models auth paste-token</code> flow
+      created the bad config, re-do the auth step using the native CLI path instead:
+    </p>
+
+    <pre><code>openclaw configure</code></pre>
+
+    <p>
+      Navigate to the provider section and re-enter your OpenRouter API key. The
+      interactive configure path uses the correct model ID construction and doesn't
+      double-prefix.
+    </p>
+
+    <h2>Fix #3 — Specify the Full Correct Model ID</h2>
+
+    <p>
+      Rather than using <code>openrouter/auto</code> (which lets OpenRouter choose),
+      specify your actual model explicitly:
+    </p>
+
+    <pre><code>// Examples of valid OpenRouter model IDs in OpenClaw
+"model": "openrouter/anthropic/claude-sonnet-4-6"
+"model": "openrouter/google/gemini-2.5-pro"
+"model": "openrouter/meta-llama/llama-4-maverick"</code></pre>
+
+    <p>
+      This sidesteps the auto-routing entirely and makes it obvious if something is wrong
+      with the model string.
+    </p>
+
+    <h2>Verify the Fix</h2>
+
+    <pre><code># Check the model resolves correctly now
+openclaw models list | grep openrouter
+
+# Run a test inference
+openclaw infer "say hello"</code></pre>
+
+    <p>
+      If <code>models list</code> shows the correct ID (no double prefix) and
+      <code>infer</code> returns a response — you're fixed.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li><code>payloads=0</code> + OpenRouter = double prefix bug (<code>openrouter/openrouter/auto</code>)</li>
+      <li>Check: <code>openclaw gateway logs | grep "agent model"</code></li>
+      <li>Fix: edit <code>~/.openclaw/models.json</code>, remove the extra prefix, restart gateway</li>
+      <li>Tracking: GitHub issue #67698</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>OpenRouter setup giving you trouble?</h3>
+      <p>
+        ClawReady handles multi-provider OpenClaw configs — OpenRouter, Ollama, Anthropic,
+        fallback chains — set up correctly from day one.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
