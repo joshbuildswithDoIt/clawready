@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 2026.4.14: GPT-5 Support, Local Model Lean Mode & Security Fixes | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.14 shipped April 13. Key additions: GPT-5 explicit turn improvements, localModelLean for weaker hardware, exec approval secret redaction, and LanceDB cloud memory." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-14-whats-new.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Release Notes</span>
+      <span class="date">April 15, 2026</span>
+    </div>
+
+    <h1>OpenClaw 2026.4.14: What's Actually New</h1>
+
+    <p class="lead">
+      OpenClaw 2026.4.14 dropped April 13 as a broad quality release targeting model provider stability,
+      security hardening, and better support for local/weaker hardware setups. Here are the changes
+      that actually matter for most users.
+    </p>
+
+    <h2>GPT-5 Explicit Turn Improvements</h2>
+
+    <p>
+      The 4.14 release specifically calls out "explicit turn improvements for the GPT-5 family."
+      If you've been testing GPT-5 models via the OpenAI provider and hitting turn-boundary or
+      multi-turn conversation issues, this patch addresses the provider-level handling.
+    </p>
+
+    <p>
+      No config changes needed — if you're already using GPT-5 models, the fix applies automatically
+      after updating.
+    </p>
+
+    <h2>Local Model Lean Mode (New)</h2>
+
+    <p>
+      New experimental flag: <code>agents.defaults.experimental.localModelLean: true</code>
+    </p>
+
+    <p>
+      This drops heavyweight default tools — browser, cron, and message — from the tool list when
+      a local model is active. The result is a significantly smaller prompt, which matters on weaker
+      hardware (8GB RAM machines, Pi 4/5, older NUCs) where every token saved means faster inference
+      and less context overflow.
+    </p>
+
+    <p>To enable in <code>openclaw.json</code>:</p>
+
+    <pre><code>{
+  "agents": {
+    "defaults": {
+      "experimental": {
+        "localModelLean": true
+      }
+    }
+  }
+}</code></pre>
+
+    <p>
+      Important: this only affects the normal tool path for local models. Your full tool set is
+      still available when using cloud providers (Claude, GPT, Gemini). The flag is experimental —
+      if a workflow requires browser or message tools from a local model, keep it off.
+    </p>
+
+    <h2>Exec Approval Secret Redaction (Security Fix)</h2>
+
+    <p>
+      Important security fix: exec approval prompts now redact secrets so credential material can't
+      leak in rendered prompt content.
+    </p>
+
+    <p>
+      Previously, if a command included an API key or password inline (e.g.,
+      <code>curl -H "Authorization: Bearer sk-abc123..."</code>), the full string could appear in
+      the approval review UI. As of 4.14, secrets matching known credential patterns are masked
+      before display.
+    </p>
+
+    <p>
+      This was tracked as GitHub issue <a href="https://github.com/openclaw/openclaw/issues/61077" target="_blank">#61077</a>.
+      If you've been approving exec commands that included tokens or passwords, now's a good time
+      to rotate any credentials that may have been visible in your session history.
+    </p>
+
+    <h2>LanceDB Cloud Storage for Memory</h2>
+
+    <p>
+      The <code>memory-lancedb</code> plugin now supports remote object storage backends (S3, GCS,
+      Azure Blob). Previously, vector memory indexes were local-disk only.
+    </p>
+
+    <p>
+      For most small operators this doesn't change anything — local disk is fine. This is primarily
+      useful if you're running multiple OpenClaw instances that need to share a memory index, or
+      if you're deploying to a serverless/ephemeral environment where local disk isn't durable.
+    </p>
+
+    <h2>GitHub Copilot as an Embedding Provider</h2>
+
+    <p>
+      Memory search now supports GitHub Copilot as an embedding provider. If your org already has
+      Copilot enabled, this gives you a free embedding backend for semantic memory search without
+      needing a separate OpenAI or Cohere key.
+    </p>
+
+    <h2>OAuth/Model Auth Status Card</h2>
+
+    <p>
+      A new Model Auth status card in the Control UI shows OAuth token health and provider rate-limit
+      pressure at a glance. If your Anthropic or Google OAuth token is expiring (or expired), you'll
+      see an attention callout instead of silent failures.
+    </p>
+
+    <h2>Packaging Fix: Stale Chunks After npm Upgrade</h2>
+
+    <p>
+      4.14 includes a fix for global npm upgrades failing on stale chunk imports. If you've ever
+      seen <code>ERR_MODULE_NOT_FOUND</code> after <code>npm update -g openclaw</code>, the update
+      process now prunes stale dist chunks automatically.
+    </p>
+
+    <h2>Should You Update?</h2>
+
+    <p>
+      Yes. 4.14 fixes the packaging regression from 4.12 (missing subagent-registry.runtime.js),
+      includes the exec secret redaction security fix, and improves stability for GPT-5 and local
+      model users. There's no known breaking change in this release.
+    </p>
+
+    <pre><code>npm update -g openclaw
+openclaw gateway restart</code></pre>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Not sure if your OpenClaw setup is configured correctly?</h3>
+      <p>ClawReady reviews your full config — models, memory, channels, security — and tells you
+      exactly what to fix. Starting at $49.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

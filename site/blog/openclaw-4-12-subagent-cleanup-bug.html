@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 2026.4.12 Subagent Cleanup Bug: What the ERR_MODULE_NOT_FOUND Warning Means | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.12 ships with a missing subagent-registry.runtime.js. Here's what the repeated warnings mean, whether it breaks your setup, and how to fix it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-12-subagent-cleanup-bug.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Report</span>
+      <span class="date">April 15, 2026</span>
+    </div>
+
+    <h1>OpenClaw 2026.4.12: The Subagent Cleanup Bug Explained</h1>
+
+    <p class="lead">
+      If you updated to <code>openclaw@2026.4.12</code> and started seeing repeated warnings like
+      <code>[warn] subagent cleanup finalize failed: ERR_MODULE_NOT_FOUND: Cannot find module subagent-registry.runtime.js</code> —
+      you're not alone. Here's exactly what's broken, how much it matters, and what to do.
+    </p>
+
+    <h2>What Happened</h2>
+
+    <p>
+      The 2026.4.12 npm publish accidentally omitted <code>dist/subagent-registry.runtime.js</code>
+      from the package. The bundled file <code>dist/subagent-registry-CflSFWBm.js</code> still
+      tries to dynamically import it, so every time a sub-agent finishes and OpenClaw attempts
+      cleanup/finalization, the import fails and logs a warning.
+    </p>
+
+    <p>
+      This is the third time in 2026 a missing lazy-runtime file has slipped into a published
+      build — GitHub issues <a href="https://github.com/openclaw/openclaw/issues/39586" target="_blank">#39586</a>
+      (March 3.7) and <a href="https://github.com/openclaw/openclaw/issues/54790" target="_blank">#54790</a>
+      (March 3.24) both followed the same pattern.
+    </p>
+
+    <h2>Does It Break Anything?</h2>
+
+    <p>Partial impact only:</p>
+
+    <ul>
+      <li>✅ <strong>Gateway keeps running</strong> — the gateway itself is not affected</li>
+      <li>✅ <strong>Sub-agents still execute</strong> — spawning and running sub-agents works</li>
+      <li>⚠️ <strong>Cleanup/finalization is incomplete</strong> — sub-agent session records may not be fully cleaned up after completion</li>
+      <li>⚠️ <strong>Log spam</strong> — repeated warnings clutter your logs, especially if you spawn many sub-agents</li>
+    </ul>
+
+    <p>
+      For most setups, this is an annoyance rather than a blocker. If you run heavy sub-agent
+      orchestration (parallel Codex sessions, ACP harness flows), incomplete cleanup could slowly
+      accumulate stale session state.
+    </p>
+
+    <h2>The Fix</h2>
+
+    <p>Update to <strong>2026.4.13 or 2026.4.14</strong>. The packaging fix was included in the
+    2026.4.14 release under "Packaging/plugins: localize bundled plugin runtime deps to their
+    owning extensions" — this is the umbrella fix that should prevent this class of issue going
+    forward.</p>
+
+    <pre><code>npm update -g openclaw</code></pre>
+
+    <p>Verify your version after upgrading:</p>
+
+    <pre><code>openclaw --version</code></pre>
+
+    <p>Then restart the gateway:</p>
+
+    <pre><code>openclaw gateway restart</code></pre>
+
+    <h2>Stuck on 4.12?</h2>
+
+    <p>If you can't update right now (e.g., you're pinning versions for stability), you can suppress
+    the log noise by setting your log level to <code>error</code> in <code>openclaw.json</code>:</p>
+
+    <pre><code>{
+  "logging": {
+    "level": "error"
+  }
+}</code></pre>
+
+    <p>This hides the warnings but does not fix the underlying incomplete cleanup. Update when you can.</p>
+
+    <h2>Should You Pin Versions?</h2>
+
+    <p>
+      The recurring packaging regressions in 2026 (3.7, 3.24, 4.12) have made version pinning
+      a reasonable strategy for production setups. If you're running OpenClaw for business
+      operations and need stability, consider waiting 24-48 hours after a release before updating —
+      packaging bugs like this typically get reported within hours and patched in the next build.
+    </p>
+
+    <p>
+      See our guide on <a href="/blog/openclaw-pin-version-stable.html">how to pin OpenClaw versions</a>
+      for a safe upgrade workflow.
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Want someone to handle OpenClaw updates for you?</h3>
+      <p>ClawReady's setup service includes update guidance and ongoing support so you're never
+      surprised by a packaging regression on a Monday morning.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
