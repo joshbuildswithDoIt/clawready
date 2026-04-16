@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IronClaw: A Rust-Based OpenClaw Alternative Built for Privacy and Security | ClawReady</title>
+  <meta name="description" content="IronClaw is a new Rust reimplementation of OpenClaw from NEAR AI — WASM sandboxing, encrypted local storage, credential leak detection, and endpoint allowlisting. Here's what it offers and how it compares." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/ironclaw-rust-openclaw-alternative.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Ecosystem</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>IronClaw: The Rust-Based OpenClaw Alternative Built for Security-First Users</h1>
+
+    <p class="lead">
+      <a href="https://github.com/nearai/ironclaw" target="_blank">IronClaw</a>, published by
+      NEAR AI three hours ago, is a Rust reimplementation inspired by OpenClaw — built from the
+      ground up with a security-first architecture: WASM-sandboxed tools, encrypted local storage,
+      credential leak detection at the host boundary, and endpoint allowlisting. Here's what it
+      actually offers and who it's for.
+    </p>
+
+    <h2>What IronClaw Is</h2>
+
+    <p>
+      IronClaw describes itself as "the AI assistant you can actually trust with your personal
+      and professional life." The core thesis: OpenClaw (and most AI agents) are increasingly
+      opaque about data handling and aligned with corporate interests. IronClaw takes the
+      opposite stance — local-first, encrypted, auditable, no hidden telemetry.
+    </p>
+
+    <p>It's built in Rust by NEAR AI (the decentralized AI research org behind NEAR Protocol)
+    and is fully open source.</p>
+
+    <h2>Security Architecture</h2>
+
+    <p>This is where IronClaw differentiates most clearly:</p>
+
+    <h3>WASM Sandbox</h3>
+    <p>
+      Untrusted tools run in isolated WebAssembly containers with capability-based permissions.
+      This is a fundamentally different security model from OpenClaw, where skills run as
+      Node.js code with access to the full runtime. In IronClaw, a skill that tries to read
+      files it wasn't granted access to simply can't — the WASM sandbox enforces it at the
+      capability layer, not by policy.
+    </p>
+
+    <h3>Credential Protection</h3>
+    <p>
+      Secrets are never exposed to tools directly. They're injected at the host boundary with
+      leak detection — if a tool attempts to exfiltrate a credential through its output,
+      IronClaw detects and blocks it. This addresses a real attack vector: malicious or
+      compromised skills that try to extract API keys from the agent's environment.
+    </p>
+
+    <h3>Prompt Injection Defense</h3>
+    <p>
+      Pattern detection, content sanitization, and policy enforcement built in. Not just
+      "be careful what you paste" — actual runtime protection against prompt injection attempts
+      in web content, emails, or external data your agent processes.
+    </p>
+
+    <h3>Endpoint Allowlisting</h3>
+    <p>
+      HTTP requests from tools are only permitted to explicitly approved hosts and paths.
+      Your agent can't be tricked into calling an attacker's server — outbound requests are
+      gated by a whitelist you control.
+    </p>
+
+    <h2>Features Overview</h2>
+
+    <ul>
+      <li><strong>Multi-channel:</strong> REPL, HTTP webhooks, WASM channels (Telegram, Slack), web gateway</li>
+      <li><strong>Docker Sandbox:</strong> Isolated container execution with per-job tokens and orchestrator/worker pattern</li>
+      <li><strong>Web Gateway:</strong> Browser UI with real-time SSE/WebSocket streaming</li>
+      <li><strong>Routines:</strong> Cron schedules, event triggers, webhook handlers for background automation</li>
+      <li><strong>Heartbeat System:</strong> Proactive background execution (same concept as OpenClaw's heartbeat)</li>
+      <li><strong>Self-expanding capabilities:</strong> Build new tools without waiting for vendor updates</li>
+    </ul>
+
+    <h2>IronClaw vs. OpenClaw</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>OpenClaw</th>
+          <th>IronClaw</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Language</td>
+          <td>Node.js / TypeScript</td>
+          <td>Rust</td>
+        </tr>
+        <tr>
+          <td>Tool sandboxing</td>
+          <td>Node.js process (limited isolation)</td>
+          <td>WASM containers (capability-based)</td>
+        </tr>
+        <tr>
+          <td>Credential handling</td>
+          <td>Available in tool environment</td>
+          <td>Host-boundary injection + leak detection</td>
+        </tr>
+        <tr>
+          <td>Outbound HTTP</td>
+          <td>Unrestricted (exec approvals for shell)</td>
+          <td>Endpoint allowlist required</td>
+        </tr>
+        <tr>
+          <td>Prompt injection defense</td>
+          <td>Policy-level (SOUL.md, guidelines)</td>
+          <td>Runtime pattern detection + sanitization</td>
+        </tr>
+        <tr>
+          <td>Data storage</td>
+          <td>Local markdown files</td>
+          <td>Encrypted local storage</td>
+        </tr>
+        <tr>
+          <td>Skill ecosystem</td>
+          <td>Mature (ClawHub, 100s of skills)</td>
+          <td>Early (new project)</td>
+        </tr>
+        <tr>
+          <td>Install base</td>
+          <td>Large (358k GitHub stars)</td>
+          <td>Just launched</td>
+        </tr>
+        <tr>
+          <td>Multi-channel</td>
+          <td>50+ integrations</td>
+          <td>Telegram, Slack (WASM), webhook, REPL</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Who Should Look at IronClaw</h2>
+
+    <p><strong>Strong fit if you:</strong></p>
+    <ul>
+      <li>Work with sensitive data (legal, medical, financial, client confidential) and need strong isolation guarantees</li>
+      <li>Are security-conscious and uncomfortable with skills running as unrestricted Node.js code</li>
+      <li>Want credential leak detection as a runtime guarantee, not a policy recommendation</li>
+      <li>Are building for an enterprise or compliance context where "auditable" matters</li>
+      <li>Prefer Rust's performance and memory safety over Node.js</li>
+    </ul>
+
+    <p><strong>Stick with OpenClaw if:</strong></p>
+    <ul>
+      <li>You need the skill ecosystem now — IronClaw just launched, OpenClaw has hundreds of mature skills</li>
+      <li>You're on Windows (Rust builds are more complex; OpenClaw has mature Windows support)</li>
+      <li>You need 50+ channel integrations out of the box</li>
+      <li>Your threat model doesn't require WASM-level tool sandboxing</li>
+    </ul>
+
+    <h2>Still Very Early</h2>
+
+    <p>
+      IronClaw published three hours ago. The WASM sandbox and credential protection architecture
+      are genuinely interesting, but it's a v0 project from a research lab — not a production-ready
+      drop-in replacement. The skill ecosystem doesn't exist yet, documentation is sparse, and
+      the channel integrations are limited compared to OpenClaw.
+    </p>
+
+    <p>
+      Watch this space if you care about agent security. The architectural approach (WASM isolation,
+      capability-based permissions, credential leak detection) is where the industry needs to go —
+      IronClaw is just ahead of the curve on implementation.
+    </p>
+
+    <p>
+      GitHub: <a href="https://github.com/nearai/ironclaw" target="_blank">nearai/ironclaw</a> ·
+      Telegram: <a href="https://t.me/ironclawAI" target="_blank">t.me/ironclawAI</a>
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Want OpenClaw hardened for sensitive use cases?</h3>
+      <p>ClawReady configures exec approvals, gateway security, and network controls so your
+      OpenClaw setup is as locked down as possible without switching runtimes. Starting at $99.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
