@@ -37,14 +37,17 @@
     <h2>What We Know About Opus 4.7</h2>
 
     <p>
-      Details are limited ahead of the launch, but the context clues are useful:
+      <strong>Update: Opus 4.7 launched today, April 16, 2026.</strong> Here's what's confirmed:
     </p>
 
     <ul>
-      <li><strong>Distinct from Mythos.</strong> Claude Mythos is Anthropic's frontier cybersecurity model — a specialized system currently in gated research preview on Bedrock. Opus 4.7 is the next general-purpose assistant model, the one that runs in OpenClaw.</li>
-      <li><strong>Expected this week.</strong> The Information reported preparation is complete and launch is imminent. Could be any day.</li>
-      <li><strong>Likely addresses the current degradation.</strong> Power users have been reporting Opus 4.6 feels slower and more token-hungry for weeks — a symptom of compute rationing during final 4.7 training. The launch should ease that.</li>
-      <li><strong>Claude Code Routines just launched.</strong> Anthropic also launched scheduled and event-triggered Claude Code agents (cloud cron jobs) this week — suggesting the overall agentic infrastructure is being upgraded in tandem.</li>
+      <li><strong>API model ID:</strong> <code>claude-opus-4-7</code></li>
+      <li><strong>Context window:</strong> 1M tokens (same as 4.6)</li>
+      <li><strong>Max output:</strong> 128K tokens</li>
+      <li><strong>High-res image support:</strong> Up to 2576px / 3.75MP — up from 1568px. Big deal for screenshot, document, and computer-use workflows.</li>
+      <li><strong>New <code>xhigh</code> effort level:</strong> Extra intelligence at the cost of more tokens. Use for complex reasoning tasks.</li>
+      <li><strong>Distinct from Mythos.</strong> Mythos is Anthropic's specialized cybersecurity model in gated preview. Opus 4.7 is the general-purpose model for OpenClaw.</li>
+      <li><strong>Caveat:</strong> OpenClaw's model catalog doesn't recognize it yet (issue #67710). See our <a href="/blog/claude-opus-4-7-openclaw-configured-missing-fix.html">fix guide</a> before switching.</li>
     </ul>
 
     <h2>How to Upgrade OpenClaw When It Drops</h2>

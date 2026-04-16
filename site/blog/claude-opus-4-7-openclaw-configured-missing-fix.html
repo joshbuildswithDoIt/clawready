@@ -128,16 +128,17 @@ openclaw gateway restart</code></pre>
   "providers": {
     "anthropic": {
       "apiKey": "sk-ant-...",
-      "model": "claude-opus-4-7-20260416"  // use Anthropic's exact model ID
+      "model": "claude-opus-4-7"  // Anthropic's confirmed API model ID
     }
   }
 }</code></pre>
 
     <p>
-      You'll need to check Anthropic's API docs for the exact versioned model string
-      (e.g. <code>claude-opus-4-7-20260416</code>). This bypasses the capability
-      catalog, which means context window and input-type checks won't be enforced —
-      use cautiously.
+      Anthropic's official API model ID is <code>claude-opus-4-7</code> (confirmed in
+      their docs). This bypasses the capability catalog, which means context window and
+      input-type checks won't be enforced — use cautiously. Also note: Opus 4.7 supports
+      high-resolution images (up to 2576px / 3.75MP), 1M token context, 128k max output,
+      and a new <code>xhigh</code> effort level. High-res images use more tokens than before.
     </p>
 
     <h2>Is Opus 4.7 Worth Switching To?</h2>
