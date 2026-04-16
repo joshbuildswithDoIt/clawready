@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 2026.4.5 Update Broke Your CLI? Here's the Fix — ClawReady</title>
+  <meta name="description" content="The 2026.4.5 npm update can leave OpenClaw's CLI broken with missing bundled plugin dependencies. Here's what happened and how to fix it in under 10 minutes.">
+  <meta property="og:title" content="OpenClaw 2026.4.5 Update Broke Your CLI? Here's the Fix">
+  <meta property="og:description" content="npm install -g openclaw@2026.4.5 can silently break the CLI by corrupting bundled plugin runtime deps. Full fix walkthrough inside.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-4-5-update-broken-cli">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-5-update-broken-cli">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataScript.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .error-box{background:#1a0a0a;border:1px solid #4a1a1a;border-radius:8px;padding:20px;margin:20px 0;font-family:monospace;font-size:.85em;color:#ff6b6b;line-height:1.6}
+    .fix-steps{list-style:none;margin:0 0 24px!important;display:flex;flex-direction:column;gap:12px}
+    .fix-steps li{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+    .fix-num{flex-shrink:0;width:28px;height:28px;background:var(--accent);color:#fff;font-weight:800;font-size:.85rem;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .fix-content p{margin:0;font-size:.9rem}
+    .fix-content strong{display:block;margin-bottom:4px;color:#fff}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">Breaking — Update Bug</span>
+    <h1>OpenClaw 2026.4.5 Update Can Break Your Entire CLI</h1>
+    <p class="subtitle">A known bug in the 2026.4.5 npm release leaves the CLI unable to load its own bundled plugin dependencies. Here's the diagnosis and fix.</p>
+    <p class="meta">April 6, 2026 · 6 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>If you ran <code>npm install -g openclaw@latest</code> or <code>npm update -g openclaw</code> in the last 24 hours and your CLI is now throwing errors about missing plugin dependencies — you've hit a confirmed bug in 2026.4.5.</p>
+
+    <p>The bug was filed on GitHub at issue #61686. The short version: <strong>the 2026.4.5 package can ship with missing or corrupted bundled plugin runtime dependencies</strong>, leaving the CLI unable to start or load plugins correctly.</p>
+
+    <div class="error-box">
+Error: Cannot find module '@openclaw/plugin-runtime/dist/loader'<br>
+Require stack:<br>
+- /usr/local/lib/node_modules/openclaw/dist/cli.js<br>
+&nbsp;&nbsp;&nbsp;&nbsp;at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1039:15)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;at Function.Module._load (node:internal/modules/cjs/loader:885:27)
+    </div>
+
+    <p>You might also see variations like:</p>
+    <ul>
+      <li><code>Error: Cannot find module 'openclaw/plugin-core'</code></li>
+      <li>CLI starts but all plugin-dependent commands silently fail</li>
+      <li><code>openclaw status</code> hangs or returns nothing</li>
+      <li>Gateway starts but agents can't use any tools</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Before you start:</strong> Run <code>openclaw --version</code>. If it outputs <code>2026.4.5</code> and you're seeing errors, this guide is for you. If it says an earlier version, something else is going on.</p>
+    </div>
+
+    <h2>Option 1 — Rollback to 2026.4.4 (Fastest Fix)</h2>
+
+    <p>The cleanest path is to roll back to the last stable release while the 2026.4.5 bug is patched:</p>
+
+    <pre>npm install -g openclaw@2026.4.4</pre>
+
+    <p>Then verify:</p>
+    <pre>openclaw --version
+openclaw status</pre>
+
+    <p>If <code>openclaw status</code> shows your agent and gateway running normally, you're done. Restart the gateway for good measure:</p>
+    <pre>openclaw gateway restart</pre>
+
+    <div class="callout green">
+      <p><strong>Recommended:</strong> Pin your version in a shell alias or CI script until the patch lands. Add <code>alias openclaw-safe="npx openclaw@2026.4.4"</code> to your <code>.bashrc</code> or <code>.zshrc</code> as a fallback.</p>
+    </div>
+
+    <h2>Option 2 — Force Reinstall 2026.4.5 (If Rollback Fails)</h2>
+
+    <p>Some users report that a clean reinstall of 2026.4.5 itself resolves the issue — the corruption seems to happen during the update process, not in the package itself:</p>
+
+    <pre># Remove the broken install
+npm uninstall -g openclaw
+
+# Clear npm cache to avoid serving the corrupt cached version
+npm cache clean --force
+
+# Fresh install
+npm install -g openclaw@2026.4.5
+
+# Verify
+openclaw --version
+openclaw status</pre>
+
+    <div class="callout yellow">
+      <p><strong>Warning:</strong> Do NOT skip <code>npm cache clean --force</code>. If npm serves the cached corrupt package, you'll end up in the same broken state.</p>
+    </div>
+
+    <h2>Option 3 — Reinstall Plugin Dependencies Manually</h2>
+
+    <p>If both of the above fail, you can try rebuilding the bundled deps directly. Find where npm installed openclaw globally:</p>
+
+    <pre>npm root -g</pre>
+
+    <p>Navigate there and reinstall the broken dependency:</p>
+    <pre>cd $(npm root -g)/openclaw
+npm install --ignore-scripts</pre>
+
+    <p>This forces npm to rebuild the node_modules tree inside the openclaw package directory without running any install scripts (which can sometimes cause the corruption in the first place).</p>
+
+    <h2>How to Know It's Fixed</h2>
+
+    <p>Three checks — all three should pass cleanly:</p>
+
+    <pre># 1. CLI loads
+openclaw --version
+
+# 2. Gateway can start (watch for plugin errors in output)
+openclaw gateway start --verbose
+
+# 3. Status shows agents
+openclaw status</pre>
+
+    <p>If you see any <code>Cannot find module</code> errors in step 2's output, you're not fixed yet. Go back to Option 1 (rollback).</p>
+
+    <h2>Should You Update at All Right Now?</h2>
+
+    <p>Honest answer: <strong>no</strong>. Hold at 2026.4.4 until a patch is confirmed.</p>
+
+    <p>The OpenClaw release cadence has been aggressive this year — 5 releases in the 4.x line since the start of April. That velocity is great for features but it means breaking bugs ship more often. The pattern we've seen across 3.22, 3.31, 4.1, and now 4.5:</p>
+
+    <ul>
+      <li>Breaking change ships in a minor release</li>
+      <li>Community hits it within 24–48 hours</li>
+      <li>GitHub issue filed</li>
+      <li>Patch in the next minor release (usually within a week)</li>
+    </ul>
+
+    <p>The fix for 4.5 will almost certainly be 2026.4.6. Watch the <a href="https://github.com/openclaw/openclaw/releases" style="color:var(--accent)">GitHub releases page</a> or the r/openclaw subreddit for the all-clear.</p>
+
+    <div class="callout blue">
+      <p><strong>Pro tip:</strong> Set up <code>openclaw backup create</code> as a cron job or pre-update hook. It takes 5 seconds and means any bad update can be reversed in under a minute. We cover this in every ClawReady setup.</p>
+    </div>
+
+    <h2>Still Broken?</h2>
+
+    <p>A few edge cases that can complicate the fix:</p>
+    <ul>
+      <li><strong>Multiple Node versions:</strong> If you're using nvm or fnm, make sure you're installing and running openclaw with the same Node version. Mixed environments cause weird dependency failures.</li>
+      <li><strong>Permissions issues:</strong> If you installed openclaw with <code>sudo npm install -g</code>, you may need <code>sudo</code> for the uninstall/reinstall too. Better long-term: use a Node version manager to avoid needing sudo for global packages.</li>
+      <li><strong>WSL users:</strong> If you're on WSL and the CLI is broken, try running the install from WSL's bash directly (not PowerShell) to avoid path resolution issues between environments.</li>
+    </ul>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Too Many OpenClaw Updates Breaking Things?</h2>
+    <p>We set up and maintain OpenClaw for you — updates, config, recovery. From $99 one-time or $99/mo managed.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>

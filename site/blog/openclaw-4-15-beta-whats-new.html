@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 2026.4.15-beta.1: What's New (Model Auth UI, LanceDB Cloud, Lean Mode) | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.15-beta.1 just dropped. Here's what's actually in it: OAuth health card, LanceDB cloud memory, GitHub Copilot embeddings, localModelLean flag, and 10+ bug fixes including the Cloudflare/DNS issue." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-15-beta-whats-new.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Release Notes</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw 2026.4.15-beta.1: What's Actually in It</h1>
+
+    <p class="lead">
+      OpenClaw 2026.4.15-beta.1 shipped overnight on April 15–16, 2026. It's a pre-release
+      (don't update production yet) but the feature list is substantial — and it fixes several
+      of the most-complained-about 4.14 issues. Here's the practical breakdown.
+    </p>
+
+    <div class="warning-box" style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;margin-bottom:24px;border-radius:4px;">
+      <strong>Pre-release:</strong> 4.15-beta.1 is not recommended for production deployments yet.
+      Test on a second machine or wait for 4.15 stable. Production users should stay on 4.14
+      (or 4.12 if you're hitting the Codex/Cloudflare bug).
+    </div>
+
+    <h2>New Features</h2>
+
+    <h3>1. OAuth / Model Auth Status Card in Control UI</h3>
+    <p>
+      The new Overview panel now shows an <strong>OAuth token health card</strong> for each
+      provider — you can see at a glance whether tokens are healthy, expiring, or already
+      expired, plus current rate-limit pressure. It calls a new <code>models.authStatus</code>
+      gateway method that strips credentials before surfacing them in the UI (no exposed keys).
+      Results are cached for 60 seconds to avoid hammering provider APIs.
+    </p>
+    <p>
+      <strong>Who needs this:</strong> Anyone using ChatGPT OAuth, GitHub Copilot, or Google
+      provider — these tokens expire silently and the only symptom has been cryptic "request failed"
+      errors. Now you'll see a red attention callout in the UI before it breaks your agent.
+    </p>
+
+    <h3>2. LanceDB Cloud Storage for Memory Indexes</h3>
+    <p>
+      The <code>memory-lancedb</code> plugin can now store its vector index on remote object
+      storage (S3-compatible) instead of local disk only. This means durable, shared memory
+      for multi-machine setups — your agent's memory index survives a disk wipe and can be
+      accessed from different nodes.
+    </p>
+    <p>
+      <strong>Who needs this:</strong> Anyone running OpenClaw on ephemeral infrastructure
+      (cloud VMs, containers) or wanting to sync memory across multiple agents.
+    </p>
+
+    <h3>3. GitHub Copilot Embedding Provider</h3>
+    <p>
+      You can now use GitHub Copilot as the embedding provider for memory search, not just
+      as an inference model. A new dedicated Copilot embedding host helper handles transport,
+      token refresh, and remote overrides. If you're already paying for Copilot, this is
+      free memory embeddings.
+    </p>
+
+    <h3>4. <code>localModelLean</code> Experimental Flag</h3>
+    <p>
+      Add <code>agents.defaults.experimental.localModelLean: true</code> to your config and
+      OpenClaw will drop heavyweight default tools (browser automation, cron scheduling,
+      message routing) from the default tool set — dramatically reducing prompt size for
+      weaker hardware. This is the official fix for the "my Raspberry Pi / 8GB RAM machine
+      is context-crushing itself" problem.
+    </p>
+    <pre><code>// openclaw.json
+{
+  "agents": {
+    "defaults": {
+      "experimental": {
+        "localModelLean": true
+      }
+    }
+  }
+}</code></pre>
+    <p>
+      Normal path is unchanged — only affects setups that opt in. You can still install and
+      use browser/cron/message tools manually; they just don't load by default.
+    </p>
+
+    <h3>5. Leaner Published Builds</h3>
+    <p>
+      Bundled plugin runtime deps are now localized to their owning extensions (not stuffed
+      into core). The published docs payload is trimmed. Install/package-manager guardrails
+      are tighter. Net effect: smaller installs, fewer stale chunk import errors on upgrade.
+    </p>
+
+    <h2>Key Bug Fixes</h2>
+
+    <h3>Cloudflare 403 / "DNS Lookup Failed" on openai-codex (4.14 regression)</h3>
+    <p>
+      The 4.14 issue where <code>openai-codex/gpt-5.4</code> failed with a fake "DNS lookup
+      failed" error (actually a Cloudflare 403 misread as a DNS failure) is addressed via the
+      stale chunk prune fix. The <code>cli/update</code> fix prunes stale packaged dist chunks
+      after npm upgrades, which was the root cause of the malformed request headers.
+    </p>
+
+    <h3>Security: Exec Approval Prompt No Longer Leaks Secrets</h3>
+    <p>
+      Before 4.15-beta.1, exec approval prompts could expose inline credentials (API keys,
+      tokens) in the rendered approval UI. Now secrets are redacted before rendering — you
+      see <code>[REDACTED]</code> instead of the actual value. This was tracked in issues
+      #61077 and #64790.
+    </p>
+
+    <h3>Config Update Stale-Hash Race</h3>
+    <p>
+      <code>openclaw configure</code> was failing with stale-hash errors after writes because
+      it wasn't re-reading the persisted config hash post-update. Fixed. (Issue #64188)
+    </p>
+
+    <h3>Onboarding Crash on Globally Installed CLI</h3>
+    <p>
+      Channel-selection during onboarding was crashing on some global npm installs. Fixed.
+      (Issue #66736) — relevant if you're setting up fresh installs.
+    </p>
+
+    <h3>Memory-Core Security: QMD Memory Backend Path Traversal</h3>
+    <p>
+      A security fix prevents the QMD memory backend from being used as a generic workspace
+      file reader that bypasses read tool-policy denials. Memory reads are now restricted to
+      canonical memory files (<code>MEMORY.md</code>, <code>memory/**</code>, etc.) and
+      active indexed QMD documents only. (Issue #66026)
+    </p>
+
+    <h2>Should You Upgrade Now?</h2>
+
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <thead>
+        <tr style="background:#f5f5f5;">
+          <th style="padding:8px;text-align:left;border:1px solid #ddd;">Your situation</th>
+          <th style="padding:8px;text-align:left;border:1px solid #ddd;">Recommendation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">Production, stable on 4.12</td>
+          <td style="padding:8px;border:1px solid #ddd;">Stay on 4.12 until 4.15 stable</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">Broken on 4.14 (Cloudflare/DNS bug)</td>
+          <td style="padding:8px;border:1px solid #ddd;">Roll back to 4.12 or switch to direct API key</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">Want LanceDB cloud or Copilot embeddings</td>
+          <td style="padding:8px;border:1px solid #ddd;">Test 4.15-beta.1 on non-production machine</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">Pi / weak hardware hitting context limits</td>
+          <td style="padding:8px;border:1px solid #ddd;">Try 4.15-beta.1 with localModelLean: true</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #ddd;">Building a new setup from scratch</td>
+          <td style="padding:8px;border:1px solid #ddd;">Wait for 4.15 stable (days away)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Install 4.15-beta.1 (Test Environments Only)</h2>
+
+    <pre><code>npm install -g openclaw@2026.4.15-beta.1
+openclaw gateway restart</code></pre>
+
+    <p>To pin back to 4.14: <code>npm install -g openclaw@2026.4.14</code></p>
+    <p>To pin back to 4.12: <code>npm install -g openclaw@2026.4.12</code></p>
+
+    <div class="cta-box">
+      <h3>Don't want to track releases yourself?</h3>
+      <p>
+        ClawReady monitors OpenClaw releases, tests upgrades before they hit your setup,
+        and handles rollbacks when betas break things. We watch the changelog so you don't have to.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

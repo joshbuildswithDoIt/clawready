@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 4.14 GPT-5.4 Bug: Cloudflare 403 & "DNS Lookup Failed" Fix | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.14 broke GPT-5.4 / openai-codex for thousands of users — Cloudflare 403s misreported as DNS errors. Here's why it happens and exactly how to fix it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-14-codex-cloudflare-dns-bug.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw 4.14 GPT-5.4 / Codex Bug: Cloudflare 403 & "DNS Lookup Failed" — Fixed</h1>
+
+    <p class="lead">
+      If you updated to OpenClaw 2026.4.14 and your GPT-5.4 agent suddenly shows
+      <strong>"DNS lookup for the provider endpoint failed"</strong> — your DNS is fine.
+      OpenClaw hit a Cloudflare bot-mitigation wall and logged the wrong error. Here's what
+      actually happened and two ways to fix it.
+    </p>
+
+    <h2>What's Going On</h2>
+
+    <p>
+      Two related bugs landed in 4.14 for <code>openai-codex/gpt-5.4</code> users:
+    </p>
+
+    <h3>Bug #1 — Cloudflare 403 after upgrading from 4.12 (Issue #66633)</h3>
+    <p>
+      After the 4.12 → 4.14 upgrade, every openai-codex agent turn fails because
+      <code>chatgpt.com/backend-api/v1</code> returns a Cloudflare bot-challenge page
+      (HTTP 403, <code>cf-mitigated: challenge</code>) instead of an API response. The
+      failure is then misreported in logs as <em>"DNS lookup for the provider endpoint failed"</em>
+      — which is completely misleading. Your DNS is working fine.
+    </p>
+
+    <h3>Bug #2 — Direct CLI inference returns HTML rawError (Issue #66674)</h3>
+    <p>
+      Even without the OAuth path, running <code>openclaw infer</code> directly against
+      <code>openai-codex/gpt-5.4</code> on 4.14 returns HTML in the rawError field and
+      surfaces as the same fake DNS error. Both bugs share the same root cause: Cloudflare
+      tightened its bot detection, and 4.14's user-agent/header changes tripped the challenge.
+    </p>
+
+    <h2>Why 4.12 Worked But 4.14 Broke</h2>
+
+    <p>
+      OpenClaw 4.14 changed how requests are shaped when going through the openai-codex / ChatGPT
+      OAuth path. The updated headers or TLS fingerprint changed enough to trigger Cloudflare's
+      automated bot detection — a challenge that returns HTML instead of JSON. OpenClaw's error
+      handler doesn't recognize HTML as a valid provider error, falls through, and reports
+      "DNS lookup failed." The underlying connection is fine; the body is just wrong.
+    </p>
+
+    <h2>Fix #1 — Roll Back to 4.12 (Fastest)</h2>
+
+    <pre><code>npm install -g openclaw@2026.4.12
+openclaw gateway restart</code></pre>
+
+    <p>
+      This gets you running again immediately. Downside: you lose 4.14's other improvements
+      (GPT-5 turn fixes, <code>localModelLean</code> flag, credential redaction in approvals,
+      LanceDB cloud storage).
+    </p>
+
+    <h2>Fix #2 — Switch to Direct OpenAI API Key (Recommended)</h2>
+
+    <p>
+      The Cloudflare issue only affects the <em>ChatGPT/Codex OAuth path</em>. If you use a
+      direct OpenAI API key instead, it routes through <code>api.openai.com</code> — no
+      Cloudflare challenge, no fake DNS errors. You also get full model selection (not locked
+      to what OAuth allows).
+    </p>
+
+    <p>In <code>~/.openclaw/openclaw.json</code>, replace the openai-codex provider block:</p>
+
+    <pre><code>{
+  "providers": {
+    "openai": {
+      "apiKey": "sk-your-openai-key",
+      "model": "gpt-5.4"
+    }
+  }
+}</code></pre>
+
+    <p>Then restart: <code>openclaw gateway restart</code></p>
+
+    <h2>Fix #3 — Wait for 4.15 Stable</h2>
+
+    <p>
+      OpenClaw 2026.4.15-beta.1 shipped overnight (April 15–16, 2026) and fixes the stale
+      package chunk imports that contributed to this. If you're not in a rush, waiting for
+      4.15 stable (likely a few days) is the cleanest path.
+    </p>
+
+    <h2>Quick Diagnostic</h2>
+
+    <p>If you're unsure which bug you're hitting, run:</p>
+
+    <pre><code>openclaw infer --model openai-codex/gpt-5.4 "say hi"</code></pre>
+
+    <p>
+      If it fails with <em>"DNS lookup failed"</em> but your internet is up and other providers
+      work, you're hitting this Cloudflare/4.14 issue. If only your agents are broken but
+      <code>openclaw infer</code> works, you may have a different problem (see the
+      <a href="/blog/openclaw-doctor-command-guide.html">openclaw doctor guide</a>).
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>4.14 + openai-codex/gpt-5.4 = Cloudflare 403 logged as "DNS failed"</li>
+      <li>Your DNS is fine. OpenClaw's error handler is reading HTML as an error.</li>
+      <li>Fix A: Roll back to 4.12. Fix B: Switch to direct OpenAI API key. Fix C: Wait for 4.15 stable.</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Tired of debugging OpenClaw upgrades?</h3>
+      <p>
+        ClawReady handles version pinning, upgrade testing, and provider configs for you.
+        We'll keep your agent running across releases — so you don't have to chase changelogs.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

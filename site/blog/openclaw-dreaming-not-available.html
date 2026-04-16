@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw "Dreaming" Is in the Docs but Not in the Build — Here's What's Going On — ClawReady</title>
+  <meta name="description" content="OpenClaw's Dreaming feature appears in the official docs but doesn't exist in 2026.4.2. No 'openclaw memory promote' command. Here's why and what to do instead.">
+  <meta property="og:title" content="OpenClaw Dreaming: In the Docs, Not in Your Build — Here's Why">
+  <meta property="og:description" content="If you're following OpenClaw docs on Dreaming and getting 'no promote subcommand', you're not doing it wrong. The feature isn't shipped yet. Here's what actually works right now.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-dreaming-not-available">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-dreaming-not-available">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .status-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.9rem}
+    .status-table th{background:var(--surface);border:1px solid var(--border);padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:.8rem}
+    .status-table td{border:1px solid var(--border);padding:10px 14px;vertical-align:top}
+    .status-table tr:nth-child(even) td{background:#0f0f0f}
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.78rem;font-weight:600}
+    .badge.yes{background:rgba(39,174,96,.15);color:var(--green)}
+    .badge.no{background:rgba(231,76,60,.15);color:var(--accent)}
+    .badge.soon{background:rgba(243,156,18,.15);color:var(--yellow)}
+    .workaround-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin:24px 0}
+    .workaround-box h3{margin-top:0;padding-top:0;border-top:none;color:#fff;margin-bottom:12px}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">Docs Gap — Feature Status</span>
+    <h1>OpenClaw "Dreaming" Is in the Docs but Not in Your Build</h1>
+    <p class="subtitle">If <code>openclaw memory --help</code> shows no <code>promote</code> subcommand, you're not broken. Dreaming isn't shipped yet in 2026.4.x — the docs are ahead of the release.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>You read the OpenClaw docs on Dreaming — the feature that lets your agent promote short-term conversation memories into long-term persistent memory. It sounds powerful. You try to use it:</p>
+
+    <pre>openclaw memory --help</pre>
+
+    <p>No <code>promote</code> subcommand. You try:</p>
+
+    <pre>openclaw memory promote "remember this"</pre>
+
+    <pre>Error: unknown command 'promote'</pre>
+
+    <p>You're not doing it wrong. <strong>Dreaming is not available in the 2026.4.x release line</strong>. The official docs are ahead of the actual shipped build, and the team hasn't added a clear "not yet available" notice. This was confirmed in <a href="https://github.com/openclaw/openclaw/issues/61421" style="color:var(--accent)">GitHub issue #61421</a>.</p>
+
+    <div class="callout yellow">
+      <p><strong>Current status:</strong> Dreaming is described in the public docs as if it's available. It is not available in any 2026.4.x local build. The team has not given a ship date. This is a documentation-ahead-of-release situation, not a bug in your setup.</p>
+    </div>
+
+    <h2>What "Dreaming" Is Supposed to Do</h2>
+
+    <p>For context — here's what the feature is designed for, based on the docs:</p>
+
+    <ul>
+      <li>During a conversation, your agent accumulates short-term memories (context-window facts)</li>
+      <li><strong>Dreaming</strong> is a background process where the agent "consolidates" those memories — identifying which facts are worth keeping long-term</li>
+      <li>The <code>openclaw memory promote</code> command was supposed to manually trigger or seed this process</li>
+      <li>Think of it like sleep: the brain processes the day's information and stores what matters</li>
+    </ul>
+
+    <p>It's a legitimately compelling feature. It's also not here yet.</p>
+
+    <h2>What's Actually Available Right Now</h2>
+
+    <table class="status-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Available in 2026.4.x</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>memory.md</code> manual memory file</td>
+          <td><span class="badge yes">✓ Yes</span></td>
+          <td>Works today — write facts directly into <code>memory.md</code> in your workspace</td>
+        </tr>
+        <tr>
+          <td>AGENTS.md / SOUL.md context injection</td>
+          <td><span class="badge yes">✓ Yes</span></td>
+          <td>Injected into every turn — the practical equivalent of persistent memory</td>
+        </tr>
+        <tr>
+          <td>Workspace file-based memory</td>
+          <td><span class="badge yes">✓ Yes</span></td>
+          <td>Agent can read/write any file in your workspace — use it for structured memory</td>
+        </tr>
+        <tr>
+          <td>Dreaming / <code>openclaw memory promote</code></td>
+          <td><span class="badge no">✗ Not Yet</span></td>
+          <td>In docs, not in build — no ETA from the team</td>
+        </tr>
+        <tr>
+          <td>Automatic memory consolidation</td>
+          <td><span class="badge no">✗ Not Yet</span></td>
+          <td>Part of the Dreaming feature — same status</td>
+        </tr>
+        <tr>
+          <td>Memory search / retrieval</td>
+          <td><span class="badge soon">⏳ Partial</span></td>
+          <td>Manual file-based search works; semantic search not yet shipped</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>How to Get Persistent Memory Right Now (Without Dreaming)</h2>
+
+    <p>The good news: you don't need Dreaming to have a genuinely good memory system. Here's what we use in production setups:</p>
+
+    <div class="workaround-box">
+      <h3>The File-Based Memory Stack (Works Today)</h3>
+      <p><strong>memory.md</strong> — Your agent's persistent scratchpad. Tell your agent: <em>"After every conversation where you learn something important about me, append it to memory.md."</em> The file gets injected into your workspace context on every turn.</p>
+      <pre># In your workspace root
+touch memory.md
+
+# Instruct your agent to maintain it
+# Example entry in SOUL.md:
+# "Append key facts learned about Josh to memory.md after each session."</pre>
+    </div>
+
+    <div class="workaround-box">
+      <h3>Structured Memory Logs</h3>
+      <p>For higher-volume setups, create a <code>memory/</code> directory with categorized files:</p>
+      <pre>memory/
+  facts.md       — persistent facts about you / your business
+  decisions.md   — decisions made and reasoning
+  projects.md    — project status and notes
+  contacts.md    — key people and context</pre>
+      <p>Instruct your agent to read and update the relevant file each session. This is essentially a manual version of what Dreaming is supposed to automate.</p>
+    </div>
+
+    <div class="workaround-box">
+      <h3>Heartbeat-Driven Memory Updates</h3>
+      <p>If you're using heartbeats (scheduled agent runs), add a step in your HEARTBEAT.md that tells the agent to consolidate what it learned into memory files. This mimics the Dreaming loop manually.</p>
+      <pre># In HEARTBEAT.md:
+## End of Cycle
+- Review this conversation for new facts
+- Append anything worth remembering to memory/facts.md
+- Log the session summary to memory/heartbeat-log.md</pre>
+    </div>
+
+    <h2>When Will Dreaming Actually Ship?</h2>
+
+    <p>Unknown. The GitHub issue was filed on April 5, 2026 and is actively being discussed. The team responded that Dreaming is on the roadmap but didn't give a specific release milestone.</p>
+
+    <p>Watch the <a href="https://github.com/openclaw/openclaw/releases" style="color:var(--accent)">GitHub releases page</a> — when it ships, it'll be in the changelog. We'll also post here when it lands and how to actually use it.</p>
+
+    <div class="callout blue">
+      <p><strong>Bottom line:</strong> Don't wait for Dreaming to build your memory system. The file-based approach above works well in production setups right now — and when Dreaming ships, migrating to it will be straightforward since it'll read the same files.</p>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Want a Memory System That Actually Works Today?</h2>
+    <p>We set up production-grade OpenClaw memory architecture as part of our setup service. No waiting for features that aren't shipped yet.</p>
+    <a href="https://clawreadynow.com" class="cta-btn">See ClawReady Plans →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>

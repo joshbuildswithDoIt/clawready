@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 2026.4.1 Blocking Everything? Fix exec-approvals.json Now — ClawReady</title>
+  <meta name="description" content="After the 2026.4.1 update, OpenClaw silently blocks all exec commands. The culprit: exec-approvals.json was reset or never created. Here's the exact fix.">
+  <meta property="og:title" content="OpenClaw 2026.4.1 Blocking Everything? Fix exec-approvals.json Now">
+  <meta property="og:description" content="The 2026.4.1 update introduced a new exec-approvals.json file as the source of truth. Without it, everything gets blocked silently. Here's how to fix it in 5 minutes.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-exec-approvals-2026-4-1">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-exec-approvals-2026-4-1">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.1);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:#555}
+    .article-body h2{font-size:1.5rem;font-weight:700;margin:40px 0 16px;padding-top:20px;border-top:1px solid var(--border);letter-spacing:-.01em}
+    .article-body h3{font-size:1.1rem;font-weight:600;margin:24px 0 10px;color:#fff}
+    .article-body p{margin-bottom:16px;color:var(--text)}
+    .article-body strong{color:#fff}
+    .article-body ul,.article-body ol{margin:0 0 16px 24px}
+    .article-body li{margin-bottom:8px}
+    code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;font-family:monospace;font-size:.9em;line-height:1.6}
+    .callout{background:var(--surface);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .step-list{list-style:none;margin:0 0 24px!important;display:flex;flex-direction:column;gap:16px}
+    .step-list li{display:flex;gap:16px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+    .step-num{flex-shrink:0;width:32px;height:32px;background:var(--accent);color:#fff;font-weight:800;font-size:.9rem;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .step-content p{margin:0;font-size:.95rem}
+    .step-content strong{display:block;margin-bottom:4px;color:#fff}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:36px 40px;text-align:center;margin:48px 0 0}
+    .cta-box h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:8px;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:#444;font-size:.85rem}
+    footer a{color:#555;text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">Fix — Update Issue</span>
+    <h1>OpenClaw 2026.4.1 Is Blocking Everything — Here's Why</h1>
+    <p class="subtitle">The <code>exec-approvals.json</code> file is now the source of truth. Without it, every exec command gets silently blocked. Here's the 5-minute fix.</p>
+    <p class="meta">April 6, 2026 · 5 min read · ClawReady</p>
+  </div>
+
+  <div class="article-body">
+
+    <p>If you updated to OpenClaw 2026.4.1 and suddenly your agent can't run shell commands, won't execute scripts, or keeps prompting you to approve things you already approved — you're not alone. This is the most common support ticket we're seeing this week.</p>
+
+    <p>The culprit is <strong>one missing or reset file</strong>: <code>~/.openclaw/exec-approvals.json</code>.</p>
+
+    <div class="callout">
+      <p><strong>What changed in 2026.4.1:</strong> OpenClaw now treats <code>exec-approvals.json</code> as the authoritative source for exec permissions. If the file doesn't exist — or if it was reset during the update — the runtime defaults to blocking all exec commands until you explicitly approve them.</p>
+    </div>
+
+    <h2>Step 1 — Confirm This Is Your Problem</h2>
+
+    <p>Run this in your terminal:</p>
+    <pre>cat ~/.openclaw/exec-approvals.json 2>/dev/null || echo "FILE NOT FOUND"</pre>
+
+    <p>If you see <code>FILE NOT FOUND</code> or an empty file (<code>{}</code>), that's your issue.</p>
+
+    <p>Also check your main config to see what exec security mode you're in:</p>
+    <pre>cat ~/.openclaw/openclaw.json | grep -A 5 '"exec"'</pre>
+
+    <p>You want to see:</p>
+    <pre>{
+  "tools": {
+    "exec": {
+      "security": "full",
+      "ask": "off"
+    }
+  }
+}</pre>
+
+    <p>If <code>"ask"</code> is missing or set to <code>"on-miss"</code>, that's why it keeps asking.</p>
+
+    <h2>Step 2 — Fix exec-approvals.json</h2>
+
+    <p>There are two approaches depending on your use case:</p>
+
+    <h3>Option A — Trusted local machine (recommended for most users)</h3>
+    <p>If you're running OpenClaw on a machine you control and you don't want per-command approvals:</p>
+    <pre>cat > ~/.openclaw/exec-approvals.json << 'EOF'
+{
+  "version": 1,
+  "rules": [
+    {
+      "pattern": "*",
+      "action": "allow",
+      "scope": "always"
+    }
+  ]
+}
+EOF</pre>
+
+    <h3>Option B — Selective approvals (more secure)</h3>
+    <p>If you want to allow common commands but block risky ones:</p>
+    <pre>cat > ~/.openclaw/exec-approvals.json << 'EOF'
+{
+  "version": 1,
+  "rules": [
+    {
+      "pattern": "git *",
+      "action": "allow",
+      "scope": "always"
+    },
+    {
+      "pattern": "npm *",
+      "action": "allow",
+      "scope": "always"
+    },
+    {
+      "pattern": "ls *",
+      "action": "allow",
+      "scope": "always"
+    },
+    {
+      "pattern": "cat *",
+      "action": "allow",
+      "scope": "always"
+    },
+    {
+      "pattern": "rm -rf *",
+      "action": "deny"
+    }
+  ]
+}
+EOF</pre>
+
+    <h2>Step 3 — Update openclaw.json</h2>
+
+    <p>Make sure your main config file also reflects your intent. Open <code>~/.openclaw/openclaw.json</code> and verify the tools block exists and is correct:</p>
+
+    <pre>"tools": {
+  "exec": {
+    "host": "gateway",
+    "security": "full",
+    "ask": "off"
+  }
+}</pre>
+
+    <div class="callout yellow">
+      <p><strong>Note:</strong> If you're using an approval channel (Discord, Slack, Telegram) for remote approvals, set <code>"ask": "on-miss"</code> instead of <code>"off"</code>. That way you get prompts for unknown commands but approved ones run freely.</p>
+    </div>
+
+    <h2>Step 4 — Restart the Gateway</h2>
+    <pre>openclaw gateway restart</pre>
+
+    <p>Then test with a simple exec call in your agent. If it runs without prompting, you're fixed.</p>
+
+    <h2>Why Did This Happen?</h2>
+
+    <p>The 2026.4.1 update introduced a hardening change: the exec permission system was decoupled from the main config and given its own dedicated file. This is actually a good security improvement — it means you can audit and version-control your approval rules separately.</p>
+
+    <p>The problem is the migration wasn't clean for everyone. On some setups, especially those that did a <code>npm install -g openclaw@latest</code> over an existing install, the file either wasn't created or the defaults were applied (block everything) rather than carrying over existing behavior.</p>
+
+    <div class="callout green">
+      <p><strong>Going forward:</strong> Before any major OpenClaw update, run <code>openclaw backup create</code>. This snapshots your full config directory, including <code>exec-approvals.json</code>, so you can restore it in 30 seconds if an update resets something.</p>
+    </div>
+
+    <h2>Still Blocked After the Fix?</h2>
+
+    <p>Three things to check:</p>
+    <ul>
+      <li><strong>Gateway not restarted</strong> — the file is only read at startup. Always restart after editing.</li>
+      <li><strong>Multiple config directories</strong> — if you have OpenClaw installed in both <code>~/.openclaw</code> and a project-local directory, make sure you're editing the right one. Run <code>openclaw config path</code> to confirm.</li>
+      <li><strong>JSON syntax error</strong> — validate with <code>cat ~/.openclaw/exec-approvals.json | python3 -m json.tool</code>. A single misplaced comma breaks the whole file silently.</li>
+    </ul>
+
+    <p>If none of those work, the fastest path is a clean config audit — which is exactly what our $49 Audit covers.</p>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Don't Want to Debug Config Files?</h2>
+    <p>We audit your OpenClaw setup and fix issues like this in under an hour. Flat $49 — no ongoing commitment.</p>
+    <a href="https://calendly.com/grofresh2018/openclaw-audit" class="cta-btn">Book a $49 Audit →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">ClawReady</a> · <a href="/blog">Blog</a> · <a href="/#contact">Contact</a>
+</footer>
+</body>
+</html>
