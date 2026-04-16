@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Opus 4.7 in OpenClaw: "configured,missing" Fix & How to Actually Switch | ClawReady</title>
+  <meta name="description" content="Anthropic released Claude Opus 4.7 today. If you tried to switch in OpenClaw and got 'configured,missing' — here's why and exactly how to fix it without breaking your setup." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/claude-opus-4-7-openclaw-configured-missing-fix.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">⚡ Breaking — April 16, 2026</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>Claude Opus 4.7 Is Out — Here's Why OpenClaw Shows "configured,missing" and How to Fix It</h1>
+
+    <p class="lead">
+      Anthropic released Claude Opus 4.7 today. If you tried to switch immediately and ran
+      <code>openclaw models list</code>, you likely saw:
+      <code>anthropic/claude-opus-4-7 — default,configured,missing</code>. Your agent is
+      now broken until you revert. Here's what's happening and the safe upgrade path.
+    </p>
+
+    <h2>What "configured,missing" Means</h2>
+
+    <p>
+      When OpenClaw shows a model as <code>configured,missing</code>, it means:
+    </p>
+    <ul>
+      <li><strong>configured</strong> — you've told OpenClaw to use this model</li>
+      <li><strong>missing</strong> — OpenClaw's internal model resolver doesn't recognize the model ID yet</li>
+    </ul>
+
+    <p>
+      The dangerous part: OpenClaw accepted the config change without failing hard, which means
+      if you ran <code>openclaw models set anthropic/claude-opus-4-7</code> and it became your
+      default, your agent is now trying to call a model that doesn't resolve — and failing
+      silently or throwing errors on every turn.
+    </p>
+
+    <h2>Why This Happened</h2>
+
+    <p>
+      OpenClaw maintains an internal model catalog that maps provider-qualified model IDs to
+      their capabilities (context window, input types, etc.). When Anthropic releases a new
+      model, OpenClaw's catalog needs to be updated to recognize the new ID. That update
+      typically lands in the next OpenClaw release — not instantly when the model goes live
+      upstream.
+    </p>
+
+    <p>
+      GitHub issue #67710 was filed today documenting exactly this. As of OpenClaw 2026.4.10–4.14,
+      <code>anthropic/claude-opus-4-7</code> is not yet in the catalog. The 4.15 release (currently
+      in beta) may include it; watch the changelog.
+    </p>
+
+    <h2>Immediate Fix: Revert Your Default Model</h2>
+
+    <p>
+      If you already switched and your agent is broken, revert immediately:
+    </p>
+
+    <pre><code># Revert to Opus 4.6
+openclaw models set anthropic/claude-opus-4-6
+
+# Or Sonnet 4.6 if you want something lighter
+openclaw models set anthropic/claude-sonnet-4-6
+
+# Restart gateway
+openclaw gateway restart</code></pre>
+
+    <p>
+      Confirm the revert worked:
+    </p>
+
+    <pre><code>openclaw models list | grep "default"</code></pre>
+
+    <p>
+      You should see <code>anthropic/claude-opus-4-6</code> (or sonnet-4-6) marked as
+      <code>default,configured</code> — no <code>missing</code>.
+    </p>
+
+    <h2>How to Use Opus 4.7 Once OpenClaw Supports It</h2>
+
+    <p>
+      When the OpenClaw model catalog update lands (likely 4.15 stable), the correct upgrade
+      path will be:
+    </p>
+
+    <pre><code># 1. Update OpenClaw (once 4.15 stable is out)
+npm install -g openclaw@latest
+
+# 2. Verify Opus 4.7 resolves correctly before setting as default
+openclaw models list | grep "opus-4-7"
+# Should show: text+image, context window, no "missing" flag
+
+# 3. Only then set as default
+openclaw models set anthropic/claude-opus-4-7
+openclaw gateway restart</code></pre>
+
+    <p>
+      Do <strong>not</strong> skip step 2. Setting a <code>missing</code> model as default
+      silently breaks your entire agent until you revert.
+    </p>
+
+    <h2>Alternative: Direct API Key with Model Override</h2>
+
+    <p>
+      If you need Opus 4.7 today and can't wait for the catalog update, you can bypass
+      OpenClaw's internal resolver by using a raw API config with an explicit model string.
+      This is less clean but functional:
+    </p>
+
+    <pre><code>// In openclaw.json — experimental, use at own risk
+{
+  "providers": {
+    "anthropic": {
+      "apiKey": "sk-ant-...",
+      "model": "claude-opus-4-7-20260416"  // use Anthropic's exact model ID
+    }
+  }
+}</code></pre>
+
+    <p>
+      You'll need to check Anthropic's API docs for the exact versioned model string
+      (e.g. <code>claude-opus-4-7-20260416</code>). This bypasses the capability
+      catalog, which means context window and input-type checks won't be enforced —
+      use cautiously.
+    </p>
+
+    <h2>Is Opus 4.7 Worth Switching To?</h2>
+
+    <p>
+      Early signals suggest yes — it was designed to address the compute-rationing
+      degradation that Opus 4.6 users have been experiencing for weeks. Once OpenClaw
+      properly supports it, upgrading makes sense for most active setups.
+    </p>
+
+    <p>
+      See our <a href="/blog/claude-opus-4-7-openclaw-upgrade-guide.html">full Opus 4.7
+      upgrade guide</a> for what to test before switching and the decision table by
+      setup type.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>Opus 4.7 dropped today — but OpenClaw's model catalog doesn't recognize it yet</li>
+      <li>Setting it as default = <code>configured,missing</code> = broken agent</li>
+      <li>Revert: <code>openclaw models set anthropic/claude-opus-4-6 &amp;&amp; openclaw gateway restart</code></li>
+      <li>Wait for OpenClaw 4.15 stable, then verify <code>models list</code> shows no <code>missing</code> before switching</li>
+      <li>Tracking: GitHub issue #67710</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Don't want to manage model upgrades yourself?</h3>
+      <p>
+        ClawReady handles OpenClaw version tracking, model catalog updates, and upgrade
+        validation for you. When Opus 4.7 is properly supported, we'll get you switched
+        without breaking anything.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
