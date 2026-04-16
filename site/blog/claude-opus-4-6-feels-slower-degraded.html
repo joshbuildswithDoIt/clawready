@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why Claude Opus 4.6 Feels Slower and Less Reliable in OpenClaw Right Now | ClawReady</title>
+  <meta name="description" content="Users are reporting Claude Opus 4.6 and Claude Code feel degraded, more token-hungry, and less reliable than a few weeks ago. Here's why it's happening and what OpenClaw users can do about it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/claude-opus-4-6-feels-slower-degraded.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Model Performance</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>Why Claude Opus 4.6 Feels Slower and Less Reliable in OpenClaw Right Now</h1>
+
+    <p class="lead">
+      If your OpenClaw agent on Claude Opus 4.6 has felt slower, more prone to stopping
+      mid-task, or more token-hungry than it was a few weeks ago — you're not imagining it.
+      Power users are reporting the same thing across VentureBeat, r/ClaudeAI, and Hacker
+      News. Here's what's actually going on and what to do about it.
+    </p>
+
+    <h2>What Users Are Reporting</h2>
+
+    <p>
+      The complaints follow a consistent pattern: Opus 4.6 responses that used to feel crisp
+      and confident now feel hedged, slower, or incomplete. Claude Code sessions that used to
+      run autonomously are stopping more frequently to ask for confirmation. Token usage per
+      task has crept up noticeably. Some users describe it as "nerfed," though that framing
+      is probably wrong.
+    </p>
+
+    <h2>The Real Explanation: Compute Rationing</h2>
+
+    <p>
+      This is what happens when a lab is preparing to launch a new frontier model. Anthropic
+      is actively preparing <strong>Claude Opus 4.7</strong> — a distinct model from Mythos,
+      expected as soon as this week. When frontier compute is being routed toward training
+      and evaluation of the next model, inference capacity for the current production model
+      gets squeezed.
+    </p>
+
+    <p>
+      Anthropic hasn't confirmed this publicly, but the timing matches exactly. The degradation
+      complaints started several weeks ago — which aligns with Opus 4.7 entering its final
+      training and evaluation phases. It's a predictable symptom, not a deliberate "nerfing."
+    </p>
+
+    <p>
+      There's a secondary factor: <strong>Uber's CTO revealed this week</strong> that Claude
+      Code usage alone has maxed out Uber's entire 2026 AI budget months ahead of schedule.
+      Uber is one account. Multiply that by thousands of enterprise customers and the compute
+      pressure Anthropic is under becomes clear. More demand on the same inference infrastructure
+      = degraded latency and reliability for everyone.
+    </p>
+
+    <h2>What This Means for OpenClaw Users</h2>
+
+    <p>
+      If you're running Opus 4.6 as your primary model in OpenClaw, a few practical responses:
+    </p>
+
+    <h3>1. Route non-critical tasks to a cheaper model</h3>
+    <p>
+      OpenClaw lets you set per-agent model overrides. If your heartbeat cycles, research
+      tasks, or document drafting don't require Opus-level quality, route them to
+      <code>claude/sonnet-4-6</code> or a local Ollama model instead. Reserve Opus for
+      the work that actually needs it.
+    </p>
+    <pre><code>// Per-agent model override in openclaw.json
+{
+  "agents": {
+    "research-agent": {
+      "model": "claude/sonnet-4-6"
+    },
+    "main": {
+      "model": "claude/opus-4-6"
+    }
+  }
+}</code></pre>
+
+    <h3>2. Set explicit timeouts for long tasks</h3>
+    <p>
+      If your agent is stopping mid-task more than before, adding explicit continuation
+      prompts to your SOUL.md helps. Something like: "When a task is taking long, continue
+      without asking for confirmation unless you genuinely need input." The degradation often
+      manifests as unnecessary check-ins, not actual failure.
+    </p>
+
+    <h3>3. Check your token usage patterns</h3>
+    <p>
+      If token usage has crept up, review your workspace file sizes — the context bloat bug
+      (#67419) means bootstrap files are re-injected every turn. A 4,000-token workspace
+      overhead compounds fast when the model is already running slower. Trim aggressively.
+      (See our <a href="/blog/openclaw-context-bloat-workspace-files.html">context bloat guide</a>.)
+    </p>
+
+    <h3>4. Wait it out — Opus 4.7 is coming</h3>
+    <p>
+      The degradation is temporary. Once Opus 4.7 launches, compute pressure on 4.6 should
+      ease as traffic migrates to the new model. If Opus 4.7 is meaningfully better (early
+      signals suggest it is), you'll want to upgrade anyway.
+    </p>
+
+    <h2>Should You Switch Models Now?</h2>
+
+    <p>
+      If the degradation is actively breaking your workflows, yes — drop to Sonnet 4.6 as
+      your primary model for now. Sonnet is faster, cheaper, and in the current environment
+      may actually be performing comparably to a compute-squeezed Opus 4.6.
+    </p>
+
+    <p>
+      If it's minor — some extra latency, occasional extra confirmation ask — just wait.
+      Opus 4.7 is days away at most.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>Opus 4.6 degradation is real — slower, more token-hungry, more stop-and-confirm behavior</li>
+      <li>Cause: compute rationing as Anthropic prepares Opus 4.7 (coming this week)</li>
+      <li>Compounded by: enterprise demand surge (Uber alone maxed its 2026 AI budget)</li>
+      <li>Fix now: route non-critical tasks to Sonnet 4.6 or local Ollama; trim context bloat</li>
+      <li>Fix soon: Opus 4.7 expected to land within days — upgrade when it drops</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Need help tuning your OpenClaw model routing?</h3>
+      <p>
+        ClawReady can configure smart model routing for your setup — Opus for high-value
+        tasks, Sonnet or local models for everything else. Usually cuts API spend 40–60%
+        with no quality loss on the things that matter.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
