@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lossless Claw: The OpenClaw Plugin That Never Forgets a Conversation | ClawReady</title>
+  <meta name="description" content="Lossless Claw replaces OpenClaw's sliding-window context compaction with a DAG-based system that preserves every message. Your agent stops losing context mid-conversation. Here's how it works and how to install it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/lossless-claw-context-management-openclaw.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </footer>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Plugin Guide</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>Lossless Claw: The OpenClaw Plugin That Makes Your Agent Never Forget a Conversation</h1>
+
+    <p class="lead">
+      OpenClaw's default context compaction works like most AI systems: when a conversation
+      gets long enough, older messages get truncated. Information disappears. Your agent
+      loses context it might need later. Lossless Claw replaces that entire system with
+      a DAG-based summarization approach where <strong>nothing is ever deleted</strong>.
+      Here's how it works and whether you should install it.
+    </p>
+
+    <h2>The Problem With Default Context Compaction</h2>
+
+    <p>
+      All AI agents hit the same wall: model context windows have limits. When a session
+      grows beyond that limit, something has to give. OpenClaw's default approach — like
+      Claude Code, Hermes, and most other agents — uses a sliding window that drops the
+      oldest messages first.
+    </p>
+
+    <p>
+      For short sessions, this is fine. For long-running agent workflows — multi-day
+      projects, ongoing business operations, persistent assistants that handle the same
+      context week after week — it's a real problem. The agent "forgets" decisions made
+      earlier in the conversation. You find yourself re-explaining context you know you
+      already provided. Tasks fail because the agent lost a detail from 50 turns ago.
+    </p>
+
+    <h2>How Lossless Claw Solves It</h2>
+
+    <p>
+      Lossless Claw (built by Martian Engineering, based on Voltropy's LCM paper) replaces
+      the sliding window with a three-layer system:
+    </p>
+
+    <h3>1. Every message persisted to SQLite</h3>
+    <p>
+      Raw messages are never deleted. They go into a local SQLite database organized by
+      conversation. If the agent ever needs to recall something from 200 turns ago, the
+      data is there.
+    </p>
+
+    <h3>2. DAG-based summarization</h3>
+    <p>
+      As conversations grow, older message chunks get summarized by your LLM. Those
+      summaries get condensed into higher-level summary nodes as they accumulate —
+      forming a directed acyclic graph (DAG) of conversation history. Each summary
+      links back to the raw messages it came from.
+    </p>
+
+    <h3>3. Smart context assembly</h3>
+    <p>
+      Each turn, the plugin assembles context by combining recent raw messages with
+      relevant summaries. Your agent gets the full picture of the conversation without
+      blowing the context window — and it has tools to drill into any summary if it
+      needs the original detail.
+    </p>
+
+    <h2>The Recall Tools</h2>
+
+    <p>Three tools are exposed to your agent:</p>
+    <ul>
+      <li><code>lcm_grep</code> — search through compacted conversation history by keyword</li>
+      <li><code>lcm_describe</code> — get a summary of what happened in a specific time/turn range</li>
+      <li><code>lcm_expand</code> — drill into a summary to recover the original raw messages</li>
+    </ul>
+
+    <p>
+      This means your agent can proactively go looking for context it knows exists — not
+      just hope it was in the active window.
+    </p>
+
+    <h2>Plugin Commands</h2>
+
+    <p>Once installed, you get slash commands inside OpenClaw:</p>
+    <ul>
+      <li><code>/lcm</code> — status: version, DB path/size, summary counts, health</li>
+      <li><code>/lcm backup</code> — timestamped backup of the SQLite database</li>
+      <li><code>/lcm rotate</code> — compact the active session transcript without changing session identity</li>
+      <li><code>/lcm doctor</code> — scan for broken or truncated summaries</li>
+      <li><code>/lcm doctor clean</code> — diagnose junk from archived subagents and orphaned runs</li>
+      <li><code>/lossless</code> — alias for <code>/lcm</code></li>
+    </ul>
+
+    <h2>Installation</h2>
+
+    <pre><code>openclaw plugins install @martian-engineering/lossless-claw</code></pre>
+
+    <p>Requirements:</p>
+    <ul>
+      <li>OpenClaw with plugin context engine support (4.x)</li>
+      <li>Node.js 22+</li>
+      <li>An LLM provider configured in OpenClaw (used for summarization — same model or a cheaper one)</li>
+    </ul>
+
+    <p>
+      After install, the plugin activates automatically for new sessions. Existing sessions
+      continue with their current compaction behavior until rotated.
+    </p>
+
+    <h2>Cost Consideration</h2>
+
+    <p>
+      Lossless Claw uses your LLM to generate summaries as conversations compact. That costs
+      tokens. For most workflows, the summarization calls are much cheaper than the context
+      you'd otherwise re-inject or lose — but worth knowing if you're cost-sensitive.
+    </p>
+
+    <p>
+      You can configure summarization to use a cheaper model (Sonnet 4.6, Haiku 4.5, or
+      a local Ollama model) rather than your primary Opus model. Most summarization tasks
+      don't need frontier-level intelligence.
+    </p>
+
+    <h2>Who Needs This</h2>
+
+    <p>You'll get real value from Lossless Claw if:</p>
+    <ul>
+      <li>Your agent handles long-running projects where historical context matters</li>
+      <li>You've experienced the agent "forgetting" something important mid-workflow</li>
+      <li>You're running persistent sessions that span days or weeks</li>
+      <li>You have complex multi-step processes where early decisions affect later steps</li>
+    </ul>
+
+    <p>You probably don't need it if:</p>
+    <ul>
+      <li>Your agent handles short, self-contained tasks that reset each session</li>
+      <li>You're cost-sensitive and want to minimize API calls</li>
+      <li>Your workspace memory files already capture all the context your agent needs</li>
+    </ul>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>Lossless Claw = no more context compaction data loss in OpenClaw</li>
+      <li>Every message persisted to SQLite; older messages summarized into a DAG; agents can recall via lcm_grep/describe/expand</li>
+      <li>Install: <code>openclaw plugins install @martian-engineering/lossless-claw</code></li>
+      <li>Cost: uses LLM tokens for summarization — configure a cheap model for this</li>
+      <li>Best for: long-running projects, persistent assistants, multi-week workflows</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Context loss killing your agent's effectiveness?</h3>
+      <p>
+        ClawReady can install and configure Lossless Claw alongside a properly structured
+        workspace memory system — so your agent retains context at the right granularity
+        without runaway costs.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
