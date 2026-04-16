@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Context Bloat: Why Your Agent Wastes 20–30% of Tokens Before You Type Anything | ClawReady</title>
+  <meta name="description" content="A GitHub issue confirmed it: OpenClaw re-injects all workspace bootstrap files every turn, eating 20-30% of your context window before the conversation starts. Here's how to fix it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-context-bloat-workspace-files.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Cost & Performance</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw Context Bloat: Your Agent Burns 20–30% of Tokens on Bootstrap Files Before You Say Anything</h1>
+
+    <p class="lead">
+      A GitHub issue filed yesterday (#67419) confirmed what many users suspected: OpenClaw
+      re-injects all workspace bootstrap files (MEMORY.md, SOUL.md, USER.md, AGENTS.md,
+      IDENTITY.md, TOOLS.md, HEARTBEAT.md, BOOTSTRAP.md) on every single turn — not just
+      session start. On a long conversation, that's 20–30% of your context window gone
+      before your actual message even lands. Here's what to do about it.
+    </p>
+
+    <h2>What's Actually Happening</h2>
+
+    <p>
+      OpenClaw injects your workspace markdown files into the system prompt at session start
+      — that's intentional and expected. The bug (issue #67419): these files are re-injected
+      on <em>every turn</em> in the current implementation, not cached or deduplicated across
+      the session. On multi-turn conversations, the overhead compounds. The webchat context
+      meter has also been showing false overflow errors as a downstream symptom (issue #67135).
+    </p>
+
+    <p>
+      The numbers from the issue are concrete: MEMORY.md alone can run 1,500–2,000 tokens.
+      Add SOUL.md (~500), USER.md (~200), AGENTS.md (~400), IDENTITY.md (~200), TOOLS.md
+      (~300), HEARTBEAT.md (~300) and you're looking at 3,400–3,900 tokens per turn in
+      overhead — on a 200K context window model that's ~2%, but on Claude Sonnet 4 or local
+      models with smaller windows, it becomes a real constraint and a real cost.
+    </p>
+
+    <h2>Why This Matters for Cost</h2>
+
+    <p>
+      Every token in your context costs money on input pricing. If your bootstrap files
+      total 4,000 tokens and you run 50 turns a day across 30 days, that's:
+    </p>
+
+    <pre><code>4,000 tokens × 50 turns × 30 days = 6,000,000 extra input tokens/month</code></pre>
+
+    <p>
+      At Claude Sonnet 4 pricing (~$3/million input tokens), that's <strong>$18/month in
+      pure overhead</strong> — context you're paying for that isn't doing any work. Scale
+      that to multi-agent setups and it compounds fast.
+    </p>
+
+    <h2>Fix #1 — Trim Your Workspace Files (Biggest Impact, Do This First)</h2>
+
+    <p>
+      The most effective fix is reducing the token weight of your bootstrap files themselves.
+      Audit each file:
+    </p>
+
+    <ul>
+      <li><strong>MEMORY.md</strong> — should be a compact index, not a growing journal. Archive old entries to <code>memory/archive/</code>. Keep active facts under 500 tokens.</li>
+      <li><strong>SOUL.md</strong> — persona and tone, not a policy document. If it's over 200 tokens, it's too long.</li>
+      <li><strong>AGENTS.md</strong> — role definitions only. Remove prose explanations that belong in a README.</li>
+      <li><strong>BOOTSTRAP.md</strong> — delete it once you're set up. It has no ongoing value.</li>
+      <li><strong>TOOLS.md</strong> — short bullets only. Remove anything you know by heart.</li>
+    </ul>
+
+    <p>
+      Cutting from 4,000 to 1,500 tokens halves your overhead cost immediately, with no
+      config changes needed.
+    </p>
+
+    <h2>Fix #2 — Move Stable Content to Skills Instead of Workspace Files</h2>
+
+    <p>
+      Skills are only loaded when called, not injected every turn. Any knowledge or
+      instructions that don't need to be active on every single message should live in a
+      skill, not in MEMORY.md or SOUL.md.
+    </p>
+
+    <p>
+      Good candidates to move to skills:
+    </p>
+    <ul>
+      <li>Reference information (product specs, process docs, client details)</li>
+      <li>Workflow instructions for specific tasks ("how to write a blog post")</li>
+      <li>Contact lists, templates, FAQs</li>
+    </ul>
+
+    <p>
+      Keep in workspace files only: core identity, active project state, and anything
+      the agent genuinely needs on every turn.
+    </p>
+
+    <h2>Fix #3 — Use the <code>localModelLean</code> Flag (4.15-beta.1+)</h2>
+
+    <p>
+      If you're on 4.15-beta.1, the new <code>localModelLean: true</code> experimental flag
+      drops heavy default tools from the prompt (browser, cron, message) — reducing total
+      prompt weight by another 500–1,500 tokens depending on your tool config. Not a direct
+      fix for workspace file injection, but meaningfully reduces total overhead.
+    </p>
+
+    <pre><code>// openclaw.json
+{
+  "agents": {
+    "defaults": {
+      "experimental": {
+        "localModelLean": true
+      }
+    }
+  }
+}</code></pre>
+
+    <h2>Fix #4 — Wait for the Official Fix</h2>
+
+    <p>
+      Issue #67419 is open and has maintainer attention. The proper fix is caching the
+      bootstrap injection and only re-injecting when workspace files change, not on every
+      turn. This will likely land in 4.15 stable or 4.16. Watch the issue for updates.
+    </p>
+
+    <h2>How to Measure Your Current Overhead</h2>
+
+    <p>Run this to see your current workspace token weight:</p>
+
+    <pre><code># Count approximate tokens in your workspace bootstrap files
+wc -w ~/.openclaw/workspace/MEMORY.md \
+       ~/.openclaw/workspace/SOUL.md \
+       ~/.openclaw/workspace/USER.md \
+       ~/.openclaw/workspace/AGENTS.md \
+       ~/.openclaw/workspace/IDENTITY.md \
+       ~/.openclaw/workspace/TOOLS.md 2>/dev/null</code></pre>
+
+    <p>
+      Multiply the word count by ~1.3 for a rough token estimate. Anything over 2,000 tokens
+      total is worth aggressively trimming.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>OpenClaw re-injects all workspace files every turn — ~4,000 tokens of overhead by default</li>
+      <li>Fix now: trim MEMORY.md aggressively, delete BOOTSTRAP.md, move reference content to skills</li>
+      <li>Target: under 1,500 tokens total across all workspace files</li>
+      <li>Official fix in progress on GitHub issue #67419</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Is your OpenClaw workspace burning tokens?</h3>
+      <p>
+        ClawReady's setup audit includes a workspace token review — we'll identify what's
+        bloating your context and restructure it for both performance and cost. Takes about
+        20 minutes.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a $49 Audit →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
