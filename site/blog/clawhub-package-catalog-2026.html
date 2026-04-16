@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClawHub Now Has a Native Package Catalog: Code Plugins, Bundle Plugins & Vector Search | ClawReady</title>
+  <meta name="description" content="ClawHub expanded beyond SKILL.md files — it now hosts native OpenClaw code plugins and bundle plugins with family/trust/capability metadata. Here's what changed and how to use it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/clawhub-package-catalog-2026.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Ecosystem</span>
+      <span class="date">April 15, 2026</span>
+    </div>
+
+    <h1>ClawHub Now Has a Native Package Catalog — What Changed and Why It Matters</h1>
+
+    <p class="lead">
+      ClawHub — the official skill registry for OpenClaw — quietly expanded its scope. It now hosts
+      native OpenClaw code plugins and bundle plugins alongside the existing SKILL.md text-based
+      skills. Here's what the catalog includes, how to browse it, and what to watch out for.
+    </p>
+
+    <h2>What ClawHub Is (Quick Refresher)</h2>
+
+    <p>
+      <a href="https://clawhub.ai" target="_blank">ClawHub</a> is the official OpenClaw skill
+      registry. It's where you browse and install SKILL.md-based agent skills — the text-based
+      instruction files that give your OpenClaw agent specialized capabilities (weather lookups,
+      GitHub ops, Discord management, etc.).
+    </p>
+
+    <p>
+      Until recently, ClawHub was skills-only. Now it's expanded into a unified catalog.
+    </p>
+
+    <h2>What's New: The Package Catalog</h2>
+
+    <p>
+      ClawHub now exposes a <strong>native OpenClaw package catalog</strong> — separate from
+      SKILL.md skills — that includes:
+    </p>
+
+    <ul>
+      <li><strong>Code plugins</strong> — compiled/bundled extensions that add new tool capabilities directly to the OpenClaw runtime</li>
+      <li><strong>Bundle plugins</strong> — pre-packaged combinations of config, skills, and plugins for specific use cases</li>
+    </ul>
+
+    <p>
+      Each package includes family/trust/capability metadata so you can evaluate what a plugin
+      actually does and whether it's from a trusted source before installing.
+    </p>
+
+    <h2>How to Browse It</h2>
+
+    <p>Via the CLI (requires the <code>clawhub</code> CLI):</p>
+
+    <pre><code># Browse the unified catalog (skills + plugins)
+clawhub package explore
+
+# Inspect a specific package
+clawhub package inspect &lt;package-name&gt;
+
+# Search via vector/semantic search
+clawhub search "telegram notifications"
+
+# Traditional skill install (unchanged)
+clawhub install &lt;skill-name&gt;</code></pre>
+
+    <p>You can also browse at <a href="https://clawhub.ai" target="_blank">clawhub.ai</a> — the web UI has been updated to show both skills and packages.</p>
+
+    <h2>Vector Search Is Now Live</h2>
+
+    <p>
+      ClawHub has moved away from keyword-only search. The registry now uses OpenAI embeddings
+      (<code>text-embedding-3-small</code>) with Convex vector search, so you can search by
+      concept rather than exact name.
+    </p>
+
+    <p>
+      In practice: searching for "send a message when a file changes" will surface relevant skills
+      even if they don't use those exact words. This is a meaningful quality-of-life improvement
+      for discovery.
+    </p>
+
+    <h2>onlycrabs.ai: The SOUL.md Registry</h2>
+
+    <p>
+      ClawHub also now cross-references <a href="https://onlycrabs.ai" target="_blank">onlycrabs.ai</a>
+      — the SOUL.md registry where you can publish and browse agent personas. On the onlycrabs.ai
+      domain, the home page defaults to souls; on clawhub.ai, souls live under /souls.
+    </p>
+
+    <p>
+      If you've built a SOUL.md persona you want to share, you can now publish it the same way
+      you'd publish a skill — with versioning, changelogs, and tags.
+    </p>
+
+    <h2>Security Note: Verify Before Installing</h2>
+
+    <p>
+      Code plugins run in your OpenClaw runtime with tool access. That's a different risk profile
+      than a SKILL.md text file, which is just instructions. Before installing any plugin from
+      the catalog:
+    </p>
+
+    <ul>
+      <li>Check the <strong>trust metadata</strong> on the package listing</li>
+      <li>Look at the GitHub source repo if one is linked</li>
+      <li>Check when it was published and how many installs/stars it has</li>
+      <li>Be more cautious with packages published in the last few days with no activity</li>
+    </ul>
+
+    <p>
+      We covered the ClawHavoc malware campaign (1,184 malicious skills uploaded to ClawHub) in
+      a <a href="/blog/openclaw-clawhub-malware-safe-skills.html">previous post</a>. The same
+      vigilance applies to the new package catalog — maybe more so, since code plugins have
+      deeper system access than text skills.
+    </p>
+
+    <h2>Bottom Line</h2>
+
+    <p>
+      ClawHub is evolving from a skill directory into a full package ecosystem. The vector search
+      alone makes it significantly more useful for discovery. The package catalog means you can
+      now install compiled runtime extensions without hunting GitHub repos manually.
+    </p>
+
+    <p>
+      If you haven't used ClawHub in a while, it's worth a fresh browse — the catalog has grown
+      substantially and the search actually works now.
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Not sure which skills and plugins are worth installing?</h3>
+      <p>ClawReady reviews your use case and recommends a curated skill stack — no malware, no
+      bloat, just what you actually need. Setup starts at $99.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anthropic Now Requires Government ID for Some Claude Features — What It Means for OpenClaw Users | ClawReady</title>
+  <meta name="description" content="Anthropic quietly launched ID verification via Persona for select Claude features. Here's what it means for OpenClaw users running API-based setups vs. claude.ai subscriptions." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/anthropic-identity-verification-openclaw.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">News & Updates</span>
+      <span class="date">April 15, 2026</span>
+    </div>
+
+    <h1>Anthropic Now Requires Government ID for Some Claude Features — What OpenClaw Users Need to Know</h1>
+
+    <p class="lead">
+      Anthropic quietly launched identity verification on April 15, requiring a government-issued
+      photo ID and selfie via their partner Persona for certain Claude features and new subscriptions.
+      Here's what's actually happening and what it means if you're running OpenClaw.
+    </p>
+
+    <h2>What Anthropic Is Doing</h2>
+
+    <p>
+      Anthropic's <a href="https://support.claude.com/en/articles/14328960-identity-verification-on-claude" target="_blank">official help article</a>
+      explains the rollout: identity verification is being introduced for "a few use cases" including
+      certain capabilities, routine platform integrity checks, and safety/compliance measures.
+    </p>
+
+    <p>The verification process requires:</p>
+    <ul>
+      <li>A government-issued photo ID (passport, driver's license, national ID — physical, undamaged, legible)</li>
+      <li>A selfie for identity matching</li>
+    </ul>
+
+    <p>
+      Verification is handled by <strong>Persona Identities</strong>, a third-party IDV platform.
+      Anthropic states your ID and selfie are held by Persona, not on Anthropic's systems directly.
+    </p>
+
+    <h2>Who's Actually Affected</h2>
+
+    <p>
+      The key distinction: this affects <strong>claude.ai subscription users</strong>, not API users.
+    </p>
+
+    <p>
+      If you're running OpenClaw with an <strong>Anthropic API key</strong>, you're accessing Claude
+      programmatically through the API tier. The verification prompt applies to the consumer
+      claude.ai product — new subscriptions and certain capabilities there. API access has its own
+      separate agreement and billing.
+    </p>
+
+    <p>In plain terms:</p>
+
+    <ul>
+      <li>✅ <strong>OpenClaw + Anthropic API key</strong> — not affected (API billing is separate)</li>
+      <li>⚠️ <strong>OpenClaw + claude.ai OAuth (browser-based auth)</strong> — potentially affected if your account gets flagged for a verification check</li>
+      <li>⚠️ <strong>New claude.ai subscriptions</strong> — may see verification prompt before completing signup</li>
+    </ul>
+
+    <h2>The Persona Data Breach Context</h2>
+
+    <p>
+      The timing is notable: reports also surfaced this week of a data breach at Persona (the
+      verification partner Anthropic is now routing users to). Anthropic's help article was updated
+      within hours emphasizing that ID data is held by Persona, not Anthropic — which reads as a
+      response to that concern.
+    </p>
+
+    <p>
+      If you're asked to verify: Persona is an established IDV platform used by many financial
+      institutions. But it's worth being aware that Persona itself has had security incidents,
+      and providing a government ID + selfie to any third party carries permanent data exposure risk.
+      That data doesn't disappear after verification.
+    </p>
+
+    <h2>What Happens If You Refuse?</h2>
+
+    <p>
+      Anthropic's page states verification may be required to access certain capabilities.
+      If you decline, those specific features may be unavailable or your account flagged. The
+      page does not explicitly say all Claude access requires verification — only "a few use cases."
+    </p>
+
+    <p>
+      If your account gets banned post-verification (can happen if safety checks find policy
+      violations), Anthropic provides an appeal form.
+    </p>
+
+    <h2>Implications for OpenClaw Setups</h2>
+
+    <p>
+      This is one of several reasons running OpenClaw against the <strong>Anthropic API directly</strong>
+      (rather than oauth/browser auth against claude.ai) provides more stability. API access is
+      governed by API terms and billing — it's less subject to consumer-tier policy changes, rate
+      enforcement via subscription verification, and sudden account-level interventions.
+    </p>
+
+    <p>
+      If you've been running OpenClaw using claude.ai OAuth tokens (some older setups did this),
+      now is a good time to migrate to a proper API key setup. See our guide on
+      <a href="/blog/openclaw-claude-oauth-dead-now-what.html">Claude OAuth and what replaced it</a>.
+    </p>
+
+    <h2>Alternative Providers</h2>
+
+    <p>
+      If this verification requirement is a dealbreaker for you, OpenClaw supports multiple
+      providers. For Claude-quality results without the Anthropic account requirements:
+    </p>
+    <ul>
+      <li><strong>Google Gemini API</strong> — competitive with Claude on most tasks, no ID verification</li>
+      <li><strong>OpenAI API</strong> — GPT-5 family, standard API billing</li>
+      <li><strong>Local via Ollama</strong> — completely offline, no account at all</li>
+    </ul>
+
+    <p>
+      See our <a href="/blog/openclaw-local-models-ollama.html">Ollama local models guide</a> if
+      you want zero dependency on cloud providers.
+    </p>
+
+    <hr />
+
+    <div class="cta-box">
+      <h3>Not sure how your OpenClaw is connecting to Claude?</h3>
+      <p>ClawReady audits your full config — auth method, provider keys, model routing — and flags
+      anything that could cause you problems. $49 audit, results in 24 hours.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
