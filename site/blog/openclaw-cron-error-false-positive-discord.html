@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Cron Job Shows "error" When Delivery Succeeded — False Positive Fix | ClawReady</title>
+  <meta name="description" content="OpenClaw cron jobs that post to Discord and return NO_REPLY are showing lastRunStatus='error' even though the message delivered successfully. Here's why and how to fix it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-cron-error-false-positive-discord.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix — Cron</span>
+      <span class="date">April 17, 2026</span>
+    </div>
+
+    <h1>OpenClaw Cron Jobs Show "error" Status Even When Messages Delivered Successfully</h1>
+
+    <p class="lead">
+      Your cron job runs, posts to Discord, and the message appears. But
+      <code>openclaw cron list</code> shows <code>lastRunStatus: "error"</code> and
+      <code>lastError: "⚠️ ✉️ Message failed"</code>. The delivery worked — the error
+      is a false positive from the QA transport layer. Here's what's happening and
+      how to suppress it.
+    </p>
+
+    <h2>What's Happening</h2>
+
+    <p>
+      Issue #67441: when a cron job runs an isolated agent session that posts to Discord
+      via the <code>message</code> tool and returns <code>NO_REPLY</code>, the cron
+      runner evaluates whether the session produced a "response." <code>NO_REPLY</code>
+      signals no user-facing reply — which the QA transport incorrectly interprets as
+      a delivery failure and marks the job as errored.
+    </p>
+
+    <p>
+      The Discord message went through. Your users see it. The cron job log says it failed.
+      This makes cron monitoring unreliable — you can't tell real failures from these
+      false positives without checking Discord manually.
+    </p>
+
+    <h2>Affected Pattern</h2>
+
+    <p>This specifically hits cron jobs that:</p>
+    <ol>
+      <li>Run an isolated agent session (not an inline task)</li>
+      <li>Post to Discord (or another channel) via the <code>message</code> tool</li>
+      <li>Return <code>NO_REPLY</code> as the final agent response (correct behavior for message tool sends)</li>
+    </ol>
+
+    <h2>Workaround #1 — Return a Confirmation String Instead of NO_REPLY</h2>
+
+    <p>
+      The cron runner expects the session to produce <em>some</em> text output to consider
+      the job successful. Instead of <code>NO_REPLY</code>, have your cron agent return a
+      minimal confirmation:
+    </p>
+
+    <pre><code>// In your SOUL.md or cron task prompt — change the ending instruction:
+
+// Before (triggers false positive):
+"After sending, reply with exactly: NO_REPLY"
+
+// After (resolves false positive):
+"After sending, reply with exactly: ✅ sent"</code></pre>
+
+    <p>
+      The confirmation string won't be delivered to the channel (it's a session-level
+      response, not a message tool call), but the cron runner sees it as a successful
+      completion.
+    </p>
+
+    <h2>Workaround #2 — Use an Inline Cron Task Instead of an Isolated Session</h2>
+
+    <p>
+      If your cron job is simple enough, switch from an isolated session pattern to an
+      inline task. Inline cron tasks evaluate completion differently and aren't affected
+      by the QA transport false positive:
+    </p>
+
+    <pre><code>// crons entry in openclaw.json
+{
+  "crons": [
+    {
+      "schedule": "0 8 * * *",
+      "task": "Send the morning briefing to Discord channel #briefings",
+      "isolated": false  // inline, not isolated session
+    }
+  ]
+}</code></pre>
+
+    <h2>Workaround #3 — Ignore the Error Status in Monitoring</h2>
+
+    <p>
+      If you're monitoring cron health and know this false positive exists, you can
+      filter it out by checking whether <code>lastError</code> contains "Message failed"
+      — treat that specific error string as non-critical until the bug is fixed:
+    </p>
+
+    <pre><code>openclaw cron list | grep -v "Message failed"</code></pre>
+
+    <h2>How to Confirm It's a False Positive (Not a Real Failure)</h2>
+
+    <pre><code># Check if the message actually made it to Discord
+openclaw cron list --verbose
+# Look at lastRunAt timestamp, then check Discord for a message at that time
+
+# Also check gateway logs around the cron run time
+openclaw gateway logs | grep -A5 "cron"</code></pre>
+
+    <p>
+      If the Discord message is there and the timestamp matches — it's the false positive.
+      If there's no Discord message — it's a real failure and something else is wrong.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>Cron + isolated session + message tool + NO_REPLY = false positive <code>lastRunStatus: "error"</code></li>
+      <li>Fix A: Return <code>✅ sent</code> instead of <code>NO_REPLY</code> at end of cron task</li>
+      <li>Fix B: Switch to inline cron task (<code>isolated: false</code>)</li>
+      <li>Fix C: Filter <code>"Message failed"</code> out of monitoring until patched</li>
+      <li>Tracking: GitHub issue #67441</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Cron jobs not behaving?</h3>
+      <p>
+        ClawReady configures scheduled tasks and heartbeat systems that work reliably —
+        right isolation mode, right response pattern, real error monitoring you can
+        actually trust.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

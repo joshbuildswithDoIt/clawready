@@ -202,6 +202,20 @@
 
     <div class="articles">
 
+      <a href="/blog/openclaw-control-ui-raw-mode-disabled" class="article-card">
+        <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">🚨 Bug Fix</span>
+        <h2>OpenClaw Control UI "Raw Mode Disabled" Error: What It Means and How to Fix It</h2>
+        <p>Issue #67926: snapshot cannot safely round-trip raw text — raw mode toggle grayed out. 4 fixes including /new, /compact, and checking for tools returning binary data directly into the conversation.</p>
+        <div class="meta">3 min read · April 17, 2026</div>
+      </a>
+
+      <a href="/blog/openclaw-cron-error-false-positive-discord" class="article-card">
+        <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">🚨 Bug Fix — Cron</span>
+        <h2>OpenClaw Cron Jobs Show "error" When Messages Delivered Fine — False Positive Fix</h2>
+        <p>Issue #67441: isolated cron session + message tool + NO_REPLY = lastRunStatus "error" even though Discord delivery succeeded. 3 workarounds including returning a confirmation string instead of NO_REPLY.</p>
+        <div class="meta">3 min read · April 17, 2026</div>
+      </a>
+
       <a href="/blog/openclaw-compaction-timeout-new-fallback" class="article-card">
         <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">🚨 Bug Fix</span>
         <h2>OpenClaw Auto-Compaction Succeeds But Session Still Resets to /new — 120s Timeout Fix</h2>

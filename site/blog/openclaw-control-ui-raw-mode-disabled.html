@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Control UI "Raw Mode Disabled" Error — What It Means and How to Fix It | ClawReady</title>
+  <meta name="description" content="OpenClaw's Control UI is showing 'Raw mode disabled (snapshot cannot safely round-trip raw text).' Here's what triggered it and how to restore raw mode." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-control-ui-raw-mode-disabled.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix</span>
+      <span class="date">April 17, 2026</span>
+    </div>
+
+    <h1>OpenClaw Control UI: "Raw Mode Disabled (snapshot cannot safely round-trip raw text)" — Fixed</h1>
+
+    <p class="lead">
+      If the Raw mode toggle in OpenClaw's Control UI is grayed out or shows the message
+      <em>"Raw mode disabled (snapshot cannot safely round-trip raw text)"</em>, this is
+      issue #67926. Here's what it means and how to get raw mode working again.
+    </p>
+
+    <h2>What Raw Mode Does</h2>
+
+    <p>
+      Raw mode in the Control UI lets you view the unprocessed JSON snapshot of the
+      current session state — useful for debugging tool calls, inspecting message
+      structure, and diagnosing issues that the formatted view hides. Power users rely
+      on it for understanding exactly what the model is seeing.
+    </p>
+
+    <h2>Why It Gets Disabled</h2>
+
+    <p>
+      The error message — "snapshot cannot safely round-trip raw text" — means the
+      Control UI detected content in the current session snapshot that contains characters
+      or sequences that would be corrupted or escaped when rendered as raw JSON and then
+      parsed back. Rather than show you potentially mangled data, it disables raw mode
+      as a safety measure.
+    </p>
+
+    <p>Common triggers:</p>
+    <ul>
+      <li>Session contains large binary content or base64 blobs in tool results</li>
+      <li>A tool returned content with unescaped special characters (null bytes, invalid UTF-8)</li>
+      <li>An image or file was passed through a tool and left a partial payload in the session state</li>
+      <li>Very long code blocks with escaped sequences that interact badly with the snapshot renderer</li>
+    </ul>
+
+    <h2>Fix #1 — Start a New Session</h2>
+
+    <p>
+      The simplest fix: the problematic content is in the current session. Start a fresh session
+      and raw mode will work again:
+    </p>
+
+    <pre><code>/new</code></pre>
+
+    <p>
+      If you need to preserve the current session's context, export what matters to your
+      memory files first, then use <code>/new</code>.
+    </p>
+
+    <h2>Fix #2 — Use the Formatted View Instead</h2>
+
+    <p>
+      For most debugging purposes, the formatted Control UI view exposes the same information
+      as raw mode in a more readable form. If you just need to see what the model received
+      or what tools were called, the structured view usually covers it.
+    </p>
+
+    <h2>Fix #3 — Compact the Session First</h2>
+
+    <p>
+      If the problematic content is from earlier in the session, running <code>/compact</code>
+      may summarize it away, removing the offending payload from the active snapshot:
+    </p>
+
+    <pre><code>/compact</code></pre>
+
+    <p>
+      After compaction, try toggling raw mode again. If the content that triggered the
+      disable was in older messages, compaction removes it from the active context.
+    </p>
+
+    <h2>Fix #4 — Check for Binary Tool Results</h2>
+
+    <p>
+      If raw mode keeps getting disabled in new sessions, a skill or tool is likely
+      returning binary or malformed data. Check your recent tool usage:
+    </p>
+
+    <pre><code># Look for recent tool calls with large or binary responses
+openclaw gateway logs | grep -i "tool_result\|binary\|base64" | tail -20</code></pre>
+
+    <p>
+      If you find a skill returning image data or file contents directly into the
+      conversation (rather than saving to disk and returning a path), that's the culprit.
+      Configure the skill to return a file path or summary instead of raw binary content.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>"Raw mode disabled" = session snapshot contains content that can't safely round-trip as JSON</li>
+      <li>Fix A: <code>/new</code> to start a fresh session</li>
+      <li>Fix B: Use formatted view — covers most debug needs</li>
+      <li>Fix C: <code>/compact</code> to summarize away the offending content</li>
+      <li>Fix D: Check for tools returning binary/base64 data directly into conversation</li>
+      <li>Tracking: GitHub issue #67926</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Control UI acting up after a long session?</h3>
+      <p>
+        ClawReady configures workspace architecture and tool settings to prevent these
+        kinds of session state issues — properly scoped tool outputs, lean memory, and
+        compaction patterns that keep your agent healthy long-term.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
