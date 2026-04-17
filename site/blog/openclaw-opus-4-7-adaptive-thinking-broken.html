@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Opus 4.7 Adaptive Thinking Not Working in OpenClaw (Silent Fallback Bug) | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.15 silently ignores adaptive thinking on Claude Opus 4.7, sending a fixed 10K token budget instead. Here's the cause and the workaround.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-opus-4-7-adaptive-thinking-broken">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>Claude Opus 4.7 Adaptive Thinking Silently Broken in OpenClaw 4.15</h1>
+    <p class="meta">Published April 17, 2026 · Issue #68078 · Affects: 2026.4.15 · Model: claude-opus-4-7</p>
+
+    <p>If you configured Claude Opus 4.7 with <code>params.thinking = "adaptive"</code> in OpenClaw, it appears to work — no errors, responses come back — but you're not actually getting adaptive thinking. OpenClaw is silently sending a fixed <code>budget_tokens: 10000</code> to Anthropic instead. You're paying for standard thinking while believing you have adaptive.</p>
+
+    <h2>What's Happening</h2>
+    <p>The culprit is a one-line omission in OpenClaw's transport layer. The function <code>supportsAdaptiveThinking()</code> in <code>anthropic-vertex-stream</code> only checks for Opus 4.6 and Sonnet 4.6:</p>
+
+    <pre><code>function supportsAdaptiveThinking(modelId) {
+  return modelId.includes("opus-4-6") || modelId.includes("opus-4.6")
+      || modelId.includes("sonnet-4-6") || modelId.includes("sonnet-4.6");
+}</code></pre>
+
+    <p>Opus 4.7 is simply missing from this list. When OpenClaw sees <code>thinking: "adaptive"</code> on an unlisted model, it doesn't throw an error — it silently falls back to <code>thinking: { type: "enabled", budget_tokens: 10000 }</code>.</p>
+
+    <p>The irony: other parts of the codebase already know about Opus 4.7. <code>shouldUseAnthropicAdaptiveThinkingDefault</code> includes <code>ANTHROPIC_OPUS_47_MODEL_ID</code>. <code>ANTHROPIC_MODERN_MODEL_PREFIXES</code> includes <code>claude-opus-4-7</code>. Only the transport-level whitelist was missed during the 4.7 rollout.</p>
+
+    <p>There's also a secondary issue: <code>mapThinkingLevelToEffort</code>'s <code>xhigh</code> branch only maps to <code>"max"</code> for Opus 4.6. For Opus 4.7, it currently returns <code>"high"</code> — probably also incorrect.</p>
+
+    <h2>How to Confirm You're Affected</h2>
+    <p>Check your gateway logs for the raw request body sent to Anthropic. If you see:</p>
+    <pre><code>"thinking": { "type": "enabled", "budget_tokens": 10000 }</code></pre>
+    <p>…when you configured <code>adaptive</code>, you're affected. You should be seeing:</p>
+    <pre><code>"thinking": { "type": "adaptive" }</code></pre>
+
+    <h2>Workaround</h2>
+    <p>Until the fix ships, explicitly set a non-adaptive thinking level in your agent config. This forces OpenClaw into the fixed budget_tokens path intentionally, rather than landing there by accident:</p>
+
+    <pre><code># In your openclaw.json or agents config
+agents:
+  defaults:
+    models:
+      "anthropic*/claude-opus-4-7":
+        params:
+          thinking: "high"   # or "low", "medium" — avoids the silent fallback
+</code></pre>
+
+    <p>Setting <code>thinking: "high"</code> uses a larger but fixed token budget and avoids the ambiguity of the broken adaptive path. You won't get true adaptive thinking until the whitelist is patched, but at least you'll know what you're getting.</p>
+
+    <h2>What "Adaptive" Actually Does</h2>
+    <p>Anthropic's adaptive thinking mode lets the model dynamically scale its reasoning budget based on problem complexity. Simple questions use fewer tokens; hard problems get more. The fixed <code>budget_tokens: 10000</code> fallback is always 10K regardless of what the task needs — potentially wasteful on easy queries and insufficient on complex ones.</p>
+
+    <h2>Affected Versions</h2>
+    <ul>
+      <li>OpenClaw 2026.4.15 — confirmed affected</li>
+      <li>Earlier versions with Opus 4.7 support — likely affected too</li>
+      <li>Opus 4.6 — unaffected (correctly listed in whitelist)</li>
+    </ul>
+
+    <p>Track the fix at <a href="https://github.com/openclaw/openclaw/issues/68078" target="_blank" rel="noopener">issue #68078</a>.</p>
+
+    <h2>Need Help?</h2>
+    <p>If you're running Opus 4.7 and want to verify your thinking configuration is actually doing what you expect, <a href="https://clawreadynow.com/#pricing">ClawReady's audit</a> covers exactly this — we check your model config, provider routing, and thinking levels to make sure nothing is silently misbehaving.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
