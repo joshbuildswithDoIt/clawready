@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Zombie Sessions in sessions.json After Subagent Crash | ClawReady</title>
+  <meta name="description" content="When an OpenClaw subagent crashes or is killed, its entry in sessions.json stays as 'running' forever. Here's why it happens and how to clean it up.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-subagent-sessions-json-zombie">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw Zombie Sessions in sessions.json After Subagent Crash</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67902 · Affects: 2026.4.15 · Platform: All</p>
+
+    <p>You spawn a subagent. It crashes — maybe the host rebooted, maybe you sent a SIGKILL, maybe it just died. You restart your gateway and everything looks fine. But quietly, <code>sessions.json</code> has grown another stale ghost entry with <code>status: "running"</code> that will never go away on its own.</p>
+
+    <p>Over time, this file accumulates hundreds of zombie entries. External monitoring scripts that read it directly see agents that haven't existed for weeks. And the file keeps growing.</p>
+
+    <h2>What's Happening</h2>
+    <p>OpenClaw tracks active subagent sessions in two places:</p>
+    <ol>
+      <li>An <strong>in-memory registry</strong> — used by the <code>subagents</code> tool API</li>
+      <li><strong><code>~/.openclaw/agents/main/sessions/sessions.json</code></strong> — the persistent file on disk</li>
+    </ol>
+    <p>When a subagent exits cleanly, both get updated. When a subagent crashes (SIGKILL, host reboot, OOM kill), only the in-memory registry gets cleaned up on the next gateway start. The <code>sessions.json</code> entry is never touched — it stays <code>status: "running"</code> with the original <code>startedAt</code> timestamp, forever.</p>
+    <p>This creates a split-brain state: the <code>subagents</code> API shows nothing, but <code>sessions.json</code> shows it as actively running.</p>
+
+    <h2>How to Tell If You Have Zombies</h2>
+    <pre><code># Check for entries with status "running" that are old
+cat ~/.openclaw/agents/main/sessions/sessions.json | \
+  python3 -c "
+import json, sys, datetime
+data = json.load(sys.stdin)
+now = datetime.datetime.utcnow()
+for s in data.get('sessions', []):
+    if s.get('status') == 'running':
+        started = s.get('startedAt', '')
+        print(f\"RUNNING: {s.get('id','?')} started={started}\")
+"
+</code></pre>
+    <p>If you see sessions marked <code>running</code> with timestamps from hours or days ago — those are zombies.</p>
+
+    <h2>Manual Cleanup (The Current Workaround)</h2>
+    <p>Until OpenClaw adds automatic TTL-based cleanup, you'll need to edit the file manually or use a script.</p>
+
+    <h3>Option 1: Quick Manual Edit</h3>
+    <pre><code># Back it up first
+cp ~/.openclaw/agents/main/sessions/sessions.json \
+   ~/.openclaw/agents/main/sessions/sessions.json.bak
+
+# Open and remove stale "running" entries
+nano ~/.openclaw/agents/main/sessions/sessions.json
+</code></pre>
+    <p>Remove any entries where <code>status</code> is <code>"running"</code> and the <code>startedAt</code> timestamp is more than 30 minutes ago (and you know no subagent is actually running).</p>
+
+    <h3>Option 2: Cleanup Script</h3>
+    <p>Save this as <code>cleanup-sessions.py</code> and run it when needed (with the gateway stopped):</p>
+    <pre><code>import json, os, datetime
+
+path = os.path.expanduser(
+    "~/.openclaw/agents/main/sessions/sessions.json"
+)
+
+with open(path) as f:
+    data = json.load(f)
+
+now = datetime.datetime.utcnow()
+cutoff = 30 * 60  # 30 minutes in seconds
+
+cleaned = []
+removed = 0
+for s in data.get("sessions", []):
+    if s.get("status") == "running":
+        started_str = s.get("startedAt", "")
+        try:
+            started = datetime.datetime.fromisoformat(
+                started_str.replace("Z", "+00:00")
+            ).replace(tzinfo=None)
+            age = (now - started).total_seconds()
+            if age > cutoff:
+                print(f"Removing zombie: {s.get('id')} (age {age/60:.0f}m)")
+                removed += 1
+                continue
+        except Exception:
+            pass
+    cleaned.append(s)
+
+data["sessions"] = cleaned
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+
+print(f"Done. Removed {removed} zombie session(s).")
+</code></pre>
+    <pre><code>openclaw gateway stop
+python3 cleanup-sessions.py
+openclaw gateway start</code></pre>
+
+    <h3>Option 3: Cron-Based Maintenance</h3>
+    <p>If you run long-lived gateways with lots of subagent activity, schedule the cleanup script daily:</p>
+    <pre><code># Add to crontab (runs at 3 AM daily)
+0 3 * * * openclaw gateway stop && python3 ~/cleanup-sessions.py && openclaw gateway start</code></pre>
+
+    <h2>Impact on Your Setup</h2>
+    <p>For most users with occasional subagent use, this is a minor annoyance. For power users running automated pipelines with dozens of subagents per day, <code>sessions.json</code> can grow to thousands of stale entries within weeks, and any external tooling that reads it directly will give garbage data.</p>
+
+    <h2>When Will It Be Fixed?</h2>
+    <p>The fix involves one of two approaches: process-exit hooks that update <code>sessions.json</code> on abnormal termination, or a startup reconciliation pass that marks stale <code>running</code> entries as <code>crashed</code>. Track progress at <a href="https://github.com/openclaw/openclaw/issues/67902" target="_blank" rel="noopener">issue #67902</a>.</p>
+
+    <h2>Need Help?</h2>
+    <p>If your OpenClaw setup is accumulating session cruft or you want a properly maintained multi-agent configuration, <a href="https://clawreadynow.com/#pricing">ClawReady</a> can help you get it clean and keep it that way.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
