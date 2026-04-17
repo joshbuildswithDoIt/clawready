@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw openai-codex OAuth Fails on VPS: Cloudflare Bot Check Fix | ClawReady</title>
+  <meta name="description" content="OpenClaw's openai-codex OAuth works on your laptop but fails on a VPS with Cloudflare 403 or backend rejection — even with a valid browser-backed session. Here's why and how to fix it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-codex-oauth-vps-cloudflare-fix.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix — VPS</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw openai-codex OAuth Fails on VPS But Works on Laptop: Cloudflare Bot Check Explained</h1>
+
+    <p class="lead">
+      Your openai-codex OAuth setup works perfectly on your home machine. You move it to
+      a DigitalOcean, Hetzner, or AWS VPS — and suddenly every request fails with a
+      Cloudflare 403 or a ChatGPT backend rejection, even though the session credentials
+      are identical. This is issue #67798, and it's about how Cloudflare identifies VPS
+      traffic vs residential traffic.
+    </p>
+
+    <h2>Why VPS Requests Get Rejected</h2>
+
+    <p>
+      OpenClaw's openai-codex provider uses a ChatGPT OAuth session to make API calls.
+      ChatGPT is protected by Cloudflare, which maintains risk profiles for IP addresses.
+      VPS provider IP ranges (DigitalOcean, Hetzner, AWS, Linode, Vultr) are well-known
+      to Cloudflare and flagged as datacenter/bot traffic by default.
+    </p>
+
+    <p>
+      On your home machine with a residential ISP IP, the same OAuth credentials sail
+      through. On a VPS with a datacenter IP, Cloudflare's automated checks trigger
+      regardless of credential validity. OpenClaw can't reproduce a real browser
+      fingerprint from a headless server environment — so the check fails.
+    </p>
+
+    <p>
+      The error surfaces as either a Cloudflare 403 challenge page or a ChatGPT backend
+      rejection. Both look like auth failures but are actually IP reputation blocks.
+    </p>
+
+    <h2>Fix #1 — Switch to a Direct OpenAI API Key (Recommended)</h2>
+
+    <p>
+      The cleanest fix is abandoning the ChatGPT OAuth path and using a direct OpenAI
+      API key instead. API calls to <code>api.openai.com</code> don't go through the
+      ChatGPT/Cloudflare stack — they go straight to the OpenAI API endpoint with no
+      browser emulation required.
+    </p>
+
+    <pre><code>// openclaw.json — replace openai-codex with direct openai provider
+{
+  "providers": {
+    "openai": {
+      "apiKey": "sk-your-openai-key",
+      "model": "gpt-5.4"
+    }
+  }
+}</code></pre>
+
+    <p>
+      This works reliably from any server, any IP, any geography. It also gives you
+      full model selection (not limited to what ChatGPT OAuth exposes), proper rate
+      limits, and usage tracking.
+    </p>
+
+    <h2>Fix #2 — Use a Residential Proxy</h2>
+
+    <p>
+      If you specifically need the ChatGPT OAuth path (e.g., you're on the ChatGPT
+      subscription tier and want to use that compute), route your OpenClaw traffic
+      through a residential proxy. Cloudflare scores residential IPs much lower on
+      bot probability.
+    </p>
+
+    <p>
+      Configure in OpenClaw via the <code>httpsProxy</code> setting or system-level
+      proxy env vars:
+    </p>
+
+    <pre><code>export HTTPS_PROXY="http://user:pass@residential-proxy:port"
+openclaw gateway restart</code></pre>
+
+    <p>
+      Residential proxy providers: Oxylabs, Bright Data, IPRoyal. Costs $5–20/month
+      depending on traffic. Not worth it if you can use a direct API key instead.
+    </p>
+
+    <h2>Fix #3 — Move OpenClaw to a Home Machine or Tunnel It</h2>
+
+    <p>
+      If you want VPS-like always-on deployment without VPS IP reputation issues, run
+      OpenClaw on a home mini PC (NUC, Mac Mini, Raspberry Pi 5) and expose it via
+      a Cloudflare Tunnel or Tailscale. The traffic originates from your home residential
+      IP. Cloudflare sees it as legitimate browser traffic.
+    </p>
+
+    <p>
+      This is actually the ideal setup for the openai-codex OAuth path — it was designed
+      for personal machines, not servers.
+    </p>
+
+    <h2>How to Tell If This Is Your Problem</h2>
+
+    <pre><code># Test the raw endpoint from your VPS
+curl -I "https://chatgpt.com/backend-api/v1/models" \
+  -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"</code></pre>
+
+    <p>
+      If you get a <code>403</code> with <code>cf-mitigated: challenge</code> in the
+      response headers — this is your issue. If you get a <code>401</code> or
+      <code>403</code> without cf-mitigated — it's a different auth problem.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>openai-codex OAuth works on laptops, fails on VPS — datacenter IPs flagged by Cloudflare</li>
+      <li>Fix A: Switch to direct OpenAI API key (cleanest, recommended)</li>
+      <li>Fix B: Route through a residential proxy</li>
+      <li>Fix C: Run OpenClaw on home hardware + Cloudflare Tunnel</li>
+      <li>Diagnosis: <code>cf-mitigated: challenge</code> in curl response = Cloudflare block</li>
+      <li>Tracking: GitHub issue #67798</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Running OpenClaw on a VPS or server?</h3>
+      <p>
+        ClawReady can configure your server-based setup to avoid common provider pitfalls
+        — right provider config, right model path, right deployment pattern for your
+        hardware.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

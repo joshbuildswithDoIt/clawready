@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Auto-Compaction Timeout: Successful Compaction Still Ends in /new Fallback | ClawReady</title>
+  <meta name="description" content="OpenClaw can successfully compact a session but then hit a 120s LLM idle timeout on the retry — ending in a forced /new anyway. Here's why and how to prevent it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-compaction-timeout-new-fallback.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw Auto-Compaction Timeout: Why a Successful Compaction Still Ends in /new</h1>
+
+    <p class="lead">
+      Auto-compaction is supposed to save long sessions from context overflow. But on
+      embedded agent sessions, OpenClaw can successfully compact the session, then retry
+      the original prompt — and <em>then</em> hit a 120-second LLM idle timeout on the
+      retry, exhausting all retries and forcing a <code>/new</code> reset anyway. The
+      compaction worked. The session was killed regardless.
+    </p>
+
+    <h2>The Failure Sequence</h2>
+
+    <p>
+      Issue #67750 documents the exact chain of events:
+    </p>
+
+    <ol>
+      <li>Session hits context overflow threshold</li>
+      <li>OpenClaw detects overflow, initiates auto-compaction</li>
+      <li>Compaction runs successfully — old messages summarized, context trimmed</li>
+      <li>OpenClaw retries the original prompt with the compacted context</li>
+      <li>The retried LLM call hits a 120-second idle timeout (provider taking too long)</li>
+      <li>OpenClaw exhausts retry attempts</li>
+      <li>Falls back to <code>/new</code> — session reset, context lost</li>
+    </ol>
+
+    <p>
+      From the user's perspective: agent stops mid-task, session resets, all context is
+      gone — same result as if compaction had never run. But compaction <em>did</em> run
+      successfully. The failure is in the retry layer, not the compaction itself.
+    </p>
+
+    <h2>Why the Retry Times Out</h2>
+
+    <p>
+      Compaction runs a silent LLM summarization turn before the retry. On long sessions,
+      that summarization call can itself be slow. By the time the original prompt retry
+      fires, the provider may already be under load — and the retry inherits the same
+      120-second timeout window with no fresh budget. A slow summarization pass + slow
+      retry = timeout.
+    </p>
+
+    <h2>Fix #1 — Reduce Context Overhead Before Sessions Get Long</h2>
+
+    <p>
+      The best fix is preventing the situation. Keep bootstrap files lean so compaction
+      runs faster and the retry has more timeout headroom:
+    </p>
+
+    <ul>
+      <li>Trim MEMORY.md to under 500 tokens (archive old entries)</li>
+      <li>Delete BOOTSTRAP.md if you still have it</li>
+      <li>Move reference content to skills rather than workspace files</li>
+    </ul>
+
+    <p>
+      See our <a href="/blog/openclaw-context-bloat-workspace-files.html">context bloat guide</a>
+      for the full workflow.
+    </p>
+
+    <h2>Fix #2 — Increase the LLM Idle Timeout</h2>
+
+    <p>
+      If your provider is legitimately slow (local Ollama, VPS with limited CPU, or a
+      congested API endpoint), increasing the timeout gives the retry more room:
+    </p>
+
+    <pre><code>// openclaw.json
+{
+  "llm": {
+    "idleTimeoutMs": 300000  // 5 minutes instead of 120 seconds
+  }
+}</code></pre>
+
+    <p>
+      Trade-off: hung requests will take longer to surface as errors. Only increase this
+      if you know your provider is slow but reliable — not if you're on a fast API that
+      shouldn't need more than 2 minutes.
+    </p>
+
+    <h2>Fix #3 — Use /compact Manually Before Sessions Get Critical</h2>
+
+    <p>
+      Don't wait for auto-compaction to trigger at overflow. Run <code>/compact</code>
+      proactively when sessions get long — before the context limit is hit. This gives
+      compaction and the subsequent retry their full timeout budget rather than running
+      under pressure.
+    </p>
+
+    <pre><code>/compact</code></pre>
+
+    <p>
+      A good rule: if a session has been running for more than 2 hours or 50+ turns,
+      run <code>/compact</code> manually during a natural pause in work.
+    </p>
+
+    <h2>Fix #4 — Use Lossless Claw for Long Sessions</h2>
+
+    <p>
+      <a href="/blog/lossless-claw-context-management-openclaw.html">Lossless Claw</a>
+      replaces OpenClaw's compaction entirely with a DAG-based system that never hits
+      the overflow threshold in the same way. If you're regularly running sessions long
+      enough to trigger this bug, it's worth installing.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>Auto-compaction succeeds → retry hits 120s LLM timeout → forced <code>/new</code> anyway</li>
+      <li>Fix A: Lean workspace files = faster compaction + more retry headroom</li>
+      <li>Fix B: Increase <code>llm.idleTimeoutMs</code> if provider is legitimately slow</li>
+      <li>Fix C: Run <code>/compact</code> manually before sessions get critical</li>
+      <li>Fix D: Install Lossless Claw for persistent long sessions</li>
+      <li>Tracking: GitHub issue #67750</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Losing session context from compaction failures?</h3>
+      <p>
+        ClawReady configures workspace architecture and compaction settings to minimize
+        context loss — including Lossless Claw setup for long-running agent workflows.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

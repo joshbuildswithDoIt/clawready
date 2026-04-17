@@ -144,5 +144,7 @@
   <url><loc>https://clawreadynow.com/blog/openclaw-openrouter-payloads-zero-fix.html</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>2026-04-16</lastmod></url>
   <url><loc>https://clawreadynow.com/blog/openclaw-persistent-sub-agent-session-broken.html</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>2026-04-16</lastmod></url>
   <url><loc>https://clawreadynow.com/blog/openclaw-slack-focus-binding-broken.html</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>2026-04-16</lastmod></url>
+  <url><loc>https://clawreadynow.com/blog/openclaw-compaction-timeout-new-fallback.html</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>2026-04-17</lastmod></url>
+  <url><loc>https://clawreadynow.com/blog/openclaw-codex-oauth-vps-cloudflare-fix.html</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>2026-04-17</lastmod></url>
 
 </urlset>

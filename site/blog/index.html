@@ -202,6 +202,20 @@
 
     <div class="articles">
 
+      <a href="/blog/openclaw-compaction-timeout-new-fallback" class="article-card">
+        <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">🚨 Bug Fix</span>
+        <h2>OpenClaw Auto-Compaction Succeeds But Session Still Resets to /new — 120s Timeout Fix</h2>
+        <p>Issue #67750: compaction runs cleanly, then the retry hits a 120s LLM idle timeout anyway — forced /new, context lost. Why it happens and 4 fixes including proactive /compact and Lossless Claw.</p>
+        <div class="meta">4 min read · April 16, 2026</div>
+      </a>
+
+      <a href="/blog/openclaw-codex-oauth-vps-cloudflare-fix" class="article-card">
+        <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">🚨 Bug Fix — VPS</span>
+        <h2>OpenClaw openai-codex OAuth Works on Laptop But Fails on VPS: Cloudflare Bot Block Fix</h2>
+        <p>Issue #67798: datacenter IPs get flagged by Cloudflare even with valid OAuth credentials. Curl diagnostic, 3 fixes (direct API key, residential proxy, home hardware + tunnel).</p>
+        <div class="meta">4 min read · April 16, 2026</div>
+      </a>
+
       <a href="/blog/openclaw-slack-focus-binding-broken" class="article-card">
         <span class="tag" style="background:rgba(231,76,60,.15);color:#e74c3c;">🚨 Bug Fix — Slack</span>
         <h2>OpenClaw Slack /focus Not Working: Runtime Binding Ignored by Inbound Router</h2>
