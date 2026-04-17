@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw "skills install" Hangs Behind a Corporate Proxy | ClawReady</title>
+  <meta name="description" content="openclaw skills install times out in egress-locked environments even with HTTPS_PROXY set correctly. Here's the root cause (Node fetch ignores proxy env vars) and 3 workarounds.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-skills-install-proxy-timeout">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw "skills install" Hangs Behind a Corporate Proxy</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67770 · Affects: 2026.4.5–2026.4.14 · Platform: Kubernetes / egress-locked networks</p>
+
+    <p>You're running OpenClaw inside a Kubernetes cluster (or any network where all external traffic must go through a forward proxy). You've set <code>HTTPS_PROXY</code> correctly — <code>curl</code> through the proxy reaches <code>clawhub.ai</code> just fine. Then you run:</p>
+
+    <pre><code>openclaw skills install web-search</code></pre>
+
+    <p>And get this after ~10 seconds:</p>
+
+    <pre><code>fetch failed | Connect Timeout Error (attempted address: clawhub.ai:443, timeout: 10000ms)</code></pre>
+
+    <p>The CLI ignored your proxy entirely and tried to connect directly to <code>clawhub.ai:443</code> — which your NetworkPolicy blocks.</p>
+
+    <h2>Root Cause</h2>
+    <p>This is a known Node.js behavior that catches a lot of people off guard. <strong>Node's built-in <code>fetch</code> (powered by undici) does not read <code>HTTPS_PROXY</code> or <code>HTTP_PROXY</code> environment variables automatically.</strong></p>
+
+    <p>Unlike <code>curl</code> or older <code>http.request</code>-based code, undici's <code>fetch</code> requires the caller to explicitly install a <code>ProxyAgent</code> as the global dispatcher. OpenClaw's ClawHub module uses native <code>fetch</code> without doing this — so it bypasses the proxy entirely regardless of your environment variables.</p>
+
+    <p>The affected code is in <code>/app/dist/clawhub-BFjxm1oA.js</code>, using <code>https://clawhub.ai</code> as the endpoint (overridable via <code>OPENCLAW_CLAWHUB_URL</code>).</p>
+
+    <h2>Workarounds</h2>
+
+    <h3>Option 1: Preload global-agent (Drop-in Shim)</h3>
+    <p>The quickest fix for containers/Kubernetes: inject the <code>global-agent</code> package as a Node preload. It patches <code>http</code>, <code>https</code>, and undici to honor <code>HTTPS_PROXY</code>:</p>
+    <pre><code># In your Dockerfile or entrypoint, before openclaw starts:
+npm install -g global-agent
+
+# Set environment variables in your pod spec:
+# GLOBAL_AGENT_HTTPS_PROXY=http://squid-proxy.openclaw.svc.cluster.local:3128
+# NODE_OPTIONS=--require global-agent/bootstrap</code></pre>
+    <p>With <code>NODE_OPTIONS=--require global-agent/bootstrap</code> set, all subsequent <code>fetch</code> calls in the OpenClaw process will route through the proxy automatically.</p>
+
+    <h3>Option 2: Set OPENCLAW_CLAWHUB_URL to an Internal Mirror</h3>
+    <p>If you control an internal package mirror or can stand up an nginx reverse proxy inside your cluster that proxies clawhub.ai:</p>
+    <pre><code># In your pod/deployment env:
+OPENCLAW_CLAWHUB_URL=https://clawhub-mirror.internal.company.com</code></pre>
+    <p>This routes the ClawHub fetch to an endpoint reachable without going through an external proxy. Works well in air-gapped or highly restricted clusters.</p>
+
+    <h3>Option 3: Install Skills Manually</h3>
+    <p>Download skill tarballs from a machine with external access and copy them into the container:</p>
+    <pre><code># On an external machine with access:
+openclaw skills install web-search
+# Find the installed skill:
+ls ~/.openclaw/skills/
+
+# Copy to your restricted machine/container via your existing artifact pipeline
+# Then restart the gateway — OpenClaw scans ~/.openclaw/skills/ on boot</code></pre>
+
+    <h2>Who This Affects</h2>
+    <p>This primarily hits:</p>
+    <ul>
+      <li>OpenClaw deployed on Kubernetes (EKS, GKE, AKS) with NetworkPolicies restricting egress</li>
+      <li>Corporate environments where all internet traffic must pass through Squid or a similar forward proxy</li>
+      <li>Air-gapped or compliance-restricted deployments</li>
+    </ul>
+    <p>Home users and standard VPS/cloud VM setups with open egress are not affected — <code>skills install</code> works fine there.</p>
+
+    <h2>Status</h2>
+    <p>The upstream fix is straightforward — add a ProxyAgent dispatcher in the ClawHub module when proxy env vars are present:</p>
+    <pre><code>import { ProxyAgent, setGlobalDispatcher } from 'undici';
+const proxy = process.env.HTTPS_PROXY || process.env.https_proxy
+           || process.env.HTTP_PROXY  || process.env.http_proxy;
+if (proxy) setGlobalDispatcher(new ProxyAgent(proxy));</code></pre>
+    <p>Track progress at <a href="https://github.com/openclaw/openclaw/issues/67770" target="_blank" rel="noopener">issue #67770</a>. The <code>global-agent</code> preload (Option 1) is the most reliable workaround until this ships.</p>
+
+    <p>If you're managing an OpenClaw deployment in a locked-down cluster and need help with proxy configuration or internal routing, <a href="https://clawreadynow.com/#pricing">ClawReady</a> handles exactly this kind of setup.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
