@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw + OpenRouter: Response Received But Never Shown (payloads=0, arm64) | ClawReady</title>
+  <meta name="description" content="OpenRouter confirms your request was processed and tokens were consumed — but OpenClaw never shows a reply. Here's why this happens on arm64 (Raspberry Pi, Apple Silicon) and how to fix it.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-openrouter-response-not-returned-arm64">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenRouter Shows Tokens Used — But OpenClaw Never Replies (payloads=0)</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67575 · Affects: 2026.4.14 + 4.15-beta.1 · Platform: arm64 (Raspberry Pi 5, Apple Silicon)</p>
+
+    <p>You configure OpenClaw with an OpenRouter API key, restart the gateway, and send a message. Nothing comes back. The error is:</p>
+
+    <blockquote><code>⚠️ Agent couldn't generate a response. Logs: incomplete turn detected ... payloads=0</code></blockquote>
+
+    <p>So you check your OpenRouter dashboard — and the request <em>is there</em>. Tokens consumed. OpenRouter says it worked. But OpenClaw has nothing to show for it.</p>
+
+    <p>This is a different bug from the <a href="/blog/openclaw-openrouter-payloads-zero-fix">double-prefix config issue</a>. That one never reaches OpenRouter at all. This one reaches OpenRouter just fine — and fails on the way back.</p>
+
+    <h2>What's Happening</h2>
+    <p>OpenClaw's turn parser expects streamed response chunks in a specific SSE format. When using certain OpenRouter model routes — particularly <strong>Google Gemini models routed through OpenRouter</strong> (<code>openrouter/google/gemini-2.5-flash</code>, <code>gemini-2.5-flash-lite</code>, <code>gemini-2.5-pro-preview</code>) — the streaming format OpenRouter returns differs subtly from what OpenClaw's internal chunk parser expects.</p>
+
+    <p>The chunks arrive, OpenClaw's stream reader consumes them, but the content-block extraction step produces zero payloads. The turn closes with <code>payloads=0</code> and the agent surfaces an error instead of a response.</p>
+
+    <p>This appears to be more pronounced on <strong>arm64 platforms</strong> (Raspberry Pi 5, Apple Silicon Mac), though the root cause is in the parser, not the architecture.</p>
+
+    <h2>How to Confirm This Is Your Problem</h2>
+    <pre><code># 1. Send a test message
+openclaw agent --to self --message "hello"
+
+# 2. Check OpenRouter dashboard at https://openrouter.ai/activity
+# If tokens are showing up there but you got no reply → this bug
+
+# 3. Check gateway logs
+openclaw gateway logs | grep -E "(payloads=0|incomplete turn|openrouter)"
+# You'll see: "incomplete turn detected: ... payloads=0"
+</code></pre>
+
+    <p>The key indicator: <strong>OpenRouter shows usage, but your agent shows nothing.</strong> If OpenRouter shows zero usage, see the <a href="/blog/openclaw-openrouter-payloads-zero-fix">double-prefix post</a> instead.</p>
+
+    <h2>Fixes</h2>
+
+    <h3>Fix 1: Switch to a Non-Gemini Model via OpenRouter</h3>
+    <p>OpenRouter routes many models. The parsing issue is most consistently reproduced with Gemini models. Switching to a different provider through OpenRouter often resolves it immediately:</p>
+    <pre><code># Edit your openclaw config
+openclaw configure
+# When prompted for model, try:
+# openrouter/anthropic/claude-3.5-haiku
+# openrouter/mistralai/mistral-7b-instruct
+# openrouter/meta-llama/llama-3.1-8b-instruct:free
+</code></pre>
+
+    <h3>Fix 2: Configure the Provider Directly (Bypass OpenRouter)</h3>
+    <p>If you're using Gemini specifically, configure it directly instead of routing through OpenRouter:</p>
+    <pre><code>openclaw configure
+# Select: google (Gemini)
+# Enter your Google AI API key from https://aistudio.google.com/apikey
+# Select model: gemini-2.5-flash
+</code></pre>
+    <p>Direct Gemini integration doesn't hit this parser issue.</p>
+
+    <h3>Fix 3: Use Anthropic Directly</h3>
+    <p>If you have an Anthropic API key, Claude is unaffected by this bug:</p>
+    <pre><code>openclaw configure
+# Select: anthropic
+# Enter your Claude API key</code></pre>
+
+    <h3>Fix 4: Try 4.15-beta.1 (May or May Not Help)</h3>
+    <p>This issue was reproduced on both 2026.4.14 stable and 4.15-beta.1, so upgrading to beta is unlikely to help. Skip this unless you need beta features for other reasons.</p>
+
+    <h2>Long-Term</h2>
+    <p>The fix requires OpenClaw to handle the Gemini-via-OpenRouter streaming format correctly. Track progress at <a href="https://github.com/openclaw/openclaw/issues/67575" target="_blank" rel="noopener">issue #67575</a>.</p>
+
+    <h2>Raspberry Pi Users</h2>
+    <p>Running OpenClaw on a Pi 5? The local Ollama route completely sidesteps this — no external API, no parsing issues. A Pi 5 8GB can run <code>qwen2.5:7b</code> or <code>llama3.1:8b</code> comfortably. If you want help setting up Ollama on your Pi as a fallback, <a href="https://clawreadynow.com/#pricing">ClawReady's setup service</a> covers it.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
