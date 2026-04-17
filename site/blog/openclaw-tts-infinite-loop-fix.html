@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw TTS Infinite Loop — 275 Messages in 10 Minutes | ClawReady</title>
+  <meta name="description" content="If a user asks your OpenClaw bot to use voice and TTS isn't configured, the agent can enter an infinite tool-call loop producing hundreds of messages. Here's why it happens and how to stop it.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-tts-infinite-loop-fix">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw TTS Infinite Loop — 275 Messages in 10 Minutes</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67744 · Affects: 2026.3.13+ · Channel: Telegram (and others)</p>
+
+    <p>Here's a scenario you don't want to discover in production: a Telegram user messages your bot "I want to chat to you on voice." Your agent has TTS enabled in the config but no TTS provider is actually set up. Within 10 minutes, the agent has sent <strong>275 identical messages</strong>. By the time context overflow hits, it auto-compacts — and then continues the loop.</p>
+
+    <p>This is a real incident documented in issue #67744. It's not a model problem — it's three stacked bugs in OpenClaw's TTS plugin that compound each other.</p>
+
+    <h2>The Three Stacked Bugs</h2>
+
+    <h3>Bug 1 — TTS Plugin Reports Success on Hard Failure</h3>
+    <p>When no TTS provider is configured, the plugin returns an error message in the content text — but critically sets <code>isError: false</code> in the tool result. The framework defaults to false when not explicitly set:</p>
+    <pre><code>{
+  "role": "toolResult",
+  "toolName": "tts",
+  "isError": false,   // ← should be true
+  "content": [{
+    "type": "text",
+    "text": "TTS conversion failed: no provider registered; openai: not configured..."
+  }],
+  "details": {
+    "error": "TTS conversion failed: ..."  // error IS here, but isError stays false
+  }
+}</code></pre>
+    <p>Because <code>isError</code> is false, the model sees a "successful" tool call with error text in the response body. It doesn't recognize this as a terminal failure. It tries again.</p>
+
+    <h3>Bug 2 — Turn Doesn't Terminate When a Tool Call Is Pending</h3>
+    <p>Every one of the 275 looping messages contains both a <code>&lt;final&gt;</code> text block AND a <code>tts</code> tool call in the same assistant message. OpenClaw doesn't terminate the turn when a pending tool call is present alongside a final marker — so control never returns to the user, it just re-runs the tool.</p>
+
+    <h3>Bug 3 — No Retry Backoff or Loop Detection</h3>
+    <p>Even if bugs 1 and 2 were present, a sensible retry/backoff mechanism would catch the pattern: same tool, same arguments, same error, N times in a row. There's no such detection — the loop runs until context overflow.</p>
+
+    <h2>Who's Affected</h2>
+    <p>You're at risk if:</p>
+    <ul>
+      <li>TTS is enabled in your config but <strong>no TTS provider is configured</strong> (openai, minimax, vydra all unconfigured)</li>
+      <li>Users on Telegram, WhatsApp, or any channel can ask your bot to "speak" or "use voice"</li>
+      <li>You're on any version that includes the speech-core extension</li>
+    </ul>
+    <p>The bug was confirmed on 2026.3.13 with <code>google/gemini-2.5-flash</code>, but the three underlying issues are architectural and likely present across versions.</p>
+
+    <h2>Immediate Fixes</h2>
+
+    <h3>Option 1: Actually Configure a TTS Provider (Recommended)</h3>
+    <p>The cleanest fix — give the TTS plugin something to work with:</p>
+    <pre><code># OpenAI TTS (requires API key)
+openclaw configure
+# Select: tts → openai
+# Enter your OpenAI API key
+
+openclaw gateway restart</code></pre>
+    <p>OpenAI TTS via the API costs ~$0.015/1K characters. For a typical voice message, that's a fraction of a cent.</p>
+
+    <h3>Option 2: Disable the TTS Plugin Entirely</h3>
+    <p>If you don't need voice, disable it so the tool isn't available at all:</p>
+    <pre><code># In your openclaw.json config:
+{
+  "plugins": {
+    "disabled": ["speech-core"]
+  }
+}</code></pre>
+    <p>Then restart: <code>openclaw gateway restart</code></p>
+    <p>With the tool disabled, the model can't call it — no loop possible.</p>
+
+    <h3>Option 3: Add a SOUL.md Instruction as a Temporary Guard</h3>
+    <p>Not a real fix, but a quick mitigation while you configure properly:</p>
+    <pre><code># In your SOUL.md or system prompt:
+"If a user asks for voice or TTS and it is not working, tell them voice is not available
+and do NOT retry the tts tool more than once."</code></pre>
+    <p>This works because the model does read tool-result error text — it just needs explicit instruction not to retry.</p>
+
+    <h2>If You're Already in the Loop</h2>
+    <p>If your bot is currently looping:</p>
+    <ol>
+      <li><strong>Stop the gateway immediately:</strong> <code>openclaw gateway stop</code></li>
+      <li>Implement one of the fixes above</li>
+      <li><strong>Clear the session</strong> before restarting — the compacted context may still have the looping pattern. Use <code>/new</code> or delete the session file for the affected user.</li>
+      <li>Restart: <code>openclaw gateway start</code></li>
+    </ol>
+
+    <h2>Track the Fix</h2>
+    <p>The upstream fix requires: (1) <code>isError: true</code> when <code>details.error</code> is set, (2) turn termination logic when a final marker is present alongside a tool call, and (3) loop detection for repeated identical tool calls. Track at <a href="https://github.com/openclaw/openclaw/issues/67744" target="_blank" rel="noopener">issue #67744</a>.</p>
+
+    <h2>Bottom Line</h2>
+    <p>If TTS is enabled but not configured, a single voice request can spin your bot into a 275-message loop in 10 minutes. Either configure a TTS provider or disable the plugin. Don't leave it in the half-configured state.</p>
+
+    <p>If you need help configuring TTS, disabling plugins, or auditing your SOUL.md for loop-prevention instructions, <a href="https://clawreadynow.com/#pricing">ClawReady</a> covers all of this in our setup service.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
