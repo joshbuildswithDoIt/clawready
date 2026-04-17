@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Slack /focus Not Working: Runtime Binding Bug Fix | ClawReady</title>
+  <meta name="description" content="OpenClaw's /focus command on Slack succeeds but messages still go to the wrong agent. The runtime conversation binding writes correctly but inbound routing ignores it. Here's what's broken and the workaround." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-slack-focus-binding-broken.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix — Slack</span>
+      <span class="date">April 16, 2026</span>
+    </div>
+
+    <h1>OpenClaw Slack /focus Not Working: Messages Ignore Runtime Binding</h1>
+
+    <p class="lead">
+      If you're using OpenClaw on Slack and <code>/focus</code> appears to succeed — it
+      confirms the binding, writes to <code>current-conversations.json</code> — but messages
+      in the bound channel still route to the default agent shell instead of your target
+      session, this is issue #67739. The binding is written correctly; Slack inbound routing
+      just isn't reading it. Here's the workaround.
+    </p>
+
+    <h2>What's Happening</h2>
+
+    <p>
+      OpenClaw's <code>/focus</code> command is supposed to bind a Slack channel to a
+      specific ACP session — so messages in that channel route to your target agent rather
+      than the default responder. The command writes the binding to
+      <code>~/.openclaw/bindings/current-conversations.json</code> correctly. You can
+      verify it's there. The problem is on the inbound routing side: when a message arrives
+      in that channel, the Slack inbound router doesn't check the bindings file and falls
+      through to the agent shell anyway.
+    </p>
+
+    <p>
+      The binding exists. The router ignores it. Messages never reach the intended session.
+    </p>
+
+    <h2>Who Gets Hit</h2>
+
+    <p>
+      This affects anyone running multi-agent Slack setups where different channels are
+      supposed to route to different specialized agents. It's particularly painful for:
+    </p>
+    <ul>
+      <li>Teams using Slack as their primary agent interface with multiple agents per workspace</li>
+      <li>ACP (Claude Code) sessions that are supposed to receive tasks from specific Slack channels</li>
+      <li>Setups where <code>/focus</code> is used to context-switch between agents during a session</li>
+    </ul>
+
+    <h2>Workaround #1 — Use Discord Instead of Slack (If Possible)</h2>
+
+    <p>
+      Discord's channel binding and thread-based routing don't have this bug. If your use
+      case allows switching channels, Discord is the more reliable multi-agent surface
+      right now. Both <code>sessions_spawn</code> with <code>thread: true</code> and
+      channel-based routing work as expected on Discord.
+    </p>
+
+    <h2>Workaround #2 — Route via sessions_send Instead of /focus</h2>
+
+    <p>
+      Rather than relying on channel-level focus binding, have your orchestrator agent
+      route messages explicitly using <code>sessions_send</code>:
+    </p>
+
+    <pre><code>// Instead of /focus → type in channel
+// Have your main agent relay the message directly:
+sessions_send({
+  sessionKey: "your-target-session",
+  message: "the task or message content"
+})</code></pre>
+
+    <p>
+      This bypasses the broken inbound routing entirely. The target session receives the
+      message reliably. Downside: requires an intermediary agent turn to relay, rather than
+      direct channel-to-session binding.
+    </p>
+
+    <h2>Workaround #3 — Pin to 4.12</h2>
+
+    <p>
+      If Slack focus binding is central to your workflow, 4.12 predates this regression:
+    </p>
+
+    <pre><code>npm install -g openclaw@2026.4.12
+openclaw gateway restart</code></pre>
+
+    <h2>Diagnosing vs Other /focus Issues</h2>
+
+    <p>
+      This specific bug has a signature: <code>/focus</code> returns success, and if you
+      check <code>~/.openclaw/bindings/current-conversations.json</code> you'll see the
+      binding entry — but messages still go to the wrong place. If <code>/focus</code>
+      is throwing an error, or if the bindings file isn't being written at all, that's a
+      different issue.
+    </p>
+
+    <pre><code># Check if binding was written
+cat ~/.openclaw/bindings/current-conversations.json</code></pre>
+
+    <p>
+      If the entry is there but routing is wrong → issue #67739 (this bug).<br>
+      If the file is empty or missing → different root cause, check gateway logs.
+    </p>
+
+    <h2>Status</h2>
+
+    <p>
+      Issue #67739 is open as of April 16, 2026. No patch timeline confirmed yet.
+      Watching for 4.15 stable.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li><code>/focus</code> on Slack writes the binding but inbound router ignores it — messages fall through to agent shell</li>
+      <li>Workaround A: switch to Discord for multi-agent routing</li>
+      <li>Workaround B: use <code>sessions_send</code> explicitly instead of channel binding</li>
+      <li>Workaround C: pin to 4.12</li>
+      <li>Tracking: GitHub issue #67739</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Multi-agent Slack setup not behaving?</h3>
+      <p>
+        ClawReady configures multi-agent routing that works reliably — whether you're on
+        Slack, Discord, or both. We know the current bug landscape and design around it.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
