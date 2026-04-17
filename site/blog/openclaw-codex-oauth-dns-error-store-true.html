@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Codex OAuth "DNS Lookup Failed" — It's Not DNS | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.14 shows a 'DNS lookup failed' error when using Codex OAuth (ChatGPT Pro). The real cause is a store:true mismatch against the Codex API. Here's the fix.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-codex-oauth-dns-error-store-true">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw Codex OAuth Says "DNS Lookup Failed" — But It's Not DNS</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67740 · Affects: 2026.4.14 · Provider: openai-codex (ChatGPT Pro OAuth)</p>
+
+    <p>You set up OpenClaw with a ChatGPT Pro subscription, authenticated via Codex OAuth, and everything looks right — valid tokens with 9 days left, proper plan type. Then you send a message and get:</p>
+
+    <blockquote><code>⚠️ DNS lookup for the provider endpoint failed. Check your network connection.</code></blockquote>
+
+    <p>You spend an hour checking DNS. Flushing caches. Checking <code>/etc/resolv.conf</code>. Nothing fixes it. That's because <strong>it's not DNS.</strong></p>
+
+    <h2>The Real Cause</h2>
+    <p>OpenClaw 2026.4.14 sends malformed requests to the Codex OAuth endpoint (<code>https://chatgpt.com/backend-api/codex/responses</code>). The endpoint requires <code>store: false</code> and <code>stream: true</code> for ChatGPT subscription OAuth tokens. But OpenClaw's Codex plugin forces <code>store: true</code> — inherited from the server-side compaction behavior enabled by default for OpenAI providers.</p>
+
+    <p>The request fails with HTTP 400. After retries and backoff, Cloudflare's edge returns an HTML rate-limit page. OpenClaw's error classifier can't parse the HTML, and falls through to "DNS lookup failed" — a completely misleading error for a request-format problem.</p>
+
+    <h2>The Documented Escape Hatch Doesn't Work</h2>
+    <p>The OpenClaw docs mention <code>supportsStore: false</code> as a model-level config option to disable the store flag. In 2026.4.14, the config schema validator rejects it:</p>
+    <pre><code>Error: Config validation failed: models.providers.openai-codex.models.0:
+  Unrecognized key: "supportsStore"</code></pre>
+    <p>Setting <code>responsesServerCompaction: false</code> in model params also doesn't resolve the issue in this version.</p>
+
+    <h2>Workarounds</h2>
+
+    <h3>Option 1: Roll Back to 2026.4.13</h3>
+    <p>The malformed request regression was introduced in 2026.4.14. Rolling back resolves it:</p>
+    <pre><code>npm install -g openclaw@2026.4.13
+openclaw gateway restart</code></pre>
+
+    <h3>Option 2: Switch to API Key Auth (Bypass OAuth)</h3>
+    <p>If you have an OpenAI API key, you can bypass Codex OAuth entirely and use the standard openai provider instead:</p>
+    <pre><code>openclaw configure
+# Select: openai (not openai-codex)
+# Enter your API key when prompted
+openclaw gateway restart</code></pre>
+    <p>You lose the "included in Pro subscription" billing but regain functionality immediately.</p>
+
+    <h3>Option 3: Use a Different Provider Temporarily</h3>
+    <p>Anthropic Claude or Gemini providers are unaffected. If you have API keys for those, switching temporarily keeps you productive while waiting for a patch:</p>
+    <pre><code>openclaw configure
+# Select: anthropic
+# Enter Claude API key</code></pre>
+
+    <h3>Option 4: Wait for 2026.4.15 Stable</h3>
+    <p>This is flagged in the issue tracker. The fix requires the Codex plugin to honor <code>store: false / stream: true</code> for OAuth token types, and the schema validator to accept <code>supportsStore</code> as a valid key. Track progress at <a href="https://github.com/openclaw/openclaw/issues/67740" target="_blank" rel="noopener">issue #67740</a>.</p>
+
+    <h2>How to Confirm This Is Your Problem</h2>
+    <pre><code># Check your OpenClaw version
+openclaw --version
+
+# Check your provider config
+openclaw config show | grep -A5 "openai-codex"
+
+# Test the endpoint directly with your token
+curl -X POST https://chatgpt.com/backend-api/codex/responses \
+  -H "Authorization: Bearer YOUR_OAUTH_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-5.4","input":"hi","stream":true,"store":false}'
+# If this returns valid JSON → it's the store:true bug in OpenClaw, not DNS
+</code></pre>
+
+    <h2>Bottom Line</h2>
+    <p>The "DNS lookup failed" message in 2026.4.14 is a false label on what's actually an API request format error. Don't chase DNS. Roll back to 2026.4.13 or switch providers until the patch ships.</p>
+
+    <p>If you need help reconfiguring your OpenClaw setup around this bug — or setting up a fallback provider — <a href="https://clawreadynow.com/#pricing">ClawReady</a> can get you back online fast.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>

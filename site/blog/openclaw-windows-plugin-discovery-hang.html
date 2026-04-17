@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Freezes for 5–7 Minutes on Startup (Windows Multi-Agent Bug) | ClawReady</title>
+  <meta name="description" content="OpenClaw gateway hangs on startup for 5–7 minutes on Windows when you have multiple agents with separate workspaces. Here's the cause, the fix, and three workarounds.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-windows-plugin-discovery-hang">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw Freezes for 5–7 Minutes on Windows Startup (Multi-Agent Bug)</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67869 · Affects: 2026.4.11+ · Platform: Windows</p>
+
+    <p>If you've configured OpenClaw with 2 or more agents (each with its own workspace) and you're on Windows, you may have noticed the gateway completely freezes after printing <code>"starting channels and sidecars..."</code> — for anywhere from 5 to 7 minutes. Discord bots never come online. HTTP health endpoints don't respond. It looks like a crash, but it isn't.</p>
+
+    <h2>What's Actually Happening</h2>
+    <p>The culprit is <strong>synchronous plugin discovery</strong> inside OpenClaw's core. On every boot, the gateway calls <code>discoverOpenClawPlugins()</code>, which performs approximately <strong>62,000 synchronous filesystem calls</strong> — <code>realpathSync</code>, <code>existsSync</code>, <code>readFileSync</code> — to scan the 102+ bundled extensions.</p>
+
+    <p>On Windows, each sync file call is slow. A single full scan takes ~85 seconds. But here's the kicker: the in-memory discovery cache has a <strong>default TTL of 1 second</strong> (<code>DEFAULT_DISCOVERY_CACHE_MS = 1e3</code>), and the cache key includes the <code>workspaceDir</code>. With 4 agents on 4 different workspaces, each initialization triggers an independent full rescan — bypassing the cache entirely.</p>
+
+    <p>The math: <strong>4 agents × 85 seconds = ~5–7 minutes of a completely blocked event loop.</strong></p>
+
+    <p>During that window, Discord's 15-second gateway readiness timeout fires repeatedly, creating an infinite zombie restart loop where the bot never comes online.</p>
+
+    <h2>Am I Affected?</h2>
+    <p>You're likely affected if:</p>
+    <ul>
+      <li>You're on Windows (WSL users on Linux are not impacted to the same degree)</li>
+      <li>You have 2+ agents configured with different workspace paths</li>
+      <li>Your gateway log freezes at <code>"starting channels and sidecars..."</code></li>
+      <li>Discord bots show as offline or bounce in a restart loop</li>
+    </ul>
+
+    <h2>Workarounds (Until a Fix Ships)</h2>
+
+    <h3>1. Consolidate to a Single Workspace</h3>
+    <p>If your agents don't strictly need separate workspaces, point them all at the same workspace directory. This collapses 4 full rescans into 1 (and the cache actually hits on scans 2–4).</p>
+
+    <h3>2. Stagger Agent Startup</h3>
+    <p>Start agents one at a time with a delay between each. This doesn't eliminate the hang, but prevents the Discord reconnect loop from spiraling. A simple wrapper script with <code>timeout /T 120</code> between agent starts helps.</p>
+
+    <h3>3. Run in WSL Instead of Native Windows</h3>
+    <p>The Linux filesystem in WSL2 handles sync calls significantly faster than Windows NTFS. If you're on Windows 10/11, running OpenClaw inside WSL2 largely eliminates this problem — the same 62,000 calls complete in a few seconds instead of 85 seconds.</p>
+
+    <h3>4. Wait for the Upstream Fix</h3>
+    <p>The suggested upstream fixes are clearly documented in the issue:</p>
+    <ul>
+      <li>Make plugin discovery async (replace <code>realpathSync/existsSync/readFileSync</code> with async equivalents)</li>
+      <li>Increase default cache TTL from 1s to at least 60s</li>
+      <li>Cache the bundled extensions scan separately from per-workspace scans</li>
+    </ul>
+    <p>Track fix progress at <a href="https://github.com/openclaw/openclaw/issues/67869" target="_blank" rel="noopener">issue #67869</a>.</p>
+
+    <h2>Quick Diagnosis</h2>
+    <pre><code># Run gateway in the foreground and time the startup freeze
+openclaw gateway start --no-detach
+
+# You'll see:
+# [gateway] starting channels and sidecars...
+# (... nothing for 5+ minutes on affected systems ...)
+# [gateway] discord channel ready
+</code></pre>
+
+    <h2>Need Help?</h2>
+    <p>If you're hitting this bug and need help restructuring your multi-agent setup — or migrating to WSL — <a href="https://clawreadynow.com/#pricing">ClawReady's setup service</a> covers exactly this. We've seen this pattern a lot on Windows deployments.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
