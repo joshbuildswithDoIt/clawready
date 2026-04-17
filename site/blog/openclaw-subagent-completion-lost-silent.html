@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Sub-Agent Finished But No Result Came Back — Here's Why | ClawReady</title>
+  <meta name="description" content="Sub-agent work completed successfully but the result never delivered to your main session? This is a known OpenClaw delivery bug under busy lanes, gateway restarts, and orphan pruning. Here's what to do.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-subagent-completion-lost-silent">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>Sub-Agent Finished But the Result Never Came Back</h1>
+    <p class="meta">Published April 17, 2026 · Issue #67777 · Affects: All current versions · Component: Subagent delivery</p>
+
+    <p>You spawn a sub-agent to do research, write code, or handle a task. It runs. Then... nothing. No completion message. No error. You wait, try again, spawn it twice — wasting tokens and time. The sub-agent actually finished its work. The result just never made it back to you.</p>
+
+    <p>This is a real, confirmed bug in OpenClaw's sub-agent completion delivery system.</p>
+
+    <h2>What's Happening Under the Hood</h2>
+    <p>When a sub-agent completes, OpenClaw attempts to deliver the result via a <strong>synchronous direct announce</strong> back into the requester (parent) session. This is fast and usually works — but it's fragile under common real-world conditions:</p>
+
+    <ul>
+      <li><strong>Busy lane / timeout:</strong> The requester session's message lane is congested. The direct announce times out.</li>
+      <li><strong>Gateway drain/restart:</strong> A gateway restart happens between subagent completion and delivery. The queued completion is dropped.</li>
+      <li><strong>Orphan prune:</strong> A "restore run" for the subagent is detected as a missing session entry and cleaned up before the durable delivery fires.</li>
+    </ul>
+
+    <p>There's a conditional queue fallback, but it can return "no queue action" — meaning the system silently decides not to retry. The completion exists in the subagent registry, never reaches the plugin layer, and is eventually cleaned up. From your perspective: the agent disappeared.</p>
+
+    <h2>How to Tell If This Is Your Problem</h2>
+    <ul>
+      <li>Sub-agent shows status "completed" in <code>subagents list</code> but no message arrived</li>
+      <li>The gateway was restarted or the machine went to sleep while the sub-agent was running</li>
+      <li>You're running multiple agents on a busy server (high lane congestion)</li>
+      <li>Spawning the same task again produces a result — confirming the first run succeeded silently</li>
+    </ul>
+
+    <h2>Workarounds</h2>
+
+    <h3>1. Check Sub-Agent History Directly</h3>
+    <p>The result exists — it just wasn't delivered. Pull it manually:</p>
+    <pre><code># List recent sub-agents
+subagents list
+
+# Fetch the session history for the completed sub-agent
+sessions history --sessionKey &lt;subagent-session-key&gt; --limit 20
+</code></pre>
+    <p>The final assistant message from the sub-agent is typically the result you're looking for.</p>
+
+    <h3>2. Don't Restart the Gateway While Sub-Agents Are Running</h3>
+    <p>Gateway drains are the most common trigger. If you need to restart:</p>
+    <pre><code># Check for running sub-agents first
+subagents list
+
+# Wait for them to complete, THEN restart
+openclaw gateway restart
+</code></pre>
+
+    <h3>3. Use streamTo: "parent" for Critical Work</h3>
+    <p>When spawning sub-agents for important tasks, set <code>streamTo: "parent"</code>. This streams output back progressively instead of relying on a single completion announcement:</p>
+    <pre><code>sessions_spawn(
+  task: "...",
+  streamTo: "parent"
+)
+</code></pre>
+    <p>Streamed results don't depend on the announce path and are much more reliable under load.</p>
+
+    <h3>4. Add a Timeout + Manual Poll Pattern</h3>
+    <p>For long-running sub-agents, build in a manual check rather than relying on push delivery:</p>
+    <pre><code># After spawning, note the sessionKey
+# After ~expected runtime, poll:
+sessions history --sessionKey &lt;key&gt; --limit 5
+</code></pre>
+
+    <h2>Expected Fix</h2>
+    <p>The upstream fix requires a <strong>durable completion inbox/spool</strong> — results get written to a persistent store before delivery is attempted, so restarts and drain events can't lose them. The OpenClaw team has confirmed the issue and is planning the patch. Track it at <a href="https://github.com/openclaw/openclaw/issues/67777" target="_blank" rel="noopener">issue #67777</a>.</p>
+
+    <h2>Bottom Line</h2>
+    <p>Your sub-agent's work isn't lost — it's stuck in the registry. Check <code>sessions history</code> directly to recover it, and use <code>streamTo: "parent"</code> for anything important until the durable inbox ships.</p>
+
+    <p>If you're architecting a multi-agent OpenClaw setup and need help designing around these delivery edge cases, <a href="https://clawreadynow.com/#pricing">ClawReady</a> can help you build something resilient.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
