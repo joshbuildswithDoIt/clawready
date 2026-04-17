@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 2026.4.14 Onboarding Stuck: "Cannot read properties of undefined (reading 'trim')" | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.14 fails during onboarding with TypeError: Cannot read properties of undefined (reading 'trim') on macOS. Here's what causes it and 4 fixes.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-14-onboarding-typeerror-trim">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw 2026.4.14 Onboarding Fails with "Cannot read properties of undefined (reading 'trim')"</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67774 · Affects: 2026.4.14 · Platform: macOS (M1/M2), npm install</p>
+
+    <p>You just installed OpenClaw 2026.4.14 on a Mac and ran through setup. The onboarding wizard starts, asks a few questions — then abruptly exits with:</p>
+
+    <pre><code>TypeError: Cannot read properties of undefined (reading 'trim')</code></pre>
+
+    <p>The wizard never completes. Even after a full uninstall (<code>rm -rf ~/.openclaw</code>) and fresh npm install, it fails the same way. You're stuck at zero.</p>
+
+    <h2>What's Happening</h2>
+    <p>This is a regression in 2026.4.14's onboarding wizard. At some point in the config flow, the wizard attempts to call <code>.trim()</code> on a value that came back <code>undefined</code> — likely a model or provider field that 2026.4.14 expects to be pre-populated but isn't during a clean first-run.</p>
+
+    <p>The specific trigger in confirmed reports is selecting <strong>Gemma 4 (E2B)</strong> as the model via the Ollama local route on macOS. Other model selections may not trigger it, but the onboarding code path appears fragile for any provider that returns an unexpected shape during initial probing.</p>
+
+    <h2>Quick Diagnosis</h2>
+    <pre><code># Check your version
+openclaw --version
+# If it says 2026.4.14 and you're on macOS → you're likely affected
+
+# See the full stack trace
+openclaw configure 2>&1 | tee /tmp/openclaw-onboard.log
+cat /tmp/openclaw-onboard.log
+# Look for: TypeError: Cannot read properties of undefined (reading 'trim')
+</code></pre>
+
+    <h2>Fixes</h2>
+
+    <h3>Fix 1: Roll Back to 2026.4.13</h3>
+    <p>The simplest fix — 2026.4.13 does not have this regression:</p>
+    <pre><code>sudo npm install -g openclaw@2026.4.13
+openclaw configure</code></pre>
+
+    <h3>Fix 2: Use a Known-Good Model Selection</h3>
+    <p>If you want to stay on 2026.4.14, avoid Gemma/E2B during initial setup. Use Anthropic Claude or OpenAI first — complete onboarding — then switch models afterward:</p>
+    <pre><code># Complete onboarding with a standard provider
+openclaw configure
+# Select: anthropic → claude-sonnet-4-6
+
+# After onboarding completes, switch models
+openclaw models set ollama/gemma4:e2b</code></pre>
+
+    <h3>Fix 3: Manually Bootstrap the Config</h3>
+    <p>Skip the wizard entirely and create a minimal <code>openclaw.json</code> by hand. This bypasses the trim() crash:</p>
+    <pre><code>mkdir -p ~/.openclaw
+cat > ~/.openclaw/openclaw.json << 'EOF'
+{
+  "version": "1",
+  "agents": {
+    "main": {
+      "model": "anthropic/claude-sonnet-4-6"
+    }
+  }
+}
+EOF
+openclaw gateway start</code></pre>
+    <p>Then add channels and auth via <code>openclaw configure --channels</code> and <code>openclaw models auth</code> separately.</p>
+
+    <h3>Fix 4: Wait for 2026.4.15 Stable</h3>
+    <p>The beta (2026.4.15-beta.1) may address this. Once stable ships, <code>npm install -g openclaw@latest</code> should resolve it. Track at <a href="https://github.com/openclaw/openclaw/issues/67774" target="_blank" rel="noopener">issue #67774</a>.</p>
+
+    <h2>Full Uninstall + Reinstall Steps (If You've Already Broken State)</h2>
+    <pre><code># Full wipe
+rm -rf ~/.openclaw
+rm -rf ~/.config/openclaw
+rm -rf ~/.local/share/openclaw
+sudo rm -f /usr/local/bin/openclaw
+
+# Reinstall at 2026.4.13
+sudo npm install -g openclaw@2026.4.13
+
+# Verify
+openclaw --version  # should show 2026.4.13
+
+# Run setup
+openclaw configure</code></pre>
+
+    <h2>macOS-Specific Note</h2>
+    <p>On macOS 26.x (Tahoe) with Apple Silicon, npm global installs sometimes land in a path not on your <code>$PATH</code>. If <code>openclaw</code> isn't found after install:</p>
+    <pre><code>export PATH="$(npm root -g)/../bin:$PATH"
+# or permanently:
+echo 'export PATH="$(npm root -g)/../bin:$PATH"' >> ~/.zshrc</code></pre>
+
+    <h2>Need a Hand?</h2>
+    <p>If you're stuck in a broken onboarding state and want someone to just make it work, <a href="https://clawreadynow.com/#pricing">ClawReady's $99 setup tier</a> covers exactly this — we'll remote-guide you through a clean install in under 30 minutes.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
