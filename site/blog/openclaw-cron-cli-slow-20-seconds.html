@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Cron Commands Take 20 Seconds to Exit | ClawReady</title>
+  <meta name="description" content="OpenClaw cron add/edit/rm/list commands hang for 15–20 seconds and sometimes exit with SIGKILL. The mutation works fine — it's a CLI websocket teardown bug. Here's what to do.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-cron-cli-slow-20-seconds">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw Cron Commands Take 20 Seconds and Exit with SIGKILL</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67439 · Affects: 2026.4.11+ · Platform: Linux/VPS</p>
+
+    <p>You run <code>openclaw cron add</code> or <code>openclaw cron list</code>, the command prints the right output — then sits there for 15–20 seconds before finally exiting. Sometimes it gets killed with SIGKILL or SIGTERM instead of exiting cleanly. It's frustrating in scripts and absolutely breaks any cron setup automation.</p>
+
+    <p>The good news: <strong>the mutation always succeeds.</strong> Your job is in <code>jobs.json</code>. The cron engine is running it correctly. The slowness is purely in the CLI process teardown, not the operation itself.</p>
+
+    <h2>What's Actually Happening</h2>
+    <p>The OpenClaw CLI uses a WebSocket RPC connection to the gateway for cron operations. After the gateway processes the request and sends back the response JSON, the WebSocket connection teardown hangs — the CLI isn't getting a clean "done" signal and waits for the connection to time out before exiting.</p>
+
+    <p>The 15–20 second wall time is consistent across all cron subcommands, pointing to a shared transport-layer issue in the CLI rather than per-command logic. A direct HTTP health check to the same gateway returns instantly — so the gateway itself is fine.</p>
+
+    <p>Timing by command from the issue report:</p>
+    <table>
+      <thead><tr><th>Command</th><th>Mutation succeeds?</th><th>Exit behavior</th><th>Wall time</th></tr></thead>
+      <tbody>
+        <tr><td><code>cron list</code></td><td>n/a</td><td>Clean exit</td><td>~20s</td></tr>
+        <tr><td><code>cron add</code></td><td>✅ Yes</td><td>Clean or SIGTERM</td><td>~21s</td></tr>
+        <tr><td><code>cron edit</code></td><td>✅ Yes</td><td>SIGTERM/SIGKILL</td><td>~10–15s</td></tr>
+        <tr><td><code>cron rm</code></td><td>✅ Yes</td><td>SIGKILL after JSON</td><td>~15s</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Is My Cron Actually Working?</h2>
+    <p>Yes. Verify directly:</p>
+    <pre><code># Check jobs.json directly — bypass the CLI
+cat ~/.openclaw/jobs.json | python3 -m json.tool
+
+# Or check via the gateway HTTP API (returns instantly)
+curl -s http://127.0.0.1:18789/cron/jobs | python3 -m json.tool
+</code></pre>
+    <p>If your job appears there, it's scheduled and will run. The slow exit is cosmetic from an operational standpoint.</p>
+
+    <h2>Workarounds</h2>
+
+    <h3>1. Use a Timeout Wrapper in Scripts</h3>
+    <p>If you're running cron commands in automation, wrap them with <code>timeout</code> to prevent blocking:</p>
+    <pre><code># Add a cron job — succeeds, killed after 5s instead of 20s
+timeout 5 openclaw cron add --name "daily-brief" --at "6h30m" --model sonnet --message "morning brief"
+# Exit code will be non-zero due to SIGTERM, but the job IS created
+# Verify:
+curl -s http://127.0.0.1:18789/cron/jobs | grep "daily-brief"
+</code></pre>
+
+    <h3>2. Edit jobs.json Directly</h3>
+    <p>For bulk setup or scripted provisioning, you can write directly to jobs.json — the cron engine hot-reloads it:</p>
+    <pre><code># Backup first
+cp ~/.openclaw/jobs.json ~/.openclaw/jobs.json.bak
+
+# The gateway picks up changes within a few seconds
+# Use jq to append a job safely
+jq '. + [{"name":"test","schedule":"*/30 * * * *","model":"haiku","message":"ping"}]' \
+  ~/.openclaw/jobs.json > /tmp/jobs-new.json && mv /tmp/jobs-new.json ~/.openclaw/jobs.json
+</code></pre>
+
+    <h3>3. Just Wait It Out</h3>
+    <p>If you're doing one-off setup, the 20-second hang is annoying but not blocking. The job is created, the engine runs it. Track the GitHub issue for a proper fix: <a href="https://github.com/openclaw/openclaw/issues/67439" target="_blank" rel="noopener">#67439</a>.</p>
+
+    <h3>4. Downgrade to 2026.4.10 or Earlier</h3>
+    <p>If cron CLI responsiveness is critical for your workflow and you can tolerate an older version:</p>
+    <pre><code>npm install -g openclaw@2026.4.10
+openclaw gateway restart</code></pre>
+
+    <h2>Quick Diagnosis</h2>
+    <pre><code># Confirm it's the CLI hang, not a gateway issue
+time curl -s http://127.0.0.1:18789/health
+# Should return in <100ms
+
+time openclaw cron list
+# If this takes 15-20s but curl was instant → CLI websocket teardown bug confirmed
+</code></pre>
+
+    <h2>Bottom Line</h2>
+    <p>Your cron jobs are working. The 20-second hang is a CLI transport issue where the WebSocket connection to the gateway doesn't close cleanly after the response is received. Your automation works — it's just slow to exit. Use the HTTP API or direct jobs.json edits for scripted provisioning until a fix ships.</p>
+
+    <p>Need help setting up a reliable cron schedule for your OpenClaw deployment? <a href="https://clawreadynow.com/#pricing">ClawReady</a> handles the whole setup including cron configuration.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
