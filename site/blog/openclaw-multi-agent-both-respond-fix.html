@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Both OpenClaw Agents Are Responding — How to Fix Multi-Agent Channels | ClawReady</title>
+  <meta name="description" content="When one OpenClaw agent auto-responds to everything, tagging a second agent causes both to reply. Here's the current workaround until OpenClaw ships mention-override routing.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-multi-agent-both-respond-fix">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>Both Agents Are Responding — How to Fix Multi-Agent Channels in OpenClaw</h1>
+    <p class="meta">Published April 17, 2026 · Feature Request #67445 · Affects: All versions · Channels: Discord, Slack, Telegram</p>
+
+    <p>You set up two agents in the same Discord or Slack channel. One is the default — it responds to everything. The other is specialized, like a research agent or a coder. You type <code>@coder can you fix this?</code> hoping only the coder replies. Instead, <strong>both agents respond.</strong></p>
+
+    <p>This is a known gap in OpenClaw's routing logic. There's no built-in rule yet that says "if a message explicitly tags agent B, agent A should stand down." Feature request #67445 is open and asking for exactly this. Until it ships, here are your options.</p>
+
+    <h2>Why It Happens</h2>
+    <p>OpenClaw's channel routing has two layers: explicit targeting (responding to a tagged agent) and ambient auto-reply (a default agent that responds to everything). Right now, both layers fire independently. There's no precedence rule that lets an explicit mention suppress the ambient responder.</p>
+    <p>The result: @mention routing adds the specialized agent to the response queue, but the default agent's auto-reply fires anyway — so you get two replies.</p>
+
+    <h2>Workarounds (Today)</h2>
+
+    <h3>Option 1: Use <code>requireMention: true</code> on the Default Agent</h3>
+    <p>The cleanest fix is to stop making your default agent truly "ambient." Set <code>requireMention: true</code> on it and designate one @mention as the "general" trigger:</p>
+    <pre><code># In your openclaw.json channel config (Discord example)
+channels:
+  discord:
+    agents:
+      - name: oz         # your general agent
+        requireMention: true
+        mentionNames:
+          - oz
+          - assistant
+      - name: coder
+        requireMention: true
+        mentionNames:
+          - coder
+          - code</code></pre>
+    <p>Now <code>@oz</code> triggers oz, <code>@coder</code> triggers coder, and untagged messages go nowhere. You lose true ambient auto-reply, but gain clean routing. Most teams find this preferable after the first week.</p>
+
+    <h3>Option 2: Put Agents in Separate Channels</h3>
+    <p>If you truly need one channel to be "always on," isolate your specialized agents to their own dedicated channels:</p>
+    <ul>
+      <li><code>#general</code> → oz auto-responds to everything</li>
+      <li><code>#code-review</code> → coder responds (requireMention or always-on in that channel only)</li>
+      <li><code>#research</code> → scout agent</li>
+    </ul>
+    <p>This maps cleanly to how most teams naturally segment work anyway.</p>
+
+    <h3>Option 3: Use a SOUL.md Guard on the Default Agent</h3>
+    <p>Add a routing rule to your default agent's SOUL.md instructing it to skip replies when the message starts with a different agent's name:</p>
+    <pre><code>## Routing
+- If the incoming message starts with "@coder", "@scout", or "@builder", reply with NO_REPLY.
+- Only respond to messages addressed to you or untagged messages.</code></pre>
+    <p>This is a soft workaround — it depends on the LLM correctly detecting the prefix — but it works reliably in practice for well-structured mentions.</p>
+
+    <h3>Option 4: Use Slash Command Mode in Slack</h3>
+    <p>In Slack specifically, you can route to a named agent via slash command without triggering the ambient auto-responder:</p>
+    <pre><code>/agent coder can you take a look at this PR?</code></pre>
+    <p>The slash command routes directly to the named agent and bypasses the channel's default routing pipeline. Not as seamless as @mentions, but reliable until the feature ships.</p>
+
+    <h2>When Will This Be Fixed?</h2>
+    <p>Feature request #67445 is open. The proposed behavior is clean: explicit agent targeting should beat ambient auto-reply by default, with an optional config flag to change the precedence. It's a routing priority change, not a deep architectural one — so it's a reasonable candidate for a near-term release.</p>
+    <p>Track it at <a href="https://github.com/openclaw/openclaw/issues/67445" target="_blank" rel="noopener">issue #67445</a>.</p>
+
+    <h2>My Recommendation</h2>
+    <p><strong>Switch to <code>requireMention: true</code> on all agents.</strong> It's the most predictable and scales cleanly as you add more agents. The "always-on ambient agent" pattern sounds convenient but creates noise fast in team channels. Explicit mentions take one extra second to type and eliminate ambiguity entirely.</p>
+
+    <p>If you need help restructuring a multi-agent channel setup, <a href="https://clawreadynow.com/#pricing">ClawReady</a> covers this as part of our setup service — we'll configure routing, naming, and SOUL.md rules so each agent knows exactly when to respond.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
