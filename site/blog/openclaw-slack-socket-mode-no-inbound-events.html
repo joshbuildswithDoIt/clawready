@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Slack Not Receiving Messages: Socket Mode Zero Inbound Events Fix | ClawReady</title>
+  <meta name="description" content="OpenClaw's Slack integration connects successfully but never receives any messages — zero inbound events since v2026.3.11. Confirmed regression. Here's the fix and workarounds." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-slack-socket-mode-no-inbound-events.html" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">🦞 ClawReady</a>
+    <nav>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <span class="tag">Bug Fix — Slack</span>
+      <span class="date">April 17, 2026</span>
+    </div>
+
+    <h1>OpenClaw Slack Not Receiving Messages: Socket Mode Zero Inbound Events (Since 3.11)</h1>
+
+    <p class="lead">
+      Your OpenClaw agent connects to Slack successfully — the connection log shows no
+      errors — but it never responds to any messages. You can send to Discord or Telegram
+      just fine. Slack is completely silent. This is issue #67496: Slack Socket Mode
+      connects but receives zero inbound events, a regression present in every version
+      since 2026.3.11.
+    </p>
+
+    <h2>What's Broken</h2>
+
+    <p>
+      OpenClaw uses Slack's Socket Mode to receive messages (rather than a public webhook
+      endpoint). The Socket Mode client connects without error, but the connection doesn't
+      receive any events — messages, mentions, DMs, nothing. The standalone
+      <code>@slack/socket-mode</code> library bundled with OpenClaw was tested independently
+      and confirmed the same behavior: zero inbound events despite a successful connection.
+    </p>
+
+    <p>
+      This is a regression — it worked before 2026.3.11. It's present in 4.14 stable and
+      4.15-beta.1. If you're on any version between 3.11 and 4.15, your Slack integration
+      is silently broken.
+    </p>
+
+    <h2>Diagnosis</h2>
+
+    <p>Check if you're hitting this bug:</p>
+
+    <pre><code># 1. Confirm Slack shows as connected
+openclaw gateway logs | grep -i "slack\|socket"
+
+# 2. Send a test message to your bot in Slack
+# 3. Watch for any log activity
+openclaw gateway logs -f | grep -i "inbound\|message\|event"</code></pre>
+
+    <p>
+      If you see the Socket Mode connection established but nothing appears in logs when
+      you send a message — this is issue #67496.
+    </p>
+
+    <h2>Fix #1 — Roll Back to 2026.3.10 or Earlier</h2>
+
+    <p>
+      The last known-good version for Slack Socket Mode is <strong>2026.3.10</strong>:
+    </p>
+
+    <pre><code>npm install -g openclaw@2026.3.10
+openclaw gateway restart</code></pre>
+
+    <p>
+      Significant trade-off: 3.10 predates many features and fixes from the 4.x line.
+      Only use this if Slack is your primary or only channel and you can't move to an
+      alternative.
+    </p>
+
+    <h2>Fix #2 — Switch to Discord (Recommended Interim)</h2>
+
+    <p>
+      Discord's channel integration is fully functional in all current versions. If your
+      use case allows it, switching to Discord as your primary agent channel is the path
+      of least resistance while Slack is broken:
+    </p>
+
+    <pre><code>openclaw configure</code></pre>
+
+    <p>Navigate to channel settings and add Discord. The setup takes about 5 minutes
+    (bot token from Discord Developer Portal + one pairing message).</p>
+
+    <h2>Fix #3 — Switch to Telegram</h2>
+
+    <p>
+      If you need mobile notifications and don't want Discord, Telegram is equally
+      reliable and works flawlessly in all 4.x versions. BotFather setup takes under
+      10 minutes:
+    </p>
+
+    <ul>
+      <li>Open Telegram → search BotFather → <code>/newbot</code></li>
+      <li>Get your token → paste into <code>openclaw configure</code></li>
+      <li>Send <code>/start</code> to your bot to complete pairing</li>
+    </ul>
+
+    <h2>Fix #4 — Wait for the Slack Socket Mode Fix</h2>
+
+    <p>
+      Issue #67496 is confirmed by the maintainers as a regression with a clear
+      reproduction path. It's likely to be prioritized for 4.15 stable. Watch the
+      issue for a patch release.
+    </p>
+
+    <h2>Why This Affects So Many Users Without Being Fixed Sooner</h2>
+
+    <p>
+      Slack integration requires a paid Slack workspace with a bot token and Socket Mode
+      enabled — a much higher setup barrier than Telegram or Discord. Fewer users hit
+      this, so the bug festered longer before getting traction. It's now confirmed and
+      tracked.
+    </p>
+
+    <h2>TL;DR</h2>
+    <ul>
+      <li>Slack Socket Mode connects but receives zero inbound events — regression since 3.11</li>
+      <li>Affects all versions 3.11 through 4.15-beta.1</li>
+      <li>Fix A: Roll back to 3.10 (big trade-off)</li>
+      <li>Fix B: Switch to Discord (easiest, recommended)</li>
+      <li>Fix C: Switch to Telegram</li>
+      <li>Fix D: Wait for 4.15 stable patch</li>
+      <li>Tracking: GitHub issue #67496</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Slack broken and need an agent channel fast?</h3>
+      <p>
+        ClawReady can get you on Discord or Telegram in one session — properly configured,
+        tested, and running. No debugging required.
+      </p>
+      <a href="https://calendly.com/grofresh2018" class="cta-button" target="_blank">Book a Free Call →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
