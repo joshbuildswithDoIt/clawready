@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Opus 4.7 Silently Disables Thinking — Here's the Fix | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.15 silently disables extended thinking on Claude Opus 4.7, even when you explicitly configure it. The cause is a missing entry in supportsAdaptiveThinking(). Here's how to fix it now.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-opus-4-7-thinking-400-fallback">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw + Opus 4.7: Thinking Is Silently Disabled (And You'd Never Know)</h1>
+    <p class="meta">Published April 17, 2026 · Bug #67888 · Affects: 2026.4.15 · Model: anthropic/claude-opus-4-7</p>
+
+    <p>You upgraded to Claude Opus 4.7, set <code>thinkingDefault: "xhigh"</code>, and everything looks normal. No errors. But your agent is secretly running with <strong>thinking completely disabled</strong> on every single turn. You're paying for Opus 4.7 and getting none of its extended reasoning capability.</p>
+
+    <h2>What's Happening</h2>
+    <p>OpenClaw 2026.4.15 ships with a hard-coded list of model IDs that support adaptive thinking. Opus 4.7 is not on the list. When OpenClaw sends a thinking request for Opus 4.7, it uses the wrong format — <code>thinking: {type: "enabled"}</code> — which Anthropic rejects with HTTP 400:</p>
+
+    <blockquote><code>"thinking.type.enabled" is not supported for this model. Use "thinking.type.adaptive" and "output_config.effort".</code></blockquote>
+
+    <p>OpenClaw catches the 400, silently retries with <code>thinking=off</code>, and succeeds. You never see an error. Your agent just quietly loses all extended reasoning — even if you explicitly set <code>thinkingDefault: "xhigh"</code>.</p>
+
+    <h2>The Root Cause</h2>
+    <p>The <code>supportsAdaptiveThinking()</code> function in OpenClaw's Anthropic adapter lists every 4.6 variant but stops there:</p>
+
+    <pre><code>function supportsAdaptiveThinking(modelId) {
+  return modelId.includes("opus-4-6") || modelId.includes("opus-4.6")
+      || modelId.includes("sonnet-4-6") || modelId.includes("sonnet-4.6");
+  // ← opus-4-7 is missing
+}</code></pre>
+
+    <p>When your model ID is <code>claude-opus-4-7</code>, this returns <code>false</code>, and OpenClaw falls through to the legacy <code>budget_tokens</code> path — which Anthropic no longer accepts for this model family.</p>
+
+    <h2>Workarounds</h2>
+
+    <h3>Option 1: Force Thinking Level in Model Params (Best Workaround)</h3>
+    <p>Add an explicit thinking config to your model params in <code>openclaw.json</code>. This bypasses the broken automatic detection:</p>
+
+    <pre><code>{
+  "models": {
+    "providers": {
+      "anthropic": {
+        "models": [
+          {
+            "id": "claude-opus-4-7",
+            "thinkingDefault": "high",
+            "params": {
+              "thinking": { "type": "adaptive" },
+              "output_config": { "effort": "high" }
+            }
+          }
+        ]
+      }
+    }
+  }
+}</code></pre>
+
+    <p>For <code>xhigh</code> effort (Opus 4.7 adds this tier):</p>
+    <pre><code>"output_config": { "effort": "xhigh" }</code></pre>
+
+    <h3>Option 2: Use /reasoning Command Per Session</h3>
+    <p>Rather than relying on the automatic config, use the slash command to force thinking on in each new session:</p>
+    <pre><code>/reasoning high
+# or
+/reasoning xhigh</code></pre>
+    <p>This sets thinking for the current session and bypasses the broken auto-detection.</p>
+
+    <h3>Option 3: Stay on Opus 4.6 Until Patched</h3>
+    <p>Opus 4.6 is correctly listed in <code>supportsAdaptiveThinking()</code> and works as expected. If extended thinking is critical to your workflow, staying on 4.6 is the safest option for now:</p>
+    <pre><code>openclaw configure
+# Select: anthropic/claude-opus-4-6</code></pre>
+
+    <h3>Option 4: Wait for the Fix</h3>
+    <p>The fix is straightforward — add <code>opus-4-7</code> to the <code>supportsAdaptiveThinking()</code> whitelist and update the <code>xhigh</code> effort mapping. Track it at <a href="https://github.com/openclaw/openclaw/issues/67888" target="_blank" rel="noopener">issue #67888</a>.</p>
+
+    <h2>How to Confirm You're Affected</h2>
+    <pre><code># Check your OpenClaw version
+openclaw --version
+# Affected: 2026.4.15
+
+# Enable gateway debug logging and watch for the 400 + fallback
+OPENCLAW_LOG_LEVEL=debug openclaw gateway start --no-detach 2>&1 | grep -i "unsupported thinking\|thinking.*off\|budget_tokens"
+# If you see these lines, you're affected</code></pre>
+
+    <h2>Why This Matters</h2>
+    <p>Opus 4.7 is Anthropic's most capable model for complex reasoning tasks. Running it with thinking disabled is roughly equivalent to using a much cheaper model — you're burning tokens for context handling while getting no benefit from the extended reasoning that makes Opus worth its cost.</p>
+
+    <p>If you're using Opus 4.7 for any task that requires multi-step logic, code analysis, or structured reasoning, this bug likely means you've been getting worse results than expected since upgrading.</p>
+
+    <p>Need help tuning your OpenClaw model config? <a href="https://clawreadynow.com/#pricing">ClawReady's setup service</a> covers exactly this — model selection, thinking config, and cost optimization across providers.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
