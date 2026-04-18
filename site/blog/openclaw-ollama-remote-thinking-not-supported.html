@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw + Remote Ollama: "does not support thinking" Error Fix | ClawReady</title>
+  <meta name="description" content="OpenClaw fails with '400 does not support thinking' when using a remote Ollama instance with small models like qwen2.5:0.5b — even though direct Ollama API calls work fine. Here's why and how to fix it.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-ollama-remote-thinking-not-supported">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw + Remote Ollama Fails: "does not support thinking" — But Direct API Works Fine</h1>
+    <p class="meta">Published April 18, 2026 · Bug #67949 · Affects: 2026.4.12+ · Setup: OpenClaw → remote Ollama on LAN</p>
+
+    <p>You've set up OpenClaw on one machine and Ollama on another machine on your local network. Direct <code>curl</code> calls to Ollama's <code>/api/chat</code> endpoint work perfectly. But when you run:</p>
+
+    <pre><code>openclaw infer model run --model ollama/qwen2.5:0.5b --prompt "hello" --json</code></pre>
+
+    <p>You get:</p>
+    <blockquote><code>400 {"error":"\"qwen2.5:0.5b\" does not support thinking"}</code></blockquote>
+
+    <p>No response in the OpenClaw gateway UI either. The model is working — OpenClaw is the problem.</p>
+
+    <h2>What's Causing It</h2>
+    <p>OpenClaw's Ollama adapter sends a <code>"think": true</code> flag in its requests by default when reasoning/thinking features are enabled globally in your config. Most small Ollama models — including <code>qwen2.5:0.5b</code>, <code>qwen2.5:7b</code>, and other quantized variants — don't support the thinking parameter and reject the request with a 400 error.</p>
+
+    <p>The frustrating part: when you call <code>/api/chat</code> directly with <code>"think": false</code> (or omit the field entirely), it works. OpenClaw is injecting a parameter the model can't handle.</p>
+
+    <h2>Fix 1: Disable Thinking for the Ollama Provider in Config</h2>
+    <p>In your <code>openclaw.json</code>, explicitly disable thinking for your Ollama models:</p>
+
+    <pre><code>{
+  "models": {
+    "providers": {
+      "ollama": {
+        "baseUrl": "http://192.168.1.102:11434",
+        "models": [
+          {
+            "id": "qwen2.5:0.5b",
+            "thinkingDefault": "off",
+            "params": {
+              "think": false
+            }
+          }
+        ]
+      }
+    }
+  }
+}</code></pre>
+
+    <p>Restart the gateway after saving:</p>
+    <pre><code>openclaw gateway restart</code></pre>
+
+    <h2>Fix 2: Use the infer Command with Thinking Disabled</h2>
+    <p>For one-off <code>infer</code> runs, pass thinking off explicitly:</p>
+    <pre><code>openclaw infer model run \
+  --model ollama/qwen2.5:0.5b \
+  --prompt "Reply with exactly: hello" \
+  --reasoning off \
+  --json</code></pre>
+
+    <h2>Fix 3: Set a Global Default for Small Models</h2>
+    <p>If you're running several small Ollama models that don't support thinking, set a provider-level default in your config:</p>
+    <pre><code>{
+  "models": {
+    "providers": {
+      "ollama": {
+        "baseUrl": "http://192.168.1.102:11434",
+        "defaultParams": {
+          "think": false
+        }
+      }
+    }
+  }
+}</code></pre>
+    <p>This applies to all models under the Ollama provider unless overridden per-model.</p>
+
+    <h2>Fix 4: Switch to a Thinking-Capable Ollama Model</h2>
+    <p>If you actually want thinking/reasoning in your local model, use a model that supports it. Ollama models with native thinking support (as of April 2026):</p>
+    <ul>
+      <li><code>qwq:32b</code> — strong reasoning, requires ~20GB RAM</li>
+      <li><code>deepseek-r1:8b</code> — lighter reasoning model</li>
+      <li><code>qwen3:8b</code> — Qwen3 family with thinking support</li>
+    </ul>
+    <pre><code>ollama pull deepseek-r1:8b
+# Then update your OpenClaw config to use deepseek-r1:8b</code></pre>
+
+    <h2>Two-Machine LAN Setup Tips</h2>
+    <p>While you're fixing this, a few things to double-check for a reliable OpenClaw ↔ remote Ollama setup:</p>
+    <ul>
+      <li><strong>Firewall:</strong> Port 11434 must be open on the Ollama machine. On Ubuntu: <code>sudo ufw allow 11434</code></li>
+      <li><strong>Ollama bind address:</strong> By default Ollama only listens on localhost. Set <code>OLLAMA_HOST=0.0.0.0</code> in your Ollama service environment to allow LAN connections.</li>
+      <li><strong>OpenClaw baseUrl:</strong> Use the LAN IP, not <code>localhost</code>: <code>"baseUrl": "http://192.168.1.102:11434"</code></li>
+    </ul>
+
+    <p>Need help setting up a two-machine OpenClaw + Ollama deployment? <a href="https://clawreadynow.com/#pricing">ClawReady</a> has done this setup dozens of times — we can get you running in under an hour.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
