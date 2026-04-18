@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Telegram EADDRINUSE Loop: Gateway Spamming 2000+ Errors During Quiet Periods | ClawReady</title>
+  <meta name="description" content="OpenClaw's health-monitor treats Telegram quiet periods as 'stuck' and triggers restart loops — filling your logs with 67 EADDRINUSE errors every 30 minutes. Here's the fix.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-telegram-eaddrinuse-health-monitor-loop">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw Telegram: 2,000+ EADDRINUSE Errors in Your Logs — And Your Bot is Working Fine</h1>
+    <p class="meta">Published April 18, 2026 · Bug #68153 · Affects: 2026.3.1+ · Setup: OpenClaw with Telegram channel enabled</p>
+
+    <p>Your OpenClaw gateway is running. Your Telegram bot responds to messages perfectly. But your logs look like this — every 30 minutes:</p>
+
+    <pre><code>[telegram:default] health-monitor: restarting (reason: stuck)
+[default] starting provider (@your_bot)
+canvas host mounted at http://0.0.0.0:18789
+Gateway is binding to a non-loopback address
+Gateway failed to start: another gateway instance is already listening on ws://0.0.0.0:18789
+Port 18789 is already in use.
+- pid 1234 openclaw: openclaw-gateway (*:18789)</code></pre>
+
+    <p>~67 lines of errors per cycle, repeating indefinitely. One user reported <strong>2,204 EADDRINUSE errors in 27 hours across 33 restart cycles</strong> — while their bot worked perfectly the entire time.</p>
+
+    <h2>What's Happening</h2>
+
+    <p>OpenClaw's channel health-monitor watches for "stuck" channels. Its logic: if no events have arrived in 30 minutes, the channel must be unhealthy — restart it.</p>
+
+    <p>This makes sense for WebSocket-based channels like Slack, where a stale socket genuinely means something broke. For Telegram's long-polling, it doesn't — <strong>quiet periods with no incoming messages are completely normal</strong>. Nobody messaged you. That's not a bug.</p>
+
+    <p>When the health-monitor triggers a restart anyway, the Telegram channel restart path attempts to rebind the main WebSocket port (18789). That port is already owned by the running gateway — so you get EADDRINUSE. The channel never actually restarts. The loop repeats.</p>
+
+    <p>This is the same class of bug that affected MS Teams channels in issues #22169, #24522, and #25527 — fixed for Teams, but the same path exists in the Telegram restart code.</p>
+
+    <h2>The Impact</h2>
+    <ul>
+      <li><strong>Functional:</strong> Zero. Your bot works fine throughout.</li>
+      <li><strong>Operational:</strong> Logs become useless noise. Monitoring alerts fire constantly. Hard to spot real errors.</li>
+      <li><strong>Performance:</strong> Minor CPU overhead from repeated failed bind attempts.</li>
+    </ul>
+
+    <h2>Workarounds (Until Patched)</h2>
+
+    <h3>Option 1: Increase the stale event threshold</h3>
+    <p>Raise the health-monitor's "stuck" threshold so it doesn't trigger during normal quiet periods. Add to your <code>openclaw.json</code>:</p>
+    <pre><code>{
+  "gateway": {
+    "health": {
+      "staleEventThresholdMs": 7200000
+    }
+  }
+}</code></pre>
+    <p>This sets it to 2 hours. For a personal bot with infrequent messages, you might go even higher (4–8 hours).</p>
+
+    <h3>Option 2: Disable health-monitor for Telegram only</h3>
+    <p>If your Telegram channel is stable and you don't want the overhead:</p>
+    <pre><code>{
+  "channels": {
+    "discord": {
+      "health": { "enabled": false }
+    }
+  }
+}</code></pre>
+    <p>Replace <code>"discord"</code> with your channel key (e.g. <code>"telegram"</code>). Check your config for the exact key name.</p>
+
+    <h3>Option 3: Disable health-monitor globally</h3>
+    <pre><code>{
+  "gateway": {
+    "health": {
+      "enabled": false
+    }
+  }
+}</code></pre>
+    <p>Trade-off: you lose automatic recovery if a channel genuinely gets stuck. Acceptable for stable single-channel setups.</p>
+
+    <h3>Option 4: Filter logs while waiting for the patch</h3>
+    <pre><code>openclaw gateway logs | grep -v "EADDRINUSE\|already in use\|health-monitor: restarting"</code></pre>
+    <p>Not a fix, but makes logs readable in the meantime.</p>
+
+    <h2>Root Cause (Technical)</h2>
+    <p>In <code>channel-health-monitor.ts</code> (~line 1595), <code>isChannelHealthy()</code> uses a single stale-event threshold for all channel types. Long-polling channels (Telegram) should be excluded from the "no events = unhealthy" check, or the threshold should be channel-type-aware. The fix is tracked in issue #68153.</p>
+
+    <h2>Is Your Bot Actually Broken?</h2>
+    <p>Quick check:</p>
+    <pre><code>openclaw gateway status</code></pre>
+    <p>If it shows running and your bot responds to test messages, the errors are cosmetic. You're hitting this bug, not a real outage.</p>
+
+    <h2>Summary</h2>
+    <table>
+      <tr><th>Symptom</th><td>2000+ EADDRINUSE errors in logs, every 30 min</td></tr>
+      <tr><th>Cause</th><td>Health-monitor treats Telegram quiet periods as stuck</td></tr>
+      <tr><th>Bot affected?</th><td>No — fully functional throughout</td></tr>
+      <tr><th>Best fix</th><td>Raise <code>staleEventThresholdMs</code> to 2–8 hours</td></tr>
+      <tr><th>Tracked in</th><td>Issue #68153</td></tr>
+    </table>
+
+    <hr>
+    <p><em>Need help configuring OpenClaw for Telegram or diagnosing gateway issues? <a href="https://clawreadynow.com">ClawReady</a> offers setup and audit services — we'll get your config clean and your logs quiet.</em></p>
+  </main>
+
+  <footer>
+    <p><a href="/blog">← All posts</a> · <a href="/">ClawReady Home</a></p>
+  </footer>
+</body>
+</html>
