@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>20 Real OpenClaw Workflows After 50 Days — Copy-Paste Prompts That Actually Work — ClawReady</title>
+  <meta name="description" content="After 50 days running OpenClaw on a VPS with Discord + Obsidian, here are the actual prompts powering 20 real automations — morning briefings, cron image generation, auto-updates, and more.">
+  <meta property="og:title" content="20 Real OpenClaw Workflows After 50 Days — Copy-Paste Prompts That Actually Work">
+  <meta property="og:description" content="Real prompts from a 50-day OpenClaw deployment. Copy-paste and adjust for your setup — morning briefings, cron automations, Obsidian sync, self-update routines, and more.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-real-workflow-prompts-50-days">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-real-workflow-prompts-50-days">
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:740px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:740px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    .logo{font-weight:700;font-size:1.1rem}
+    .nav-links{display:flex;gap:24px}
+    .nav-links a{color:var(--muted);font-size:0.9rem;transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+    header{margin-bottom:48px}
+    .category{font-size:0.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+    h1{font-size:2rem;font-weight:700;line-height:1.25;margin-bottom:20px}
+    .meta{color:var(--muted);font-size:0.85rem;margin-bottom:32px}
+    .tldr{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);padding:20px 24px;border-radius:6px;margin-bottom:40px}
+    .tldr strong{display:block;margin-bottom:8px;font-size:0.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+    h2{font-size:1.25rem;font-weight:700;margin:40px 0 16px}
+    h3{font-size:1rem;font-weight:600;margin:28px 0 10px;color:#c0c0c0}
+    p{margin-bottom:16px;color:#d0d0d0}
+    ul,ol{margin:0 0 16px 24px}
+    li{margin-bottom:8px;color:#d0d0d0}
+    code{font-family:'SF Mono',Monaco,Consolas,monospace;font-size:0.85em;background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:3px}
+    .prompt-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin:28px 0;overflow:hidden}
+    .prompt-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+    .prompt-header strong{font-size:0.95rem}
+    .prompt-meta{font-size:0.8rem;color:var(--muted)}
+    .prompt-body{padding:20px;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:0.82rem;line-height:1.65;color:#c8c8c8;white-space:pre-wrap;word-break:break-word}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--yellow);padding:16px 20px;border-radius:6px;margin:24px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout strong{color:var(--yellow)}
+    .callout.green strong{color:var(--green)}
+    .callout.blue strong{color:var(--blue)}
+    .setup-tag{display:inline-block;font-size:0.75rem;background:rgba(52,152,219,.12);color:var(--blue);border:1px solid rgba(52,152,219,.25);padding:2px 8px;border-radius:4px;margin-right:6px}
+    .cta{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px;text-align:center;margin:48px 0}
+    .cta h3{font-size:1.25rem;margin-bottom:12px}
+    .cta p{color:var(--muted);margin-bottom:24px}
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;transition:background .2s}
+    .btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:64px;text-align:center;color:var(--muted);font-size:0.85rem}
+    footer a{color:var(--muted);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">ClawReady</a>
+      <div class="nav-links">
+        <a href="/blog">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header>
+      <div class="category">Workflows & Prompts</div>
+      <h1>20 Real OpenClaw Workflows After 50 Days — Copy-Paste Prompts That Actually Work</h1>
+      <div class="meta">April 18, 2026 &nbsp;·&nbsp; 10 min read</div>
+    </header>
+
+    <div class="tldr">
+      <strong>TL;DR</strong>
+      After 50 days running OpenClaw on a VPS with Discord as the primary interface and Obsidian for notes, the community has shared the actual prompts behind 20 production automations. These aren't theoretical examples — they're copy-paste ready and battle-tested. Adjust the specifics for your setup; the structure does the heavy lifting.
+    </div>
+
+    <p>Most OpenClaw tutorials show you how to install it. Almost none show you what to actually do with it once it's running.</p>
+
+    <p>The GitHub gist from velvet-shark (companion to a 50-day honest review video) changed that. It's the actual prompts behind 20 real workflows — not sanitized examples, but the literal text sent to the agent to set up each automation. We've curated and annotated the most useful ones here.</p>
+
+    <div class="callout blue">
+      <strong>ℹ️ How to use these prompts</strong>
+      <p style="margin:8px 0 0">Paste any prompt directly into your OpenClaw agent. It will ask clarifying questions where your specific setup details are needed (API keys, paths, channel names). You don't need to fill in every detail upfront — the agent figures out what it needs.</p>
+    </div>
+
+    <p><strong>Setup used in the original gist:</strong> OpenClaw on a VPS · Discord as primary interface (separate channels per workflow) · Obsidian for notes · Coolify for self-hosted services</p>
+
+    <h2>Workflow 1: Daily Morning Briefing</h2>
+    <p>The most common starting workflow. Runs at 7 AM, scans your information sources, and delivers a 2-minute briefing to your Discord channel.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <strong>Morning Briefing Prompt</strong>
+        <span class="prompt-meta"><span class="setup-tag">cron 7:00am</span> <span class="setup-tag">Discord #briefing</span></span>
+      </div>
+      <div class="prompt-body">Set up a daily morning briefing that runs at 7:00am every day.
+
+Here's what it should do:
+1. Scan my Twitter/X timeline — the last ~100 tweets from accounts I follow
+2. Pick the top 10 most relevant tweets based on my interests (AI, developer tools, indie hacking, content creation, tech business)
+3. Write a structured summary to my Obsidian vault at the path: /Daily/YYYY-MM-DD-briefing.md
+4. If any tweet connects to a potential YouTube video idea, append it to my video ideas backlog at: /Projects/video-ideas.md
+5. Send me a summary in this channel with the key highlights and any action items
+
+Format the summary with sections: Top Stories, Interesting Threads, Video Ideas (if any), and Quick Hits for everything else.
+
+Keep the tone concise. I want to read this in 2 minutes over coffee, not 10.</div>
+    </div>
+
+    <h3>Adapting this for your setup</h3>
+    <p>Replace the Obsidian vault paths with wherever you store notes. Replace Twitter/X with your actual info sources (RSS feeds, newsletters, subreddits). The "interests" list is the most important thing to customize — be specific, not generic.</p>
+
+    <h2>Workflow 2: Historical "On This Day" E-Ink Display</h2>
+    <p>One of the more creative automations in the gist. Pulls a historical event, generates a woodcut-style image of the moment <em>before</em> the event, and pushes it to a TRMNL e-ink display. Runs at 5:30 AM.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <strong>Daily E-Ink Image Cron</strong>
+        <span class="prompt-meta"><span class="setup-tag">cron 5:30am</span> <span class="setup-tag">TRMNL display</span></span>
+      </div>
+      <div class="prompt-body">Set up a daily automation that runs at 5:30am every day. Here's the concept:
+
+1. Fetch today's "On This Day" events from Wikipedia (the API endpoint for historical events on today's date)
+2. Pick the single most dramatic or impactful historical event from the list
+3. Generate an image in a woodcut/linocut art style that shows the scene TEN SECONDS BEFORE the event happened — not the event itself, but the moment right before. Examples: the iceberg approaching the Titanic, the apple about to fall on Newton's head, the crowd gathering before a famous speech.
+4. The image should be stark black and white, high contrast, suitable for an e-ink display (800x480 resolution)
+5. Push the image to my TRMNL display using the TRMNL API (I'll give you the API key and device ID)
+6. Include only the date and location as text on the image. No event description — it should be a mystery to guess.
+
+Use the image generation tool to create the image. The style should be consistent every day — always woodcut/linocut, always dramatic, always showing the moment before.</div>
+    </div>
+
+    <h3>Adapting this for your setup</h3>
+    <p>If you don't have a TRMNL display, swap the final step for posting to a Discord channel or saving to a folder. The Wikipedia API call and image generation steps work the same regardless of delivery target.</p>
+
+    <h2>Workflow 3: Auto-Update & Health Report</h2>
+    <p>Set-it-and-forget-it maintenance. Runs at 4 AM, updates OpenClaw, restarts the gateway, and reports status to a monitoring channel. Critical for VPS deployments where you're not watching the terminal.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <strong>Self-Update + Health Report</strong>
+        <span class="prompt-meta"><span class="setup-tag">cron 4:00am</span> <span class="setup-tag">Discord #monitoring</span></span>
+      </div>
+      <div class="prompt-body">Set up a daily maintenance routine that runs at 4:00am:
+
+1. Run the OpenClaw update command to update the package, gateway, and all installed skills/plugins in one go
+2. Restart the gateway service after the update completes
+3. Report the results to my Discord #monitoring channel: what was updated, any errors, current version numbers
+
+If something fails during the update, don't silently continue. Report exactly what failed and suggest how to fix it. Include the error output.
+
+If the update succeeds cleanly, keep the message short — just version numbers and a green checkmark. I only want details when something needs attention.</div>
+    </div>
+
+    <div class="callout">
+      <strong>⚠️ VPS deployment note</strong>
+      <p style="margin:8px 0 0">This workflow requires elevated exec permissions. Make sure <code>requireApproval</code> is set appropriately — you probably want auto-approval for the update command specifically, not for all elevated exec. Scope it tightly.</p>
+    </div>
+
+    <h2>Workflow 4: Obsidian Daily Note + Task Capture</h2>
+    <p>Bridges the gap between your agent and your note system. The agent creates your daily note, pulls in open tasks from yesterday, and sets up the structure for the day.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <strong>Obsidian Daily Note Setup</strong>
+        <span class="prompt-meta"><span class="setup-tag">cron 6:00am</span> <span class="setup-tag">Obsidian vault</span></span>
+      </div>
+      <div class="prompt-body">Every morning at 6:00am, create my daily note in Obsidian at /Daily/YYYY-MM-DD.md.
+
+The note should:
+1. Pull any unfinished tasks from yesterday's note (look for lines starting with "- [ ]" in the previous day's file)
+2. Add a "Carried Over" section at the top with those tasks
+3. Create the standard sections I use every day: Morning Intention, Top 3 Priorities, Tasks, Notes, End of Day Review
+4. Pre-fill the date in the filename and the note header
+
+After creating the note, send me a Discord message confirming it's ready, with a count of how many tasks carried over from yesterday.
+
+If yesterday's note doesn't exist or has no open tasks, just create the fresh note and skip the carry-over step.</div>
+    </div>
+
+    <h2>Workflow 5: Research Digest on a Topic</h2>
+    <p>On-demand research that aggregates, summarizes, and stores findings — useful for staying on top of a fast-moving topic without manual effort.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <strong>Weekly Research Digest</strong>
+        <span class="prompt-meta"><span class="setup-tag">cron weekly</span> <span class="setup-tag">Discord #research</span></span>
+      </div>
+      <div class="prompt-body">Every Sunday at 8:00am, run a research digest on the topic: [YOUR TOPIC — e.g. "AI agent frameworks", "indie SaaS", "local LLMs"].
+
+Here's what to do:
+1. Search for the top 10 most recent and relevant articles, papers, or discussions published in the last 7 days
+2. For each, write a 2-3 sentence summary of what's new or interesting
+3. Flag anything that feels like a significant shift — new model releases, major product launches, community controversy
+4. Save the full digest to my Obsidian vault at: /Research/[topic]/YYYY-MM-DD-weekly.md
+5. Send me a condensed version in this channel — just the headlines and flags, max 10 bullet points
+
+I want signal, not noise. Skip anything that's just a press release or SEO article with no new information.</div>
+    </div>
+
+    <h2>What Makes These Prompts Work</h2>
+
+    <p>Looking across all 20 workflows in the gist, a few patterns stand out that separate prompts that work reliably from ones that drift or fail:</p>
+
+    <ol>
+      <li><strong>Explicit output destinations.</strong> Every prompt specifies exactly where to write or send output — a file path, a channel name, a specific API endpoint. Vague destinations ("save it somewhere") cause problems.</li>
+      <li><strong>Failure handling instructions.</strong> The best prompts tell the agent what to do when something goes wrong, not just when it works. "If X fails, report Y and don't continue" is load-bearing.</li>
+      <li><strong>Tone and length constraints.</strong> "I want to read this in 2 minutes" does more work than any format instruction. Give the agent a time budget, not just a structure.</li>
+      <li><strong>Clear trigger conditions.</strong> Cron time + channel = the agent knows exactly when and where. Ambiguous triggers lead to missed or doubled runs.</li>
+    </ol>
+
+    <div class="callout green">
+      <strong>✅ Start with one workflow, not twenty</strong>
+      <p style="margin:8px 0 0">The temptation is to set up everything at once. Resist it. Pick the one workflow that would deliver immediate daily value — usually the morning briefing — get it running clean for a week, then add the next one. Stacking too many at once makes debugging a nightmare.</p>
+    </div>
+
+    <h2>Common Setup Issues (From the Gist Comments)</h2>
+
+    <p>The original gist notes a few issues that come up frequently when people try to implement these workflows:</p>
+    <ul>
+      <li><strong>npm permissions</strong> — the update workflow can fail if OpenClaw was installed without global npm permissions. Fix: <code>npm install -g openclaw --prefix ~/.npm-global</code></li>
+      <li><strong>WhatsApp/Telegram linking</strong> — cron jobs that send to these channels fail if the session isn't active. Discord is more reliable for unattended automations.</li>
+      <li><strong>Daemon configuration</strong> — the gateway needs to be running as a daemon (not in a terminal session) for cron-triggered workflows to fire correctly.</li>
+      <li><strong>Firewall rules</strong> — VPS deployments often block outbound API calls by default. Add exceptions for your model provider and any external APIs your workflows use.</li>
+    </ul>
+
+    <p>Most of these are one-time setup issues. Once the foundation is solid, the workflows run without intervention.</p>
+
+    <div class="cta">
+      <h3>Want These Workflows Set Up For You?</h3>
+      <p>We handle the installation, daemon config, cron setup, and channel wiring. You describe what you want to automate — we build it. Starting at $99.</p>
+      <a href="https://calendly.com/grofresh2018" class="btn" target="_blank">Book a Setup Call →</a>
+    </div>
+  </div>
+
+  <footer>
+    <p><a href="/">ClawReady</a> &nbsp;·&nbsp; <a href="/blog">Blog</a> &nbsp;·&nbsp; OpenClaw setup & support</p>
+  </footer>
+</body>
+</html>
