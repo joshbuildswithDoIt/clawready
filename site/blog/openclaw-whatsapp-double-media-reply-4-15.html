@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw WhatsApp Sends Every Media Reply Twice in 2026.4.15 | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.15 regression: a single WhatsApp media reply (image, chart, file) gets sent twice to the same conversation. Here's the cause and how to fix it.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-whatsapp-double-media-reply-4-15">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw WhatsApp: Every Image or File Gets Sent Twice (2026.4.15 Regression)</h1>
+    <p class="meta">Published April 18, 2026 · Bug #68056 · Affects: 2026.4.15 · Setup: OpenClaw with WhatsApp + media replies</p>
+
+    <p>You send one message. Your agent generates one chart, one image, or one file. WhatsApp delivers <strong>two copies</strong> — a few hundred milliseconds apart. Your outbound media folder shows two files staged for the same request. Your gateway logs say "Sent media reply" twice for the same conversation.</p>
+
+    <p>This is a confirmed regression introduced in OpenClaw 2026.4.15. It affects anyone using WhatsApp with <code>channels.whatsapp.blockStreaming: false</code> and an agent that returns media responses.</p>
+
+    <h2>What's happening</h2>
+
+    <p>The root cause is a double-invocation in the reply-media pipeline. A stack trace from the 4.15 bundle shows <code>resolveOutboundAttachmentFromUrl</code> being called twice for the same <code>mediaUrl</code> on a single reply — once from the normal reply path and once from a second code path introduced in 4.15's reply-media refactor.</p>
+
+    <p>Specifically, <code>persistLocalReplyMedia</code> in <code>reply-media-paths.runtime-B671n_FS.js</code> calls <code>normalizeMediaSource</code>, which in turn triggers <code>resolveOutboundAttachmentFromUrl</code> a second time. The result: two outbound files under <code>~/.openclaw/media/outbound/</code> staged within the same second, and two WhatsApp sends.</p>
+
+    <h2>Who's affected</h2>
+
+    <ul>
+      <li>OpenClaw 2026.4.15 (commit 041266a)</li>
+      <li>WhatsApp channel enabled with <code>blockStreaming: false</code></li>
+      <li>Any agent returning a media response (image, chart, PDF, audio)</li>
+      <li>Confirmed on Ubuntu Server 24.04, npm global install</li>
+    </ul>
+
+    <p>If you're on 2026.4.14 or earlier, you're not affected — this is a 4.15-only regression.</p>
+
+    <h2>Workarounds while waiting for a patch</h2>
+
+    <h3>Option 1: Roll back to 2026.4.14 (safest)</h3>
+    <pre><code>npm install -g openclaw@2026.4.14
+openclaw gateway restart</code></pre>
+    <p>4.14 doesn't have this bug. You'll lose 4.15's other fixes, but your WhatsApp media replies will work correctly.</p>
+
+    <h3>Option 2: Enable blockStreaming</h3>
+    <p>Set <code>channels.whatsapp.blockStreaming: true</code> in your config. This changes how replies are flushed and appears to avoid the double-fire path in 4.15. Side effect: streaming responses are blocked, so text replies may feel slightly slower.</p>
+
+    <pre><code># In your openclaw.json
+"channels": {
+  "whatsapp": {
+    "blockStreaming": true
+  }
+}</code></pre>
+
+    <h3>Option 3: Restrict media tool permissions temporarily</h3>
+    <p>If your agent doesn't need to send media proactively, add <code>tools.deny: ["group:media"]</code> to disable the media tool group until a fix ships. Text replies are unaffected.</p>
+
+    <h2>How to confirm you're hitting this bug</h2>
+
+    <pre><code># Check for duplicate outbound files (same second, same session)
+ls -lt ~/.openclaw/media/outbound/ | head -20
+
+# Check gateway logs for duplicate sends
+grep "Sent media reply" ~/.openclaw/logs/gateway.log | uniq -D</code></pre>
+
+    <p>If you see two files with nearly identical timestamps for the same conversation, you're hitting #68056.</p>
+
+    <h2>Status</h2>
+
+    <p>This is an open bug as of April 18, 2026. Watch <a href="https://github.com/openclaw/openclaw/issues/68056" target="_blank" rel="noopener">GitHub issue #68056</a> for a patch. Given it's a regression, expect a point release fix soon.</p>
+
+    <hr>
+    <p><em>Hitting this or another OpenClaw setup issue? <a href="https://clawreadynow.com">ClawReady</a> offers fixed-price setup and troubleshooting — we've seen most of these bugs before you have.</em></p>
+  </main>
+
+  <footer>
+    <p><a href="/blog">← All posts</a></p>
+  </footer>
+</body>
+</html>
