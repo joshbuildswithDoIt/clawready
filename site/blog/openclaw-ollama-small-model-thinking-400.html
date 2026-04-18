@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw + Ollama Small Models: "Does Not Support Thinking" 400 Error | ClawReady</title>
+  <meta name="description" content="OpenClaw throws a 400 error with small Ollama models like qwen2.5:0.5b — 'does not support thinking'. Here's why it happens and how to fix it without switching models.">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-ollama-small-model-thinking-400">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> / <a href="/blog">Blog</a></nav>
+  </header>
+
+  <main class="blog-post">
+    <h1>OpenClaw + Ollama Small Models: "Does Not Support Thinking" 400 Error</h1>
+    <p class="meta">Published April 18, 2026 · Bug #67949 · Affects: 2026.4.12+ · Setup: Remote Ollama / small models</p>
+
+    <p>You've set up OpenClaw on one machine pointing to Ollama running on another machine on your local network. You pick a small, fast model like <code>qwen2.5:0.5b</code>, run a test, and get silence — nothing in the dashboard, no response in chat. Check the logs and you'll find:</p>
+
+    <blockquote><code>400 {"error":"\"qwen2.5:0.5b\" does not support thinking"}</code></blockquote>
+
+    <p>Meanwhile, a direct <code>curl</code> to Ollama's <code>/api/chat</code> with the exact same model works perfectly. So what's OpenClaw doing differently?</p>
+
+    <h2>The Cause</h2>
+    <p>OpenClaw injects a <code>think</code> or <code>thinking</code> parameter into Ollama API requests. For larger models that support extended reasoning (like <code>qwen3</code> or <code>deepseek-r1</code>), this is intentional. But smaller models — <code>qwen2.5:0.5b</code>, <code>phi3:mini</code>, <code>gemma:2b</code>, and others — don't implement the thinking interface at all. Ollama rejects the request with a 400 before it ever generates a response.</p>
+
+    <p>OpenClaw doesn't fall back gracefully — it just drops the response, leaving the UI blank and the gateway silent.</p>
+
+    <h2>Workarounds</h2>
+
+    <h3>Option 1: Disable Thinking for the Model in Config (Recommended)</h3>
+    <p>Add a model entry in your <code>openclaw.json</code> that explicitly disables thinking for the small model:</p>
+
+    <pre><code>{
+  "models": {
+    "providers": {
+      "ollama": {
+        "models": [
+          {
+            "id": "qwen2.5:0.5b",
+            "thinkingDefault": "off",
+            "params": {
+              "think": false
+            }
+          }
+        ]
+      }
+    }
+  }
+}</code></pre>
+
+    <p>Add a similar entry for each small model you use. After editing, restart the gateway:</p>
+    <pre><code>openclaw gateway restart</code></pre>
+
+    <h3>Option 2: Use a Model That Supports Thinking</h3>
+    <p>If your hardware can handle it, switch to a model that supports Ollama's thinking interface. These work without any config changes:</p>
+    <ul>
+      <li><code>qwen3:8b</code> — solid reasoning, runs on 8–12GB RAM</li>
+      <li><code>qwen3:4b</code> — lighter option, still supports thinking</li>
+      <li><code>deepseek-r1:7b</code> — strong at structured reasoning tasks</li>
+    </ul>
+    <pre><code>ollama pull qwen3:4b
+# Then update your openclaw config to point to qwen3:4b</code></pre>
+
+    <h3>Option 3: Pin to OpenClaw 2026.4.10</h3>
+    <p>If you need the small model specifically and don't want to fiddle with config, rolling back to 2026.4.10 avoids the thinking injection entirely for Ollama providers:</p>
+    <pre><code>npm install -g openclaw@2026.4.10
+openclaw gateway restart</code></pre>
+
+    <h3>Option 4: Use openai-compat Format with Ollama</h3>
+    <p>Ollama exposes an OpenAI-compatible API at port 11434. Routing OpenClaw through the <code>openai</code> provider with a custom base URL bypasses the Ollama-specific thinking injection:</p>
+    <pre><code>{
+  "models": {
+    "providers": {
+      "openai": {
+        "baseURL": "http://192.168.1.102:11434/v1",
+        "apiKey": "ollama",
+        "models": [{ "id": "qwen2.5:0.5b" }]
+      }
+    }
+  }
+}</code></pre>
+    <p>This is especially useful in multi-machine setups where you want fine-grained control over which models get which parameters.</p>
+
+    <h2>Diagnosing the Problem</h2>
+    <pre><code># Test directly from OpenClaw machine to Ollama machine
+curl http://192.168.1.102:11434/api/chat \
+  -d '{"model":"qwen2.5:0.5b","messages":[{"role":"user","content":"hello"}],"think":false}'
+# Should return a valid response
+
+# Now test with think:true — this is what OpenClaw was sending:
+curl http://192.168.1.102:11434/api/chat \
+  -d '{"model":"qwen2.5:0.5b","messages":[{"role":"user","content":"hello"}],"think":true}'
+# Returns: 400 {"error":"\"qwen2.5:0.5b\" does not support thinking"}
+</code></pre>
+
+    <h2>Multi-Machine Ollama Setup Tips</h2>
+    <p>While you're here — a few things that trip people up in remote Ollama setups:</p>
+    <ul>
+      <li><strong>Ollama binds to localhost by default.</strong> You need to set <code>OLLAMA_HOST=0.0.0.0</code> in Ollama's systemd service (or environment) for remote access to work at all.</li>
+      <li><strong>Firewall rules.</strong> Port 11434 must be open between machines — check with <code>curl http://192.168.1.102:11434/</code> from the OpenClaw machine.</li>
+      <li><strong>Model availability.</strong> <code>openclaw infer model list</code> should show the remote models if connectivity is working.</li>
+    </ul>
+
+    <p>Setting up a multi-machine Ollama + OpenClaw environment? <a href="https://clawreadynow.com/#pricing">ClawReady's setup service</a> covers remote Ollama configuration, model selection for your hardware, and cost optimization across local and cloud providers.</p>
+
+    <p><a href="/blog">← Back to blog</a></p>
+  </main>
+
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog">Blog</a> · <a href="/#pricing">Pricing</a></p>
+  </footer>
+</body>
+</html>
