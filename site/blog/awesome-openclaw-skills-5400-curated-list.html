@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5,400+ Curated OpenClaw Skills in One Place — The Awesome-OpenClaw-Skills List | ClawReady</title>
+  <meta name="description" content="ClawHub has 13,729 community skills — but 7,215 are spam, duplicates, or malicious. The awesome-openclaw-skills repo curates 5,400+ quality skills by category. Here's how to use it.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>5,400+ Curated OpenClaw Skills in One Place — The Awesome-OpenClaw-Skills List</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>OpenClaw's public skills registry (ClawHub) hosts <strong>13,729 community-built skills</strong> as of early 2026. That sounds great until you realize what's actually in there: bulk spam accounts, bot-generated junk, duplicate names, low-quality non-English descriptions, crypto/trading bots, and — according to independent security audits — 373 skills flagged as malicious.</p>
+
+      <p>That's 7,215 skills you probably don't want anywhere near your agent.</p>
+
+      <p>The <strong>VoltAgent/awesome-openclaw-skills</strong> repo solves this. It's a curated list of 5,211 quality skills sourced from ClawHub, filtered, categorized, and updated regularly. Think of it as the signal extracted from the noise.</p>
+
+      <h2>What got filtered out — and why it matters</h2>
+
+      <table>
+        <thead>
+          <tr><th>Filter</th><th>Excluded</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Spam / bulk / bot / test accounts</td><td>4,065</td></tr>
+          <tr><td>Duplicate or similar-name skills</td><td>1,040</td></tr>
+          <tr><td>Low-quality or non-English descriptions</td><td>851</td></tr>
+          <tr><td>Crypto / blockchain / finance / trade bots</td><td>886</td></tr>
+          <tr><td>Malicious (confirmed by security audits)</td><td>373</td></tr>
+          <tr><td><strong>Total excluded</strong></td><td><strong>7,215</strong></td></tr>
+        </tbody>
+      </table>
+
+      <p>The <strong>373 malicious skills</strong> are the most important number here. These are skills identified by independent security researchers — not VirusTotal, which the maintainers explicitly exclude as insufficient. If you've been installing skills directly from ClawHub by name without vetting, there's a non-trivial chance you've encountered one of these.</p>
+
+      <h2>How to use it</h2>
+
+      <p>Browse the list at <a href="https://github.com/VoltAgent/awesome-openclaw-skills" rel="noopener">VoltAgent/awesome-openclaw-skills</a> or the companion site at <strong>clawskills.sh</strong> (searchable, category-filtered UI). Skills are organized by category — productivity, dev tools, communication, automation, data, etc.</p>
+
+      <p>Once you find a skill you want, install it via clawhub:</p>
+      <pre><code>clawhub install &lt;skill-slug&gt;</code></pre>
+
+      <p>Or paste the skill's GitHub link directly into your OpenClaw chat — the assistant handles installation automatically.</p>
+
+      <p>Skills install to one of these locations, with workspace-level taking priority:</p>
+      <table>
+        <thead>
+          <tr><th>Location</th><th>Path</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Global</td><td>~/.openclaw/skills/</td></tr>
+          <tr><td>Workspace</td><td>&lt;project&gt;/skills/</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Why this is worth bookmarking</h2>
+
+      <p>The list is actively maintained — PRs are merged and the skill count grows. The maintainers (VoltAgent, the team behind the VoltAgent framework) have a track record of running similar curated lists for Claude Code subagents and Codex subagents.</p>
+
+      <p>More importantly: the malicious skill filter is updated as new security research surfaces. This is a living document, not a one-time snapshot.</p>
+
+      <h2>What we recommend</h2>
+
+      <p>Before installing any skill from ClawHub directly:</p>
+      <ol>
+        <li>Check if it's in the awesome-openclaw-skills list first</li>
+        <li>If it's not listed, review the SKILL.md manually — look for exec calls, outbound HTTP, and credential access patterns</li>
+        <li>Never install skills from personal gists or repos not in the official openclaw/skills GitHub repo (the awesome list enforces this: it only includes skills published there)</li>
+      </ol>
+
+      <p>The skill ecosystem is one of OpenClaw's biggest strengths. 5,400 quality skills is genuinely impressive. Just make sure you're pulling from the curated half, not the junk half.</p>
+
+      <p><em>ClawReady's setup tiers include skill vetting and safe installation — we check against known-bad lists and review SKILL.md files before anything touches your workspace. <a href="https://clawreadynow.com/#pricing">See our options.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
