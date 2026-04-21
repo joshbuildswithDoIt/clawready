@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoClaw: OpenClaw Rebuilt in Go with Multi-Tenant Isolation and 5-Layer Security | ClawReady</title>
+  <meta name="description" content="GoClaw is a full Go rewrite of OpenClaw with multi-tenant PostgreSQL, 5-layer security, 20+ LLM providers, and a single production binary. Here's what it is, who it's for, and how it compares.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>GoClaw: OpenClaw Rebuilt in Go with Multi-Tenant Isolation and 5-Layer Security</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>We've now seen OpenClaw reimplemented in <a href="/blog/ironclaw-rust-openclaw-alternative.html">Rust (IronClaw)</a> and <a href="/blog/autocli-openclaw-web-fetch-tool-2026.html">Rust again (AutoCLI)</a>. Now there's a Go rewrite: <strong>GoClaw</strong> by nextlevelbuilder. Unlike IronClaw's security-only focus, GoClaw targets a different problem entirely — multi-tenant team deployments at scale.</p>
+
+      <h2>What GoClaw is</h2>
+      <p>GoClaw is a full rebuild of the OpenClaw agent gateway in Go, designed for organizations that need to run AI agent teams for multiple users or customers from a single infrastructure deployment. Core specs:</p>
+      <ul>
+        <li><strong>20+ LLM providers</strong> — same broad model support as OpenClaw</li>
+        <li><strong>7 messaging channels</strong> — Telegram, WhatsApp, Discord, and others</li>
+        <li><strong>Multi-tenant PostgreSQL</strong> — each tenant gets isolated data, sessions, and memory</li>
+        <li><strong>Native Go concurrency</strong> — goroutine-based parallelism vs. Node.js event loop</li>
+        <li><strong>Single binary</strong> — no Node.js runtime, no npm install chain</li>
+        <li><strong>OpenTelemetry</strong> — built-in observability from day one</li>
+        <li><strong>5-layer security model</strong> — described in CHANGELOG.md (tenant isolation, auth, tool sandboxing, audit logs, rate limiting)</li>
+      </ul>
+
+      <h2>How it differs from OpenClaw</h2>
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>OpenClaw (Node.js)</th><th>GoClaw (Go)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Multi-tenant</td><td>❌ Single-user by design</td><td>✅ PostgreSQL per-tenant isolation</td></tr>
+          <tr><td>Runtime</td><td>Node.js (npm install)</td><td>Single Go binary</td></tr>
+          <tr><td>Concurrency</td><td>Event loop</td><td>Native goroutines</td></tr>
+          <tr><td>Observability</td><td>Gateway logs</td><td>OpenTelemetry built-in</td></tr>
+          <tr><td>Skill ecosystem</td><td>✅ 5,400+ ClawHub skills</td><td>❌ Early-stage, limited</td></tr>
+          <tr><td>Community</td><td>✅ Large, active</td><td>❌ Very new</td></tr>
+          <tr><td>SOUL.md / memory arch</td><td>✅ Mature</td><td>⚠️ Unknown / in progress</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Who should care</h2>
+      <p><strong>GoClaw is for teams building B2B SaaS or agency services on top of OpenClaw's architecture</strong> — not for solo self-hosters. If you're running one agent for yourself, OpenClaw is the right tool. GoClaw becomes relevant when:</p>
+      <ul>
+        <li>You need to provision AI agents for multiple customers from one deployment</li>
+        <li>You need tenant-isolated memory and session data (GDPR, SOC 2 context)</li>
+        <li>You're hitting Node.js concurrency limits under load</li>
+        <li>You need production-grade observability (OpenTelemetry → your existing monitoring stack)</li>
+      </ul>
+
+      <h2>Current maturity</h2>
+      <p>GoClaw is early. The CHANGELOG.md distinguishes between production-tested features and work in progress. The skill ecosystem doesn't exist yet — you lose access to the 5,400+ ClawHub skills that make OpenClaw powerful for solo setups. The community is tiny compared to OpenClaw's.</p>
+      <p>That said: the architecture is sound, the Go single-binary approach is a real operational advantage, and the multi-tenant PostgreSQL model solves a genuine gap that OpenClaw has no answer for. Watch this project — it's filling a real niche.</p>
+
+      <h2>IronClaw vs. GoClaw vs. OpenClaw</h2>
+      <p>The ecosystem now has three serious options:</p>
+      <ul>
+        <li><strong>OpenClaw (Node.js)</strong> — biggest ecosystem, most skills, best for solo and small team setups, mature memory architecture</li>
+        <li><strong>IronClaw (Rust)</strong> — security-first, WASM sandbox, for high-security single-agent deployments</li>
+        <li><strong>GoClaw (Go)</strong> — multi-tenant scale, PostgreSQL isolation, single binary, for B2B / agency deployments</li>
+      </ul>
+      <p>These aren't competing directly — they're solving different problems at different points on the security/scale/simplicity triangle.</p>
+
+      <h2>ClawReady's take</h2>
+      <p>If you're running ClawReady setups for multiple clients and want to offer a managed multi-tenant agent platform (rather than separate OpenClaw installs per client), GoClaw is worth evaluating seriously. The ClawHub skill gap is the main blocker today — but that closes over time.</p>
+      <p>For ClawReady's current service tier (single-tenant, self-hosted), OpenClaw remains the right foundation. <a href="https://clawreadynow.com/#pricing">See our setup options.</a></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
