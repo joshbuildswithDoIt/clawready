@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Architecture Explained: 5 Layers, Data Flow, and Security | ClawReady</title>
+  <meta name="description" content="A plain-English breakdown of how OpenClaw is actually built — the five-layer architecture, how data moves through the system, and what security controls exist at each stage.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>OpenClaw Architecture Explained: 5 Layers, Data Flow, and Security</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>Most OpenClaw documentation tells you what the product does. This post covers how it's built — the actual system architecture, layer by layer, so you understand what's happening when your agent runs and where the security boundaries are.</p>
+
+      <p>This is useful whether you're evaluating OpenClaw for a team deployment, preparing a technical review, or just want to stop treating your own setup as a black box.</p>
+
+      <h2>The 5-Layer Architecture</h2>
+      <p>OpenClaw is organized into five horizontal layers. Reading top-to-bottom: inputs → gateway → agent core → action layer → external systems. Each layer can be configured, updated, or secured independently — it's a pipeline, not a monolith.</p>
+
+      <h3>Layer 1: Input Sources</h3>
+      <p>The top layer is the sources OpenClaw monitors. These are the channels your agent listens to: messaging (Telegram, Discord, Signal, WhatsApp, iMessage), email (Gmail, Outlook), calendar, task systems, CRMs, and any system with webhook or API support.</p>
+      <p>OpenClaw doesn't poll these continuously in most configurations — it reacts to events. A message arrives → the gateway routes it → the agent responds. Heartbeat/cron setups are the exception: those run on schedule regardless of inbound events.</p>
+
+      <h3>Layer 2: Integration Gateway</h3>
+      <p>All incoming data passes through the gateway — a single entry point that normalizes, authenticates, and routes. This is the process you start with <code>openclaw gateway start</code>.</p>
+      <p>The gateway handles:</p>
+      <ul>
+        <li>Channel plugin routing (which message goes to which agent)</li>
+        <li>Authentication validation for each provider</li>
+        <li>Session management (maintaining conversation context)</li>
+        <li>Tool call dispatch and approval flows</li>
+        <li>Plugin lifecycle (loading, unloading, health checks)</li>
+      </ul>
+      <p>The gateway is the single most important process in your OpenClaw setup. If it's unstable, everything downstream is unstable.</p>
+
+      <h3>Layer 3: Agent Processing Core</h3>
+      <p>This is where the model runs. The agent core receives normalized input from the gateway, assembles the context (system prompt + memory + conversation history + available tools), calls the configured model provider, and returns a response with any tool calls.</p>
+      <p>Key components in this layer:</p>
+      <ul>
+        <li><strong>Context assembly</strong> — SOUL.md, AGENTS.md, workspace files, active memory injection</li>
+        <li><strong>Model provider dispatch</strong> — Anthropic, OpenAI, Google, OpenRouter, local Ollama, etc.</li>
+        <li><strong>Tool registry</strong> — which tools the agent can call (exec, read, write, browser, message, etc.)</li>
+        <li><strong>Sub-agent spawning</strong> — creating child sessions for delegated work</li>
+        <li><strong>Memory read/write</strong> — Active Memory plugin queries before each response</li>
+      </ul>
+
+      <h3>Layer 4: Action Layer</h3>
+      <p>When the model returns tool calls, the action layer executes them. This is where things actually happen — files get written, shell commands run, messages get sent, browsers get controlled.</p>
+      <p>The action layer is where security controls matter most:</p>
+      <ul>
+        <li><strong>Exec ask modes</strong> — <code>deny</code>, <code>on-miss</code>, <code>always</code> — control when shell commands require human approval</li>
+        <li><strong>Tool allowlists</strong> — restrict which tools an agent can call</li>
+        <li><strong>Elevated permissions</strong> — separate approval path for host-level commands</li>
+        <li><strong>Sandbox modes</strong> — inherit or require sandbox for sub-agents</li>
+      </ul>
+      <p>Default configurations are permissive. Production setups should tighten this layer deliberately.</p>
+
+      <h3>Layer 5: External Systems</h3>
+      <p>The bottom layer is everything outside OpenClaw that gets acted on: GitHub, Stripe, Calendly, Supabase, Netlify, email providers, messaging platforms, databases. These are the systems your agent's actions ultimately reach.</p>
+      <p>OpenClaw doesn't have direct integrations with most of these — it reaches them via skills (which wrap CLI tools or APIs) or via exec (which can run any shell command). That flexibility is the source of both OpenClaw's power and its risk surface.</p>
+
+      <h2>Data Flow: A Single Turn</h2>
+      <ol>
+        <li>Message arrives on a channel (Telegram DM, Discord message, heartbeat timer)</li>
+        <li>Gateway authenticates the source, identifies the target agent, creates/continues session</li>
+        <li>Active Memory (if enabled) queries the memory store, injects relevant context</li>
+        <li>Agent core assembles full context + tool list, sends to model provider</li>
+        <li>Model returns response + any tool calls</li>
+        <li>Action layer executes tool calls (with approval checks where configured)</li>
+        <li>Results return to model for follow-up reasoning if needed</li>
+        <li>Final response routes back through gateway → channel → user</li>
+        <li>Memory update written asynchronously (or synchronously, depending on config)</li>
+      </ol>
+
+      <h2>Where Security Lives</h2>
+      <p>The architecture has security controls at three points:</p>
+      <ul>
+        <li><strong>Gateway layer</strong> — channel authentication, session isolation, plugin trust levels</li>
+        <li><strong>Action layer</strong> — exec approval modes, tool allowlists, sandbox flags</li>
+        <li><strong>External systems</strong> — API key scoping, least-privilege credentials, network rules</li>
+      </ul>
+      <p>The weakest default is the action layer. OpenClaw ships with broad tool access enabled so things work out of the box. In practice this means a fresh install can read/write any file in the workspace and run any shell command the gateway process has permission to run — by model decision alone, without human confirmation.</p>
+      <p>For solo developers on trusted hardware this is fine. For team deployments, automated workflows, or any setup where the agent has access to production credentials: tighten the action layer first.</p>
+
+      <h2>Practical takeaways</h2>
+      <ul>
+        <li><strong>Gateway stability is foundational.</strong> Everything else depends on it. If you're on 4.15 with Active Memory enabled, you have a gateway-layer regression right now (see: <a href="/blog/openclaw-4-15-active-memory-timeout-fix.html">Active Memory timeout fix</a>).</li>
+        <li><strong>Memory architecture is a Layer 3 decision.</strong> How you structure SOUL.md, AGENTS.md, and memory.md shapes what context the model gets. Garbage in, garbage out.</li>
+        <li><strong>The action layer needs intentional hardening.</strong> Review your exec ask settings and tool allowlists before going live with anything that has external write access.</li>
+        <li><strong>External credentials at Layer 5 are your blast radius limiter.</strong> Scope API keys to the minimum needed. A compromised agent with a read-only Stripe key is a much better day than one with a full-access key.</li>
+      </ul>
+
+      <p><em>Need help auditing your setup against this architecture? <a href="https://clawreadynow.com/#pricing">ClawReady's audit tier covers all five layers.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Nerve: The Visual Cockpit Your Agent Setup Has Been Missing | ClawReady</title>
+  <meta name="description" content="Nerve is a real-time web cockpit for OpenClaw — voice conversations, agent kanban board, live workspace editor, sub-agent sessions, inline charts, and usage tracking. 60-second install.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>OpenClaw Nerve: The Visual Cockpit Your Agent Setup Has Been Missing</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>OpenClaw's default interface is a chat thread. That's fine when you're talking to one agent about one task. It breaks down the moment you're running multiple agents, tracking cron jobs, delegating work, and trying to understand what your agent actually knows — all at the same time.</p>
+
+      <p><strong>Nerve</strong> (github.com/daggerhashimoto/openclaw-nerve) is a community-built web cockpit that gives OpenClaw a proper operating surface. It's one of the most complete third-party UI projects for OpenClaw we've seen, and it just launched.</p>
+
+      <h2>What Nerve actually ships</h2>
+
+      <h3>Voice — built in, not bolted on</h3>
+      <p>Push-to-talk, wake word activation, explicit language selection, local Whisper transcription, multilingual stop/cancel phrases, and multiple TTS providers. Nerve's description puts it plainly: "Voice is part of the product, not an afterthought."</p>
+      <p>If you've tried to wire up voice to OpenClaw before (custom Whisper pipeline, TTS output routing, PTY handling), you know how much plumbing that requires. Nerve handles it out of the box.</p>
+
+      <h3>Kanban workflow board</h3>
+      <p>Crons, session trees, kanban workflows, review loops, proposal inboxes, and model overrides — all as a visual board rather than buried in chat history. You can delegate work to an agent task, watch it come back, and review it in a structured interface instead of scrolling up in a thread.</p>
+      <p>This is particularly useful for heartbeat-driven setups where your agent is working overnight on queued tasks — you can review what it did in the morning without reading a wall of chat.</p>
+
+      <h3>Live workspace and agent context editor</h3>
+      <p>Each agent's workspace, memory, identity (SOUL.md, AGENTS.md), and skills are inspectable and editable live — while the conversation is still happening. No more "what does my agent actually know right now?" guessing.</p>
+
+      <h3>Multi-agent control plane</h3>
+      <p>Run multiple agents from one interface. Each agent keeps its own workspace, sub-agents, memory, identity, and skills. Nerve gives you a single panel to switch between them, inspect their state, and operate the fleet without opening separate terminal windows or chat threads per agent.</p>
+
+      <h3>Structured rendering</h3>
+      <p>Charts render as actual charts, not code blocks. Diffs show as diffs. Code gets syntax highlighting. Tool call results render structurally. If your agent produces any kind of rich output, Nerve displays it in a way that's actually readable.</p>
+
+      <h3>Usage and cost visibility</h3>
+      <p>Token usage, costs, and context pressure tracked and displayed. The context window pressure visibility alone is worth the install for anyone running large memory setups — you can see when your agent is getting close to limits before it starts losing context silently.</p>
+
+      <h2>Install</h2>
+      <pre><code>curl -fsSL https://raw.githubusercontent.com/daggerhashimoto/openclaw-nerve/master/install.sh | bash</code></pre>
+      <p>The repo claims 60 seconds to live. It connects to your existing OpenClaw gateway — no migration, no config changes to your existing setup required.</p>
+
+      <h2>Who this is for</h2>
+      <ul>
+        <li><strong>Multi-agent operators</strong> — if you're running more than one agent, the single control plane alone justifies the install</li>
+        <li><strong>Voice-first users</strong> — Nerve's voice stack is the most complete out-of-box implementation available</li>
+        <li><strong>Heartbeat + cron users</strong> — watching autonomous work happen on a kanban board is dramatically better than reading chat logs</li>
+        <li><strong>Anyone demoing OpenClaw</strong> — "look at this terminal chat" is a hard sell; "look at this dashboard" lands differently</li>
+      </ul>
+
+      <h2>What it doesn't replace</h2>
+      <p>Nerve is a UI layer — it doesn't change how your agent is configured, what skills it has, or how its memory is structured. A poorly configured OpenClaw agent with Nerve installed is still a poorly configured agent, just with a nicer interface. The fundamentals (SOUL.md, memory architecture, exec safety, gateway stability) still determine how your agent performs.</p>
+
+      <p><em>Want a solid OpenClaw foundation before adding Nerve on top? <a href="https://clawreadynow.com/#pricing">ClawReady gets your setup right first.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
