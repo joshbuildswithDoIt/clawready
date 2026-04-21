@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Mega Cheatsheet 2026 — Every CLI Command, Config Option & Workspace File | ClawReady</title>
+  <meta name="description" content="MoltFounders just dropped a complete OpenClaw CLI reference covering install, channels, workspace files, memory, models, sessions, and slash commands. Here's what's in it and how to use it.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>OpenClaw Mega Cheatsheet 2026 — Every CLI Command, Config Option & Workspace File</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>MoltFounders published an OpenClaw Mega Cheatsheet today — a dense, structured reference covering the full CLI surface, channel setup, workspace files, memory system, model auth, sessions, and slash commands in one place. If you've ever wished the docs were scannable rather than narrative, this is the closest thing to it.</p>
+
+      <p>Here's a distillation of what's in it and why each section matters.</p>
+
+      <h2>Quick start (in case you've forgotten the right flags)</h2>
+      <pre><code># Install
+npm install -g openclaw@latest
+
+# Onboard (guided, installs daemon)
+openclaw onboard --install-daemon
+
+# Or minimal
+openclaw onboard --flow quickstart --skip-channels
+
+# Start gateway
+openclaw gateway --port 18789</code></pre>
+      <p>The <code>--mode local</code> vs <code>--mode remote</code> flag distinction is worth knowing: local mode runs the gateway on the same machine, remote mode connects to an already-running gateway on another device or server.</p>
+
+      <h2>Channel setup — the commands that actually work</h2>
+      <table>
+        <thead>
+          <tr><th>Channel</th><th>Method</th><th>Command</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>WhatsApp</td><td>QR Scan</td><td><code>openclaw channels login</code></td></tr>
+          <tr><td>Telegram</td><td>Bot Token</td><td><code>openclaw channels add --channel telegram --token $TOKEN</code></td></tr>
+          <tr><td>Discord</td><td>Bot Token</td><td><code>openclaw channels add --channel discord --token $TOKEN</code></td></tr>
+          <tr><td>Signal</td><td>Linked Device</td><td><code>openclaw channels add --channel signal</code></td></tr>
+          <tr><td>Slack</td><td>Bot Token</td><td><code>openclaw channels add --channel slack</code></td></tr>
+          <tr><td>Google Chat</td><td>Service Account</td><td><code>openclaw channels add --channel googlechat</code></td></tr>
+          <tr><td>MS Teams</td><td>Bot Registration</td><td><code>openclaw channels add --channel msteams</code></td></tr>
+          <tr><td>iMessage</td><td>macOS Native</td><td>macOS bridge (no CLI flag)</td></tr>
+        </tbody>
+      </table>
+      <p>Diagnostics: <code>openclaw channels status --probe</code> to test live connectivity. <code>openclaw channels logs --channel [id]</code> for per-channel log tailing.</p>
+
+      <h2>Workspace files — what each one does</h2>
+      <p>These live at <code>~/.openclaw/workspace/</code> (or your configured workspace root):</p>
+      <table>
+        <thead>
+          <tr><th>File</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>AGENTS.md</code></td><td>Operating instructions — what the agent does, how it delegates</td></tr>
+          <tr><td><code>SOUL.md</code></td><td>Persona, tone, hard boundaries</td></tr>
+          <tr><td><code>USER.md</code></td><td>User info, preferences, timezone, how to address them</td></tr>
+          <tr><td><code>IDENTITY.md</code></td><td>Agent name, emoji, theme</td></tr>
+          <tr><td><code>MEMORY.md</code></td><td>Curated long-term facts (DM sessions only)</td></tr>
+          <tr><td><code>memory/YYYY-MM-DD.md</code></td><td>Daily append-only log — auto-read at session start</td></tr>
+          <tr><td><code>TOOLS.md</code></td><td>Notes about local tools, environment, available CLIs</td></tr>
+          <tr><td><code>HEARTBEAT.md</code></td><td>Idle-cycle checklist — what the agent does between conversations</td></tr>
+          <tr><td><code>BOOT.md</code></td><td>Startup checklist</td></tr>
+        </tbody>
+      </table>
+      <p>Root path: <code>~/.openclaw/workspace</code> — everything relative to this unless overridden in <code>openclaw.json</code>.</p>
+
+      <h2>Memory system — the full picture</h2>
+      <p>OpenClaw has layered memory, and most users only use one layer:</p>
+      <ul>
+        <li><strong>Daily logs</strong> (<code>memory/YYYY-MM-DD.md</code>) — append-only, today + yesterday loaded at session start</li>
+        <li><strong>Long-term memory</strong> (<code>MEMORY.md</code>) — curated facts, loaded only in main DM session</li>
+        <li><strong>Vector search</strong> (<code>memory_search</code> tool) — semantic search across memory chunks (~400 tokens per chunk)</li>
+        <li><strong>QMD backend</strong> (<code>memory.backend = "qmd"</code>) — BM25 + vector + reranking; experimental but powerful</li>
+        <li><strong>Hybrid search</strong> — default 0.7/0.3 weights (vector similarity + BM25 keyword relevance)</li>
+      </ul>
+      <p>Provider auto-selection order: local GGUF → OpenAI → Gemini → Voyage. Set explicitly in <code>memorySearch.provider</code> to avoid surprises.</p>
+      <pre><code>openclaw memory index --all   # Index entire workspace
+openclaw memory search "X"    # Semantic search</code></pre>
+
+      <h2>Models — the commands you actually need</h2>
+      <pre><code>openclaw models list --all                        # All available models
+openclaw models set anthropic/claude-opus-4-7     # Set primary
+openclaw models fallbacks add openrouter/x/y      # Add fallback
+openclaw models auth setup-token                  # Anthropic auth (recommended)
+openclaw models auth add --provider openai        # Add API key
+openclaw models status --probe                    # Live auth check
+openclaw models aliases add opus anthropic/claude-opus-4-7  # Create alias</code></pre>
+      <p>Failover cooldown tiers: 1 min → 5 min → 1 hour. If a provider fails, OpenClaw backs off exponentially before retrying.</p>
+
+      <h2>Session config — the part most people miss</h2>
+      <p>Session scope (<code>session.dmScope</code>) controls how much context different users share:</p>
+      <ul>
+        <li><code>main</code> — single shared session (default, fine for personal use)</li>
+        <li><code>per-peer</code> — separate session per contact</li>
+        <li><code>per-channel-peer</code> — separate session per channel + contact pair</li>
+        <li><code>per-account-channel-peer</code> — most isolated</li>
+      </ul>
+      <p>⚠️ The cheatsheet calls this out explicitly: <strong>use <code>per-channel-peer</code> for multi-user inboxes</strong> to prevent context leakage between users. If your OpenClaw handles multiple people (team use, customer service), this is not optional.</p>
+      <p>Session reset options: <code>daily</code> (resets at 4am local, default) or <code>idle</code> (sliding idle window). You can override per session type or per channel.</p>
+
+      <h2>The honest gap this cheatsheet exposes</h2>
+      <p>A reference this comprehensive is useful — but it also shows how much configuration surface OpenClaw has. Install → onboard → channel → workspace files → memory backend → model auth → session scope → fallbacks → slash commands. Each step has subtleties, and getting any one wrong produces silent failures rather than obvious errors.</p>
+      <p>That's not a criticism of OpenClaw. It's a feature: this level of configurability is why OpenClaw can serve a solo developer, a small business, and a multi-agent org on the same codebase. But it means setup matters more than most tools.</p>
+
+      <h2>Full cheatsheet</h2>
+      <p>The complete MoltFounders Mega Cheatsheet is at <a href="https://moltfounders.com/openclaw-mega-cheatsheet" rel="noopener">moltfounders.com/openclaw-mega-cheatsheet</a>. Worth bookmarking — it covers slash commands, exec safety, sub-agent patterns, and plugin config that we didn't excerpt here.</p>
+
+      <p><em>Want your OpenClaw configured correctly from the start? <a href="https://clawreadynow.com/#pricing">ClawReady handles every layer — channel, memory, model auth, and session scope.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
