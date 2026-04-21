@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw for Researchers: Build an AI Agent That Actually Remembers | ClawReady</title>
+  <meta name="description" content="Most AI research setups are stateless — you re-extract the same knowledge every session. Here's how to configure OpenClaw so your research compounds: persistent memory, quality retrieval, and synthesis that builds on itself.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>OpenClaw for Researchers: Build an AI Agent That Actually Remembers</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>Most AI research setups are good at answering questions. Almost none of them are good at <em>building on prior answers</em>.</p>
+
+      <p>Here's the problem: you spend an hour in a session — reading papers, synthesizing sources, building a useful picture of a topic. The output is good. You close the tab. The next day, you start from zero. The agent has no idea what you found yesterday, what threads you were following, or what you decided to deprioritize. You're not building knowledge. You're re-extracting the same knowledge over and over.</p>
+
+      <p>This isn't a model quality problem. It's a memory architecture problem — and it's fixable with OpenClaw.</p>
+
+      <h2>The two-layer model for research setups</h2>
+      <p>OpenClaw's research configuration breaks into two layers:</p>
+      <ul>
+        <li><strong>Plugins</strong> — persistent infrastructure (memory, retrieval, large context). This is where the real investment goes.</li>
+        <li><strong>Skills</strong> — research workflows (discovery, synthesis, knowledge capture). Skills are only as good as the plugin layer beneath them.</li>
+      </ul>
+      <p>Without strong memory plugins, even excellent skill configuration produces knowledge that evaporates at session end. Get the plugin layer right first.</p>
+
+      <h2>The failure mode: subtle but expensive</h2>
+      <p>The typical breakdown looks like this: good single-session outputs, solid summaries, accurate extraction — but nothing sticks. No knowledge base grows. No way to search what you found three weeks ago. The agent can't say "this conflicts with what we determined in the prior paper review" because it doesn't know there was a prior paper review.</p>
+      <p>Research is cumulative. Cross-session. Traceable back to sources. Stateless AI tools are structurally mismatched to how real research works.</p>
+
+      <h2>Plugin configuration for researchers</h2>
+
+      <h3>1. Active Memory — session context injection</h3>
+      <p>Active Memory is the core plugin for cross-session awareness. It indexes your workspace and injects relevant context at the start of each turn — so your agent walks into every conversation already knowing what you've found.</p>
+      <pre><code>"plugins": {
+  "active-memory": {
+    "enabled": true,
+    "queryMode": "message",
+    "promptStyle": "balanced",
+    "timeoutMs": 8000
+  }
+}</code></pre>
+      <p>⚠️ <strong>Note:</strong> If you're on OpenClaw 4.15, Active Memory has a known timeout regression. Roll back to 4.14 first. See our <a href="/blog/openclaw-4-15-active-memory-timeout-fix.html">fix guide</a>.</p>
+
+      <h3>2. LanceDB memory — persistent vector index</h3>
+      <p>Active Memory is short-term. LanceDB gives you a long-term vector index that survives across sessions, agents, and even reinstalls (especially with the new cloud storage backend in 4.15+).</p>
+      <pre><code>"plugins": {
+  "memory-lancedb": {
+    "enabled": true,
+    "indexPath": "~/.openclaw/memory/lancedb",
+    "embeddingModel": "openai/text-embedding-3-small"
+  }
+}</code></pre>
+      <p>With LanceDB, your agent can retrieve semantically similar findings from months ago — not just what's in the current MEMORY.md file.</p>
+
+      <h3>3. Context window sizing</h3>
+      <p>Research agents need room. Set your context window generously and pick a model with 128K+ support for document-heavy tasks:</p>
+      <pre><code>"agents": {
+  "defaults": {
+    "contextWindow": 128000
+  }
+}</code></pre>
+      <p>Kimi K2.6 (256K context, $0.60/M tokens) is an excellent research model — large context, strong synthesis, low cost for long sessions.</p>
+
+      <h2>Workspace structure for research</h2>
+      <p>Your workspace is the persistent knowledge layer that Active Memory indexes. Structure it so the agent can retrieve findings meaningfully:</p>
+
+      <pre><code>workspace/
+  memory.md              ← running decisions, key findings, what to revisit
+  research/
+    topics/
+      topic-name.md      ← per-topic synthesis notes
+    papers/
+      paper-slug.md      ← structured notes per paper (source, claims, gaps)
+    daily/
+      2026-04-21.md      ← what you worked on today
+  questions.md           ← open threads, unresolved tensions
+</code></pre>
+
+      <p>The pattern: every research session ends with a brief write to the relevant topic file and daily log. The agent can then retrieve "what did we conclude about X" across all prior sessions.</p>
+
+      <h2>Skills for research workflows</h2>
+
+      <h3>Paper review skill</h3>
+      <p>Create <code>skills/paper-review/SKILL.md</code> that instructs your agent to: (1) extract core claims, (2) note methodology and sample size, (3) flag conflicts with prior findings in memory, (4) add structured notes to the relevant topic file, and (5) update questions.md with new open threads.</p>
+      <p>The key step is #3 — explicitly asking the agent to cross-reference prior findings. Without this instruction, Active Memory injects context but the agent may not use it for conflict detection.</p>
+
+      <h3>Literature scan skill</h3>
+      <p>A discovery skill that runs multiple search queries across sources (Brave Search, Semantic Scholar if available, arXiv), deduplicates results, filters by recency and relevance, and returns a ranked reading list with rationale. Running this weekly keeps your reading queue filled without manual curation.</p>
+
+      <h3>Synthesis skill</h3>
+      <p>A consolidation skill that reads all topic files, identifies convergent and divergent threads, and generates a synthesis document. Run this monthly or when you feel like the knowledge base has fragmented. The output becomes a new anchor document that Active Memory can retrieve as a compressed summary of months of work.</p>
+
+      <h2>Multi-source search</h2>
+      <p>Single-source search leaves significant coverage on the table. Configure your agent to query at least two sources per discovery task:</p>
+      <ul>
+        <li><strong>Brave Search</strong> — broad web, good for recent coverage</li>
+        <li><strong>AutoCLI + HackerNews/Reddit</strong> — practitioner discussion, implementation experiences</li>
+        <li><strong>Semantic Scholar API</strong> (via exec/skill) — academic literature with citation graphs</li>
+      </ul>
+      <p>The practitioner sources (HN, Reddit) are underused in research setups but often surface methodology critiques and real-world validity checks that formal literature lags by months.</p>
+
+      <h2>What this looks like in practice</h2>
+      <p>A configured research agent:</p>
+      <ol>
+        <li>Starts each session by pulling relevant context from Active Memory and LanceDB</li>
+        <li>Knows what topics you've been investigating, what you've concluded, and what's unresolved</li>
+        <li>Can say "this paper contradicts what we found in the Chen et al. review from February"</li>
+        <li>Ends each session by writing structured findings to the right files</li>
+        <li>Can be asked "summarize everything we know about X" and draw from months of indexed notes</li>
+      </ol>
+      <p>This is what compounding research looks like — knowledge that builds instead of resets.</p>
+
+      <h2>Need help setting this up?</h2>
+      <p>Research agent configuration — especially the memory plugin layer, workspace structure, and skill wiring — takes a few hours to get right. <a href="https://clawreadynow.com/#pricing">ClawReady's setup service</a> handles this from scratch, including LanceDB configuration and workspace structure tailored to your research domain.</p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

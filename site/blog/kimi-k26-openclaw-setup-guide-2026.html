@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kimi K2.6 + OpenClaw: How to Connect Moonshot AI's $0.60/M Token Model | ClawReady</title>
+  <meta name="description" content="Kimi K2.6 is a 1T MoE model that rivals GPT-5.4 on agentic benchmarks at a fraction of the cost. Here's how to wire it into OpenClaw — API key, config, and real-world usage patterns.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>Kimi K2.6 + OpenClaw: How to Connect Moonshot AI's $0.60/M Token Model</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>Moonshot AI released <strong>Kimi K2.6</strong> in April 2026 — a 1 trillion parameter MoE model with 32B active parameters per token, 256K context window, native multimodal input, and Agent Swarm support (up to 300 sub-agents, 4,000 coordinated steps per run). On agentic and coding benchmarks it goes head-to-head with GPT-5.4 and Claude Opus 4.6.</p>
+
+      <p>The price: <strong>$0.60/million tokens</strong>. That's roughly 20–30x cheaper than Opus-tier Anthropic models at equivalent task quality for many agentic workflows.</p>
+
+      <p>Here's how to connect it to OpenClaw.</p>
+
+      <h2>What Kimi K2.6 is good at (and where it fits in OpenClaw)</h2>
+      <p>K2.6 is purpose-built for agentic tasks — multi-step reasoning, tool use, long-horizon planning. The Agent Swarm capability is interesting for OpenClaw specifically: if you're running sub-agent orchestration at scale, K2.6 can coordinate far more parallel execution than most models support natively.</p>
+      <p>The 256K context window also makes it a natural fit for long-document tasks (legal review, research synthesis, large codebase analysis) where you'd otherwise need to chunk and re-inject.</p>
+      <p><strong>Where it's less strong:</strong> Creative writing, nuanced tone matching, and highly subjective tasks still favor Claude. K2.6 is an agentic workhorse, not a polished prose generator.</p>
+
+      <h2>Step 1: Get a Moonshot AI API key</h2>
+      <ol>
+        <li>Go to <a href="https://platform.moonshot.ai" rel="noopener">platform.moonshot.ai</a></li>
+        <li>Create an account and navigate to API Keys</li>
+        <li>Generate a key — store it somewhere safe (you'll add it to OpenClaw next)</li>
+      </ol>
+      <p>Moonshot offers a free tier with limited credits to test before committing.</p>
+
+      <h2>Step 2: Add Kimi K2.6 to OpenClaw</h2>
+      <p>OpenClaw uses OpenRouter as the cleanest path to Kimi K2.6 without custom provider wiring. Add to your <code>openclaw.json</code>:</p>
+
+      <pre><code>{
+  "models": {
+    "providers": {
+      "openrouter": {
+        "apiKey": "your-openrouter-key",
+        "baseUrl": "https://openrouter.ai/api/v1"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": "openrouter/moonshotai/kimi-k2.6"
+    }
+  }
+}</code></pre>
+
+      <p>Alternatively, use the Moonshot API directly via a custom provider entry:</p>
+      <pre><code>{
+  "models": {
+    "providers": {
+      "moonshot": {
+        "type": "openai-compatible",
+        "apiKey": "your-moonshot-key",
+        "baseUrl": "https://api.moonshot.ai/v1"
+      }
+    }
+  }
+}</code></pre>
+
+      <p>Then set your agent model to <code>moonshot/kimi-k2-6</code> (check Moonshot's model ID in their docs — naming conventions may vary by release).</p>
+
+      <h2>Step 3: Configure for agentic workloads</h2>
+      <p>K2.6 handles long tool-use chains well. A few settings worth tuning:</p>
+
+      <pre><code>{
+  "agents": {
+    "defaults": {
+      "model": "openrouter/moonshotai/kimi-k2.6",
+      "thinking": "low",
+      "contextWindow": 200000
+    }
+  }
+}</code></pre>
+
+      <p><strong>Thinking mode:</strong> K2.6 supports both thinking and instant inference. For most OpenClaw tasks, <code>thinking: "low"</code> or off is faster and cheaper. Reserve high thinking for complex planning tasks.</p>
+
+      <h2>Cost comparison vs. common alternatives</h2>
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Cost (input/output per 1M tokens)</th><th>OpenClaw fit</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Kimi K2.6</td><td>~$0.60 / $2.50</td><td>✅ Strong agentic, multi-step</td></tr>
+          <tr><td>Claude Opus 4.7</td><td>~$15 / $75</td><td>✅ Best for nuance/creativity</td></tr>
+          <tr><td>GPT-5.4</td><td>~$10 / $30</td><td>✅ Solid general purpose</td></tr>
+          <tr><td>Gemini 2.5 Flash Lite</td><td>~$0.10 / $0.40</td><td>✅ Cheapest for simple tasks</td></tr>
+          <tr><td>Ollama (local)</td><td>$0</td><td>✅ Private, CPU-only tradeoff</td></tr>
+        </tbody>
+      </table>
+
+      <p>K2.6 occupies a compelling middle tier: near-Opus benchmark quality at Flash Lite pricing for agentic tasks.</p>
+
+      <h2>Agent Swarm + OpenClaw sub-agents</h2>
+      <p>K2.6's Agent Swarm capability (300 sub-agents, 4,000 steps) is most relevant if you're building multi-agent orchestration in OpenClaw — research sweeps, parallel data processing, or code review at scale. OpenClaw's sub-agent system can leverage this via <code>sessions_spawn</code> for parallel workloads.</p>
+      <p>In practice: spawn multiple sub-agents with K2.6 as the model, set them on parallel research or processing tasks, and aggregate results in the orchestrator. At $0.60/M input tokens, running 5–10 parallel agents is cost-viable where it wouldn't be with Opus.</p>
+
+      <h2>Known limitations with OpenClaw 4.15</h2>
+      <ul>
+        <li>If you're on 4.15 with Active Memory enabled, K2.6 will also surface the qmd timeout bug — it's a gateway issue, not model-specific. See our <a href="/blog/openclaw-4-15-active-memory-timeout-fix.html">Active Memory timeout fix guide</a>.</li>
+        <li>The <code>openclaw agents add</code> baseUrl bug (#67295) may affect newly-created K2.6 agent entries. Verify your models.json after setup.</li>
+      </ul>
+
+      <h2>Want it configured properly?</h2>
+      <p>Getting model provider wiring right in OpenClaw — especially across multiple models — is where most setups go wrong. <a href="https://clawreadynow.com/#pricing">ClawReady handles full provider configuration</a>, including K2.6, Ollama local models, and multi-model routing for cost optimization.</p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
