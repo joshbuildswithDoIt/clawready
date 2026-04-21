@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5,400+ Curated OpenClaw Skills: The Awesome-OpenClaw-Skills Catalog Explained | ClawReady</title>
+  <meta name="description" content="VoltAgent's awesome-openclaw-skills list curates 5,400+ community OpenClaw skills from ClawHub's 13,700+ registry — filtered for quality, spam-free, categorized. Here's how to use it and what the numbers mean.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>5,400+ Curated OpenClaw Skills: The Awesome-OpenClaw-Skills Catalog Explained</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>If you've tried browsing ClawHub (OpenClaw's official skills registry) and felt overwhelmed — you're not alone. The registry hit <strong>13,729 community-built skills</strong> as of February 2026. That's not a browsable list. It's a search problem.</p>
+
+      <p><a href="https://github.com/VoltAgent/awesome-openclaw-skills" rel="noopener">awesome-openclaw-skills</a> by VoltAgent solves it: a curated, spam-filtered, categorized list of <strong>5,211 skills</strong> — the quality subset of ClawHub.</p>
+
+      <h2>What got filtered out and why it matters</h2>
+      <p>The gap between 13,729 (registry) and 5,211 (this list) is revealing. VoltAgent filtered:</p>
+      <ul>
+        <li><strong>4,065 excluded</strong> — Possibly spam: bulk accounts, bot accounts, test/junk</li>
+        <li><strong>1,040 excluded</strong> — Duplicate or similar names</li>
+        <li><strong>~1,400 excluded</strong> — Low-quality or non-English descriptions</li>
+      </ul>
+      <p>Translation: roughly <strong>62% of ClawHub is noise</strong>. If you've installed a skill that did nothing useful, this is why. The awesome list is the 38% that's actually worth looking at.</p>
+
+      <h2>How to install any skill you find</h2>
+      <p>Once you find a skill you want:</p>
+      <pre><code>clawhub install &lt;skill-slug&gt;</code></pre>
+      <p>Or copy the skill folder to one of these locations manually:</p>
+      <table>
+        <thead><tr><th>Location</th><th>Path</th></tr></thead>
+        <tbody>
+          <tr><td>Global</td><td><code>~/.openclaw/skills/</code></td></tr>
+          <tr><td>Workspace</td><td><code>&lt;project&gt;/skills/</code></td></tr>
+        </tbody>
+      </table>
+      <p>Priority order: Workspace &gt; Local &gt; Bundled. A workspace-level skill always wins if there's a name conflict.</p>
+      <p><strong>Shortcut:</strong> You can paste a skill's GitHub repo URL directly into your OpenClaw chat and ask it to use the skill. The agent handles setup automatically in the background.</p>
+
+      <h2>Categories worth knowing about</h2>
+      <p>The list is organized into categories. A few clusters that tend to have high-quality skills:</p>
+      <ul>
+        <li><strong>Developer tools</strong> — GitHub, CI/CD, code review, Docker, kubectl integration</li>
+        <li><strong>Communication</strong> — Slack, Notion, Linear, Jira, Gmail, Calendar</li>
+        <li><strong>Research</strong> — web search wrappers, academic paper tools, data extraction</li>
+        <li><strong>Business ops</strong> — CRM integrations, invoicing, lead generation, scheduling</li>
+        <li><strong>Media</strong> — YouTube, podcast, social media tools</li>
+        <li><strong>Local utilities</strong> — file management, terminal automation, system monitoring</li>
+      </ul>
+
+      <h2>Why this list matters for ClawReady clients</h2>
+      <p>One of the most common questions we get during setups: <em>"What skills should I install?"</em> The answer used to be "browse ClawHub and see what looks useful" — which is a bad answer when 62% of it is noise.</p>
+      <p>Now the answer is: start with awesome-openclaw-skills, search by category for what matches your workflow, verify the skill has been updated in the last 6 months, then install.</p>
+      <p>The browsable frontend is at <a href="https://clawskills.sh/" rel="noopener">clawskills.sh</a> — cleaner UI than the raw GitHub list, with search and filtering.</p>
+
+      <h2>One thing to watch for</h2>
+      <p>Even quality-filtered skills can be stale. ClawHub skills are SKILL.md files — they're instructions, not code packages. A skill that told your agent to use a specific API in 2025 might not account for API changes in 2026. Before relying on a critical-path skill, check the last commit date and test it on a non-essential task first.</p>
+
+      <h2>Quick numbers for context</h2>
+      <ul>
+        <li>ClawHub total registry: <strong>13,729 skills</strong> (Feb 2026)</li>
+        <li>awesome-openclaw-skills: <strong>5,211 curated</strong></li>
+        <li>Signal-to-noise: ~38% of ClawHub is worth your attention</li>
+        <li>Browse at: <a href="https://clawskills.sh/" rel="noopener">clawskills.sh</a></li>
+        <li>Source: <a href="https://github.com/VoltAgent/awesome-openclaw-skills" rel="noopener">github.com/VoltAgent/awesome-openclaw-skills</a></li>
+      </ul>
+
+      <p><em>Setting up OpenClaw for the first time and not sure which skills fit your workflow? <a href="https://clawreadynow.com/#pricing">ClawReady's setup tier</a> includes skill selection and installation guidance.</em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

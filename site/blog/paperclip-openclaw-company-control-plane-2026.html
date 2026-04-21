@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paperclip: "OpenClaw Is an Employee. Paperclip Is the Company." | ClawReady</title>
+  <meta name="description" content="Paperclip is a new open-source, self-hosted AI company OS that explicitly integrates with OpenClaw. Org chart, goals, budgets, and agent orchestration in one place — here's what it does and whether it's worth your time.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>Paperclip: "OpenClaw Is an Employee. Paperclip Is the Company."</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>A project called <strong>Paperclip</strong> landed today and immediately started circulating in the OpenClaw community. The tagline: <em>"The human control plane for AI labor."</em> And the quote that's getting people's attention:</p>
+
+      <blockquote>"OpenClaw is an employee, Paperclip is the company."</blockquote>
+
+      <p>That framing is doing a lot of work — and it's actually a useful way to understand what Paperclip is and isn't.</p>
+
+      <h2>What Paperclip does</h2>
+      <p>Paperclip is an open-source, self-hosted platform that gives you a company-level view over your AI agents. Instead of managing individual agents or automation scripts, you define:</p>
+      <ul>
+        <li><strong>Goals</strong> — high-level objectives ("Build the #1 AI note-taking app to $1M MRR")</li>
+        <li><strong>An org chart</strong> — hire a CEO agent, CTO agent, engineers, marketers, QA — any bot, any provider</li>
+        <li><strong>Budgets</strong> — cost guardrails per agent or per department</li>
+        <li><strong>Tasks</strong> — the CEO agent proposes strategy and tasks; you approve and hit go</li>
+      </ul>
+
+      <p>Agents run on scheduled heartbeats or on triggers (task assignment, @-mention). OpenClaw is explicitly supported as a "continuous agent" that can be hooked into Paperclip.</p>
+
+      <p>Setup is a single command:</p>
+      <pre><code>npx paperclipai onboard --yes</code></pre>
+      <p>Interactive setup walks you through database, auth, and your first company. No Paperclip account required — fully self-hosted.</p>
+
+      <h2>Why the framing matters</h2>
+      <p>The most interesting thing Paperclip does isn't technical — it's the mental model shift. As one community member put it:</p>
+      <blockquote>"The framing here is what makes this interesting. Not 'here is an AI tool.' CEO hires a Coder. You approve it. The mental model is a company you are running, not a tool you are using. The shift from 'I am prompting an AI' to 'I am managing a team' changes how you think about what's possible."</blockquote>
+
+      <p>This is real. Most people running OpenClaw today are thinking at the individual-agent level — one agent, one set of tools, one workspace. Paperclip proposes a layer above that: you define outcomes, agents figure out how to get there, you review and approve at key decision points.</p>
+
+      <h2>How it relates to OpenClaw</h2>
+      <p>Paperclip doesn't replace OpenClaw — it orchestrates it. The relationship is:</p>
+      <ul>
+        <li><strong>OpenClaw</strong> — the capable, memory-aware, tool-using agent that actually does work</li>
+        <li><strong>Paperclip</strong> — the org-level layer that assigns goals, tracks progress, manages budgets, and routes work to the right agent</li>
+      </ul>
+      <p>In practice: your OpenClaw agent might be your "head of content" or "operations lead." Paperclip gives you the dashboard to see what that agent is working on, what it costs, and whether it's on track — without being in the weeds of prompt engineering.</p>
+
+      <h2>Community reaction</h2>
+      <p>Reaction has been unusually strong for a day-one launch. Some quotes:</p>
+      <ul>
+        <li><em>"This blows everything out of the water! This is gonna be the interface of the future!"</em></li>
+        <li><em>"When I first started playing with OpenClaw this was the vision I had. I started to build my own, but it's nowhere near as polished as this."</em></li>
+        <li><em>"Great for orchestrating a bunch of agents to do dev, content, social, marketing, QA, research, outreach, and anything else for an autonomous business."</em></li>
+        <li><em>"I've never seen an agent orchestration system that operates across all business functions — and built with great taste, like Linear."</em></li>
+      </ul>
+      <p>That last comparison — "like Linear" — is notable. Linear became the gold standard for developer tooling by being opinionated, fast, and beautiful. If Paperclip executes on that bar for agent orchestration, it's worth watching closely.</p>
+
+      <h2>Honest unknowns</h2>
+      <p>Paperclip launched today. A few things we don't know yet:</p>
+      <ul>
+        <li><strong>How mature is multi-agent coordination?</strong> Single-agent tasks are straightforward. True multi-agent workflows (where agent A hands off to agent B based on results) are notoriously fragile.</li>
+        <li><strong>What's the database requirement?</strong> "Interactive setup walks you through database" suggests it needs a persistent store — worth checking the requirements before deploying on resource-constrained hardware.</li>
+        <li><strong>How deep is the OpenClaw integration?</strong> "Hook a continuous agent like OpenClaw into Paperclip" is vague. The depth of that integration will determine whether this is seamless or just "technically possible."</li>
+      </ul>
+
+      <h2>Should you try it?</h2>
+      <p>If you're running a single OpenClaw agent for personal productivity — probably not yet. The overhead isn't worth it.</p>
+      <p>If you're running (or want to run) multiple agents across multiple functions — content, dev, ops, research — Paperclip's org-level view could genuinely save coordination overhead. The self-hosted, no-account-required setup makes it low-risk to try.</p>
+      <p>Install: <a href="https://paperclip.ing" rel="noopener">paperclip.ing</a> | <code>npx paperclipai onboard --yes</code></p>
+
+      <p><em>Running multiple OpenClaw agents and want help structuring a multi-agent setup before wiring in an orchestration layer? <a href="https://clawreadynow.com/#pricing">ClawReady's setup and audit tiers</a> cover multi-agent architecture.</em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
