@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anthropic Confirms OpenClaw-Style Claude CLI Usage Is Allowed | ClawReady</title>
+  <meta name="description" content="Anthropic has officially clarified that third-party CLI clients like OpenClaw are permitted under its terms of service. Here's what that means for your setup.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>Anthropic Confirms OpenClaw-Style Claude CLI Usage Is Allowed</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>Good news for OpenClaw users running Claude as their primary model: <strong>Anthropic has officially confirmed that third-party CLI clients like OpenClaw are permitted under its terms of service.</strong></p>
+
+      <p>The clarification landed today and immediately hit the Hacker News front page (47844269). It ends a gray area that had caused real anxiety among developers building Claude-powered automation pipelines, local assistants, and agentic workflows.</p>
+
+      <h2>What was the uncertainty?</h2>
+      <p>For several months, it wasn't clear whether using OpenClaw's Claude integration — which routes API calls to Claude via a local gateway — might violate Anthropic's usage policy. The concern centered on <strong>OAuth credential reuse</strong>: OpenClaw can authenticate via Claude CLI's OAuth flow rather than a direct API key, and some users worried this constituted "taking OAuth credentials and rolling your own agent" — a pattern Anthropic had flagged as not allowed.</p>
+      <p>The result was confusion. Some integrators paused their Claude setups. Others switched to direct API keys to stay clearly within bounds. OpenClaw itself had to navigate contradictory signals from Anthropic staff on social media.</p>
+
+      <h2>What Anthropic actually said</h2>
+      <p>The official clarification draws a clean line:</p>
+      <ul>
+        <li>✅ <strong>Allowed:</strong> Running your agentic application through Claude Code / CLI-based integrations like OpenClaw</li>
+        <li>❌ <strong>Not allowed:</strong> Extracting OAuth credentials and building a fully independent agent that operates outside Anthropic's sanctioned tooling</li>
+      </ul>
+      <p>OpenClaw's documentation now explicitly reflects this position. The project treats Claude CLI reuse and <code>claude -p</code> usage as sanctioned unless Anthropic publishes a new policy.</p>
+
+      <h2>What this means for your OpenClaw setup</h2>
+      <p>If you've been running Claude through OpenClaw via API key — nothing changes. You were already in the clear.</p>
+      <p>If you've been using the <strong>Claude CLI OAuth flow</strong> (the <code>claude</code> provider in OpenClaw's models config that authenticates via Claude Code's session) — you're now explicitly permitted. No API key required, no policy violation.</p>
+      <p>If you <strong>avoided Claude because of the uncertainty</strong> — now's the time to reconsider. The Anthropic integration in OpenClaw is mature, well-documented, and officially sanctioned.</p>
+
+      <h2>A note on the HN reaction</h2>
+      <p>The Hacker News thread reflects real frustration — Anthropic has a history of contradictory staff statements on this topic, and several commenters are skeptical until Anthropic publishes formal documentation rather than relying on OpenClaw to relay the message. That skepticism is fair.</p>
+      <p>For now, the practical signal is clear: <strong>OpenClaw + Claude = allowed</strong>. If Anthropic revises this again, the community will know fast.</p>
+
+      <h2>The cost angle still applies</h2>
+      <p>The policy clarity is welcome, but the economics haven't changed. Claude API usage through OpenClaw bills per token — at scale, that adds up fast. Our <a href="/blog/openclaw-ai-cost-breakdown.html">OpenClaw cost breakdown</a> walks through real numbers and shows when to mix in local models (Ollama, Qwen) to cut your monthly bill by 60–80%.</p>
+
+      <h2>Setting up Claude in OpenClaw</h2>
+      <p>Whether you're using an API key or the Claude CLI OAuth path, ClawReady's setup service handles the full configuration — model selection, fallback chains, cost controls. <a href="https://clawreadynow.com/#pricing">See our setup options.</a></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
