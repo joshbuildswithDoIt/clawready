@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The CLI → Skill Pattern: How to Build Complex Tools for OpenClaw Agents | ClawReady</title>
+  <meta name="description" content="A practitioner tip from r/ClaudeCode: when a task gets complex, build a CLI program first, then wrap it in a Skill. Here's why it works and how to do it with OpenClaw.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>The CLI → Skill Pattern: How to Build Complex Tools for OpenClaw Agents</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>A practical tip surfaced on r/ClaudeCode today that's worth documenting for the OpenClaw community. A developer building a multi-agent web intelligence system shared their workflow for handling complexity:</p>
+
+      <blockquote>
+        <p>"In my setup where things get complex, I always ask Claude to create two things: (1) Create a CLI program that the AI agent can call easily and accepts a wide range of parameters for the job. (2) Create a Skill to interact with the CLI program. For memory, these days, Claude/OpenClaw does it very well out of the box."</p>
+      </blockquote>
+
+      <p>This is a clean design pattern that solves a real OpenClaw problem. Let's break down why it works.</p>
+
+      <h2>The problem it solves</h2>
+      <p>When you give an OpenClaw agent complex multi-step logic directly in a SKILL.md (shell commands, conditional branching, error handling), a few things go wrong:</p>
+      <ul>
+        <li>The skill becomes a wall of instructions that degrades over time as edge cases accumulate</li>
+        <li>The agent has to parse and execute logic in natural language, which is unreliable for precise operations</li>
+        <li>Debugging is hard — you can't test the logic separately from the agent conversation</li>
+        <li>The skill can't be version-controlled or unit-tested cleanly</li>
+      </ul>
+
+      <h2>How the CLI → Skill pattern works</h2>
+
+      <h3>Step 1: Build a CLI program</h3>
+      <p>Have the agent (or you) write a standalone CLI tool in Python, Node, or Bash that handles the complex logic. The CLI should:</p>
+      <ul>
+        <li>Accept wide-ranging parameters via flags (<code>--query</code>, <code>--limit</code>, <code>--format</code>, <code>--output</code>)</li>
+        <li>Handle its own error cases and return clean exit codes</li>
+        <li>Be independently testable (<code>python mytool.py --help</code> works without an agent)</li>
+        <li>Output structured data (JSON preferred) that the agent can parse</li>
+      </ul>
+
+      <p>Example for a web crawler:</p>
+      <pre><code>#!/usr/bin/env python3
+# crawler.py — standalone CLI, agent calls this
+import argparse, json, sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--url', required=True)
+parser.add_argument('--depth', type=int, default=2)
+parser.add_argument('--max-pages', type=int, default=50)
+parser.add_argument('--output', choices=['json','text'], default='json')
+args = parser.parse_args()
+
+# ... actual crawling logic ...
+results = crawl(args.url, args.depth, args.max_pages)
+print(json.dumps(results))</code></pre>
+
+      <h3>Step 2: Wrap it in a thin Skill</h3>
+      <p>The SKILL.md becomes a simple interface layer — it tells the agent what the tool does, what parameters exist, and when to use it. All the complexity lives in the CLI:</p>
+
+      <pre><code># SKILL.md — Web Crawler
+
+## When to use
+Use this skill when asked to crawl, scrape, or gather structured data from websites.
+
+## How to invoke
+```bash
+python ~/tools/crawler.py --url &lt;URL&gt; --depth &lt;1-3&gt; --max-pages &lt;10-100&gt;
+```
+
+## Parameters
+- `--url`: Target URL (required)
+- `--depth`: How many link levels deep to crawl (default: 2)
+- `--max-pages`: Maximum pages to process (default: 50)
+- `--output`: json or text (default: json)
+
+## Output
+Returns JSON with `pages`, `errors`, and `summary` keys.
+Summarize findings to the user after running.</code></pre>
+
+      <h2>Why this pattern works well with OpenClaw specifically</h2>
+
+      <h3>1. The agent calls exec cleanly</h3>
+      <p>OpenClaw's <code>exec</code> tool is excellent at running CLI commands and capturing output. A well-structured CLI with consistent stdout/stderr gives the agent reliable, parseable results — no natural language ambiguity.</p>
+
+      <h3>2. You can test without the agent</h3>
+      <p>Run the CLI directly in your terminal to verify it works before involving the agent at all. This dramatically shortens debugging cycles — you know whether a problem is in the CLI logic or the agent's interpretation.</p>
+
+      <h3>3. Skills stay maintainable</h3>
+      <p>The SKILL.md stays short and focused on <em>when</em> and <em>how</em> to invoke the tool. You don't need to update the Skill when you improve the underlying logic — just update the CLI.</p>
+
+      <h3>4. The pattern scales to multi-agent setups</h3>
+      <p>Multiple agents can share the same CLI tool via skills. Your orchestrator agent calls the crawler, your summarizer agent calls a different CLI for processing results. Each CLI is independently versioned and testable.</p>
+
+      <h2>Memory: the commenter's other point</h2>
+      <p>The Reddit commenter noted that OpenClaw handles memory "very well out of the box" now — specifically, you don't need a complex custom memory system for most workflows. Active Memory + MEMORY.md covers the majority of use cases, and the CLI → Skill pattern keeps your tools clean enough that the agent's built-in memory can stay focused on context rather than tracking tool state.</p>
+      <p>The exception: if your CLI needs to maintain state across runs (e.g., tracking which URLs have been crawled), build that state management into the CLI itself (a local SQLite, a JSON file, a Redis connection) rather than trying to thread it through the agent's memory.</p>
+
+      <h2>When NOT to use this pattern</h2>
+      <ul>
+        <li><strong>Simple one-step tasks:</strong> If the skill is "run a single curl command and report back," a full CLI wrapper is overkill. Just put the command in the SKILL.md directly.</li>
+        <li><strong>Highly dynamic logic:</strong> If the parameters change drastically based on conversational context, the CLI interface may be too rigid. Consider a richer parameter set or a small Python library the agent imports via inline exec.</li>
+        <li><strong>When you want agent judgment in the middle:</strong> CLIs are black boxes. If you need the agent to make decisions mid-execution, a multi-step skill (or a sub-agent) is more appropriate than a monolithic CLI.</li>
+      </ul>
+
+      <h2>Bottom line</h2>
+      <p>The CLI → Skill pattern is one of the most practical architectural decisions you can make for complex OpenClaw setups. Build the hard logic in code. Wrap it in a thin skill. Let the agent focus on orchestration and communication, not implementation details.</p>
+
+      <p><em>Need help structuring your OpenClaw agent architecture? <a href="https://clawreadynow.com/#pricing">ClawReady's setup tier covers tool design and skill architecture.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
