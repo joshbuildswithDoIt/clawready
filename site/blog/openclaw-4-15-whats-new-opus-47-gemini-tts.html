@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 4.15: What's New — Opus 4.7 Default, Gemini TTS, Cloud Memory & More | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.15 ships Opus 4.7 as the default Anthropic model, Gemini TTS audio, cloud-backed LanceDB memory, Copilot embeddings, and a lean local-model mode. Here's what matters.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>OpenClaw 4.15: What's New — Opus 4.7 Default, Gemini TTS, Cloud Memory & More</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p><strong>OpenClaw 2026.4.15</strong> dropped 4 days ago (April 17) as the latest stable npm release. It's a feature-dense update that touches models, audio, memory, and local setups. Here's what's actually worth your attention — and one big gotcha to be aware of before upgrading.</p>
+
+      <h2>⚠️ Heads-up before you upgrade</h2>
+      <p>4.15 has a confirmed Active Memory regression (#68825) — the plugin causes every blocking sub-agent call to hang at 120 seconds. If you rely on Active Memory for context injection, <strong>hold at 4.14 until a patch lands</strong>. See our <a href="/blog/openclaw-4-15-active-memory-timeout-fix.html">Active Memory timeout fix guide</a> for details and workarounds.</p>
+
+      <hr>
+
+      <h2>What's new in 4.15</h2>
+
+      <h3>1. Claude Opus 4.7 is now the Anthropic default</h3>
+      <p>OpenClaw has updated its bundled Anthropic default selections to <strong>Claude Opus 4.7</strong>. This cascades to the <code>opus</code> alias, Claude CLI defaults, and bundled image understanding. If you've been using the <code>opus</code> shorthand or relying on the built-in Anthropic preset, you'll automatically get 4.7 on fresh installs and new agents.</p>
+      <p><strong>Impact:</strong> Existing agents with model explicitly set in <code>openclaw.json</code> are unaffected. New agents and default-model fallbacks will use 4.7.</p>
+
+      <h3>2. Gemini TTS in the bundled Google plugin</h3>
+      <p>The bundled Google plugin now supports <strong>Gemini text-to-speech</strong> — your agent can synthesize and reply with audio over supported channels. Output formats: WAV (standard replies) and PCM (telephony output). Voice selection is configurable.</p>
+      <p>This is the first native TTS integration in a bundled OpenClaw plugin. If you've been running voice assistants via OpenClaw + custom TTS pipelines, this simplifies the stack significantly.</p>
+      <p><strong>Setup note:</strong> Requires Google plugin to be enabled and a valid Google API key with TTS permissions. PR #67515.</p>
+
+      <h3>3. Model Auth status card in the Control UI</h3>
+      <p>A new <strong>Model Auth status card</strong> appears in the Overview panel showing OAuth token health and provider rate-limit pressure at a glance. Attention callouts fire when tokens are expiring or already expired. Credentials are stripped before display; results cache for 60 seconds.</p>
+      <p>If you've ever had a silent auth failure that looked like a model being slow — this finally surfaces it. PR #66211.</p>
+
+      <h3>4. Cloud-backed LanceDB memory</h3>
+      <p>The <code>memory-lancedb</code> plugin now supports <strong>remote object storage</strong> (S3-compatible) as a backend for durable memory indexes. Previously, LanceDB memory was local-disk only — which made it unavailable for cloud-hosted or Docker deployments without persistent volumes.</p>
+      <p><strong>Who this helps:</strong> Anyone running OpenClaw in Docker, Fly.io, Railway, or any ephemeral compute environment. Your memory index persists across container restarts and redeploys. PR #63502.</p>
+
+      <h3>5. GitHub Copilot embedding provider</h3>
+      <p>OpenClaw now ships a <strong>GitHub Copilot embedding provider</strong> for memory search. If your team already has Copilot licenses, you can use them for vector embeddings instead of paying for a separate OpenAI embeddings bill. Includes a Copilot embedding host helper for plugins, token refresh, and safer payload validation. PR #61718.</p>
+
+      <h3>6. <code>localModelLean</code> — lighter footprint for weaker models</h3>
+      <p>New experimental config: <code>agents.defaults.experimental.localModelLean: true</code>. When enabled, this drops heavyweight default tools (browser, cron, message) from the system prompt, reducing prompt size for local model setups like Ollama.</p>
+      <p><strong>Why it matters:</strong> Local models (Qwen, Llama, Mistral) struggle with large tool-list prompts. This flag gives them a fighting chance without requiring manual tool config per-agent. PR #66495.</p>
+      <p>Enable in <code>openclaw.json</code>:</p>
+      <pre><code>"agents": {
+  "defaults": {
+    "experimental": {
+      "localModelLean": true
+    }
+  }
+}</code></pre>
+
+      <h3>7. Leaner plugin packaging</h3>
+      <p>Bundled plugin runtime dependencies are now localized to their owning extensions, and the published docs payload has been trimmed. The result: smaller installs, faster npm downloads, and less core bloat carrying extension-owned runtime baggage. PR #67099.</p>
+
+      <h2>Summary: should you upgrade?</h2>
+      <table>
+        <thead>
+          <tr><th>You use…</th><th>Upgrade now?</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Active Memory plugin</td><td>❌ Hold at 4.14 — broken on 4.15</td></tr>
+          <tr><td>Local models (Ollama, etc.)</td><td>✅ Yes — <code>localModelLean</code> is worth it</td></tr>
+          <tr><td>Gemini + want TTS</td><td>✅ Yes — first-class audio output</td></tr>
+          <tr><td>Docker / cloud deploy</td><td>✅ Yes — cloud LanceDB unblocks persistent memory</td></tr>
+          <tr><td>GitHub Copilot license</td><td>✅ Yes — free embeddings</td></tr>
+          <tr><td>Production setup, no Active Memory</td><td>✅ Yes — no known blocking issues</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Need help upgrading or staying on a stable version?</h2>
+      <p>ClawReady handles safe upgrades, config migration, and Active Memory validation so you know exactly what you're running. <a href="https://clawreadynow.com/#pricing">See our setup options.</a></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

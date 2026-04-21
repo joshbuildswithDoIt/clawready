@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 4.15 Active Memory Timeout: What's Happening and How to Fix It | ClawReady</title>
+  <meta name="description" content="After upgrading to OpenClaw 2026.4.15, Active Memory plugin causes every sub-agent call to hang at 120s. Here's the cause, the workaround, and who's affected.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>OpenClaw 4.15 Active Memory Timeout: What's Happening and How to Fix It</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>If you upgraded to <strong>OpenClaw 2026.4.15</strong> and your agent suddenly hangs on every reply, you're not alone. GitHub issue #68825 (filed 2 days ago) documents a confirmed regression: enabling the <strong>Active Memory plugin</strong> on 4.15 causes every blocking sub-agent call to time out at 120 seconds, flooding your gateway log with:</p>
+
+      <pre><code>[memory] qmd update failed (Error: qmd update timed out after 120000ms)</code></pre>
+
+      <p>The kicker — the <code>qmd</code> CLI itself is <em>perfectly healthy</em>. Running <code>qmd status</code> or <code>qmd collection add</code> directly works instantly. The timeout is specific to the runtime path Active Memory uses to invoke qmd inside the 4.15 gateway process.</p>
+
+      <h2>Who's affected</h2>
+      <ul>
+        <li>Anyone on <strong>2026.4.15</strong> (npm or Docker) with Active Memory enabled</li>
+        <li>Affects Signal, Telegram, Discord — any direct-chat session type</li>
+        <li>Tested with Anthropic Claude Haiku 4.5 and Google Gemini 2.5 Flash Lite — identical behavior, so it's not your model provider</li>
+        <li>Upgrading from 3.24 or 4.14 both trigger this — it's the 4.15 gateway, not a partial-upgrade artifact</li>
+      </ul>
+
+      <h2>What you'll see</h2>
+      <ul>
+        <li>Every agent reply takes 8–12 seconds regardless of task</li>
+        <li>Active Memory queries return <code>summaryChars=0</code> (no context injected)</li>
+        <li>User-facing chat shows: <em>⚠️ Gateway: exec failed</em></li>
+        <li>Gateway log fills with repeated <code>qmd update failed</code> errors — 12+ per minute under normal load</li>
+        <li>qmd invoked directly from terminal: instant</li>
+      </ul>
+
+      <h2>Current workarounds</h2>
+
+      <h3>Option 1: Roll back to 4.14 (cleanest fix)</h3>
+      <pre><code>npm install -g --prefix /data/.npm-global openclaw@2026.4.14</code></pre>
+      <p>Restart your gateway after install. Active Memory works correctly on 4.14.</p>
+
+      <h3>Option 2: Disable Active Memory on 4.15</h3>
+      <p>If you need to stay on 4.15 for another fix it brought, turn off Active Memory in <code>openclaw.json</code>:</p>
+      <pre><code>"plugins": {
+  "active-memory": {
+    "enabled": false
+  }
+}</code></pre>
+      <p>You lose context injection but the agent stays responsive.</p>
+
+      <h3>Option 3: Bump the timeout (partial mitigation only)</h3>
+      <p>Setting <code>timeoutMs: 120000</code> in your active-memory config doesn't solve the root hang — it just extends how long each turn waits before surfacing an error. Not recommended unless you're debugging.</p>
+
+      <h2>Is this fixed?</h2>
+      <p>As of April 21, 2026: <strong>no official fix yet</strong>. The issue is open (no "fixed" label, no linked PR). Petronella's OpenClaw 2026 guide notes that 4.15 "was still resolving plugin runtime and CLI hash race conditions as of mid-April 2026" — this is consistent with a runtime subprocess spawning regression.</p>
+      <p>Watch #68825 on GitHub for updates. A 4.15.1 patch or 4.16 is likely the fix path.</p>
+
+      <h2>Why this matters for ClawReady setups</h2>
+      <p>Active Memory is one of the highest-value features in OpenClaw — it's what lets your agent remember context across sessions without manual memory files. A silent timeout that produces <code>summaryChars=0</code> is particularly dangerous because your agent <em>silently</em> loses all context injection while still appearing to work.</p>
+      <p>If you're running a production OpenClaw setup (customer-facing, business workflows, 24/7 operations), <strong>stay on 4.14 until a fix lands</strong>. The new 4.15 features (Gemini TTS, cloud LanceDB, Copilot embeddings) are compelling — but not worth a broken memory layer.</p>
+
+      <h2>Need help rolling back or diagnosing your setup?</h2>
+      <p>ClawReady can audit your configuration, confirm whether you're hitting this bug, and roll you back cleanly — including verifying Active Memory is functional post-rollback. <a href="https://clawreadynow.com/#pricing">See our audit and setup options.</a></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
