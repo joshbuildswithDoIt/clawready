@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>300 Hours With OpenClaw: The Full Beginner Tutorial (April 2026 Edition) | ClawReady</title>
+  <meta name="description" content="A full OpenClaw tutorial for beginners distilled from 300+ hours of real use. What to set up first, what traps to avoid, and how to actually get value out of it — April 2026 edition.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>300 Hours With OpenClaw: What Every Beginner Needs to Know (April 2026 Edition)</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team</p>
+
+      <p>A new YouTube tutorial — <em>"FULL OpenClaw Tutorial for beginners (April 2026 edition)"</em> — dropped today from someone who has logged over 300 hours with OpenClaw. The description: "I've used OpenClaw for over 300 hours. Here's every lesson I've ever learned." It's the kind of resource that takes months of frustration to produce, compressed into one watch.</p>
+
+      <p>We've put together the written companion version here — the key lessons from 300 hours of real use, organized so you can skip the trial and error.</p>
+
+      <h2>Lesson 1: Get the gateway stable before anything else</h2>
+      <p>The single most common beginner mistake: trying to configure channels, models, and skills before the gateway is running reliably. If your gateway isn't stable — consistent uptime, correct port binding, no auth errors in the logs — nothing else will work consistently. Fix the foundation first.</p>
+      <p>Run <code>openclaw gateway status</code> and resolve any errors before touching anything else. If you see repeated restart cycles, check your Node version (22+ recommended), port conflicts, and whether your daemon service is configured correctly.</p>
+
+      <h2>Lesson 2: SOUL.md and AGENTS.md are not optional</h2>
+      <p>New users often skip persona setup because it feels like customization — something you do after the important stuff. It's actually the most important configuration you'll do. Without a SOUL.md, your agent has no stable identity, no consistent tone, and no behavioral guardrails. Without AGENTS.md, it doesn't know its own role or relationships.</p>
+      <p>Spend 20 minutes on these files before anything else. Your agent will be dramatically more useful — and you'll spend far less time correcting behavior downstream.</p>
+
+      <h2>Lesson 3: Pick one channel and master it before adding more</h2>
+      <p>OpenClaw supports 20+ messaging channels. The temptation is to connect all of them. Resist. Each channel has its own auth flow, formatting quirks, and edge cases. Pick the one you'll actually use daily (Discord, Telegram, or Signal for most people), get it working well, then expand.</p>
+      <p>Multi-channel setups are great once you understand the system. They're a debugging nightmare when you're still learning the basics.</p>
+
+      <h2>Lesson 4: Memory architecture determines long-term value</h2>
+      <p>After ~50 hours of use, most people hit the same wall: their agent forgets everything between sessions. The fix is intentional memory architecture — a MEMORY.md for persistent facts, a heartbeat that actively maintains it, and (optionally) a vector memory plugin for semantic recall.</p>
+      <p>A well-designed memory system is what separates an OpenClaw setup that gets more useful over time from one that resets every conversation. Design it early. It's much harder to retrofit.</p>
+
+      <h2>Lesson 5: The exec tool is your most powerful and most dangerous tool</h2>
+      <p>OpenClaw's <code>exec</code> tool lets your agent run shell commands. It's what makes the system genuinely useful for automation — and it's the tool most likely to cause problems if misconfigured. The default settings in older versions were too permissive.</p>
+      <p>Always configure <code>exec.ask</code> appropriately for your threat model:</p>
+      <ul>
+        <li><code>always</code> — agent must ask approval before every exec. Safest, slowest.</li>
+        <li><code>on-miss</code> — ask approval for commands not in the allowlist. Best balance.</li>
+        <li><code>off</code> — no approval required. Only for fully trusted, isolated setups.</li>
+      </ul>
+      <p>For anything production or connected to real services: use <code>on-miss</code> with an explicit allowlist.</p>
+
+      <h2>Lesson 6: Skills vs. plugins — know the difference</h2>
+      <p>Skills are SKILL.md files — instructions that tell your agent how to do specific tasks. They're prompt-based and easy to write. Plugins are Node.js packages that add new <em>capabilities</em> to OpenClaw itself — new tools, new channels, new memory backends.</p>
+      <p>For most workflows, you want skills. For extending what OpenClaw can do at a system level, you want plugins. Mixing them up is a common source of confusion — people install plugins when they need skills and vice versa.</p>
+
+      <h2>Lesson 7: Heartbeat is what makes it a 24/7 system</h2>
+      <p>OpenClaw's heartbeat fires even when you're not talking to it. HEARTBEAT.md tells your agent what to do during those idle cycles — research, log maintenance, monitoring, content generation. Without a heartbeat configuration, your agent is reactive only. With it, your agent works while you sleep.</p>
+      <p>Start simple: log what you did each cycle, scan for one opportunity, improve one document. Scale up as you trust the system.</p>
+
+      <h2>Lesson 8: Local models are worth the friction</h2>
+      <p>Ollama + a local model (Qwen, Llama, Mistral) costs $0 to run and is good enough for 60-70% of tasks. Reserving Claude/GPT for complex reasoning cuts your API bill dramatically. The new <code>localModelLean: true</code> flag in 4.15 makes local models work better by trimming the default tool list.</p>
+      <p>If you're running OpenClaw 24/7 with a cloud model, you're burning money on tasks a local model could handle. Set up routing.</p>
+
+      <h2>Lesson 9: Don't try to do everything in one agent</h2>
+      <p>The hardest lesson: OpenClaw is better with multiple focused agents than one that tries to do everything. A research agent, an ops agent, and a personal assistant — each with their own SOUL.md and focused skills — outperforms one mega-agent with 50 skills loaded.</p>
+      <p>Multi-agent setups require more initial configuration but are more reliable, more maintainable, and easier to debug. Build toward them, even if you start with one.</p>
+
+      <h2>Lesson 10: Version stability matters — watch the GitHub issues</h2>
+      <p>OpenClaw ships fast. New versions sometimes introduce regressions (see: the 4.15 Active Memory timeout). Before upgrading a production setup, check the GitHub issues for the new version. A 10-minute scan can save hours of debugging.</p>
+      <p>The safest pattern: stay one version behind latest for production, run latest on a test instance, upgrade production after a version has been out 1-2 weeks without major open issues.</p>
+
+      <h2>The shortcut: just get a configured setup</h2>
+      <p>Everything above takes weeks to learn by doing. ClawReady compresses it into a 1-hour setup session — we configure the gateway, channels, memory architecture, skill stack, and heartbeat based on your actual use case. You start with a working 24/7 agent instead of spending 300 hours building toward one.</p>
+      <p><a href="https://clawreadynow.com/#pricing">See our setup options →</a></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

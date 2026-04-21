@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Share Memory Across Multiple OpenClaw Agents (Hindsight Guide) | ClawReady</title>
+  <meta name="description" content="By default, OpenClaw isolates memory per-agent. Here's how to configure Hindsight so a support bot, ops bot, and personal assistant can all share the same user context — without breaking isolation where you want it.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>How to Share Memory Across Multiple OpenClaw Agents</h1>
+      <p class="meta">April 21, 2026 · ClawReady Team · Based on Hindsight's April 20 guide</p>
+
+      <p>Out of the box, OpenClaw isolates memory by <strong>agent, channel, and user</strong>. That's a safe default — but it means two agents talking to the same person behave like strangers. Support bot doesn't know what the ops bot was just told. Personal assistant can't reference what the research agent found yesterday.</p>
+
+      <p>If you're running a multi-agent setup and want shared context, the fix is straightforward: change <code>dynamicBankGranularity</code> so agents derive the same memory bank for the same user. Hindsight's April 20 guide walks through exactly how to do this.</p>
+
+      <h2>Why memory is isolated by default</h2>
+      <p>The default <code>dynamicBankGranularity</code> in the Hindsight OpenClaw plugin includes <code>agent</code> as a dimension. So each agent gets its own bank even for the same user and provider. This is intentional — most single-agent setups don't want cross-contamination, and it's the right default for agents doing fundamentally different things.</p>
+      <p>It's the wrong layout when your agents are deliberately collaborative: a support bot, an ops bot, and a personal assistant that all serve the same human should share that user's context.</p>
+
+      <h2>The fix: remove <code>agent</code> from the bank key</h2>
+      <p>In your Hindsight plugin config (in <code>openclaw.json</code>), change:</p>
+      <pre><code>"dynamicBankGranularity": ["agent", "provider", "user"]</code></pre>
+      <p>to:</p>
+      <pre><code>"dynamicBankGranularity": ["provider", "user"]</code></pre>
+      <p>Now every agent pointing at the same Hindsight backend will derive the <em>same bank</em> for the same user on the same provider. One agent learns something → all agents can access it.</p>
+
+      <h2>Provider-scoped vs. fully global sharing</h2>
+      <p>Two options, with different tradeoffs:</p>
+      <table>
+        <thead>
+          <tr><th>Config</th><th>Scope</th><th>Use when…</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>["provider", "user"]</code></td>
+            <td>Shared per-provider (Discord memory ≠ Telegram memory)</td>
+            <td>You want sharing but keep channel contexts separate</td>
+          </tr>
+          <tr>
+            <td><code>["user"]</code></td>
+            <td>Fully global (same memory regardless of channel)</td>
+            <td>You want a single brain per person across all channels</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Hindsight's guide recommends starting with <code>["provider", "user"]</code> unless you've consciously decided cross-platform sharing is what you want. Full global sharing means a conversation on Discord and one on Telegram feed into the same memory — which can muddy context.</p>
+
+      <h2>Prerequisites</h2>
+      <ul>
+        <li>OpenClaw installed and gateway healthy on all participating agents</li>
+        <li><code>@vectorize-io/hindsight-openclaw</code> installed on every agent that will share memory</li>
+        <li><strong>All agents pointing at the same Hindsight backend</strong> (local or cloud — both work, but they must be the same instance)</li>
+      </ul>
+      <p>Install the plugin if you haven't:</p>
+      <pre><code>openclaw plugins install @vectorize-io/hindsight-openclaw</code></pre>
+
+      <h2>Add a shared <code>retainMission</code></h2>
+      <p>Once agents share a bank, you want the retained context to be genuinely useful — not per-agent noise. Set a <code>retainMission</code> that focuses on durable user context:</p>
+      <pre><code>"retainMission": "Retain durable facts about the user: preferences, past decisions, project context, recurring questions. Ignore agent-specific housekeeping and ephemeral task state."</code></pre>
+      <p>Without this, each agent may write its own operational chatter into the shared bank, polluting it for other agents.</p>
+
+      <h2>Testing that it works</h2>
+      <ol>
+        <li>Restart all participating agents after the config change</li>
+        <li>On Agent A, share a fact with the user: "My preferred timezone is America/New_York and I work on EntityVault"</li>
+        <li>On Agent B (same user, same provider), ask: "What do you know about my current projects?"</li>
+        <li>Agent B should surface the EntityVault context it learned from Agent A's session</li>
+      </ol>
+      <p>If it doesn't work, verify both agents point at the same Hindsight backend URL and that <code>agent</code> is actually removed from <code>dynamicBankGranularity</code> in both configs.</p>
+
+      <h2>When NOT to share memory</h2>
+      <p>Shared memory is powerful but not always right:</p>
+      <ul>
+        <li><strong>Agents with different trust levels:</strong> A customer-facing support bot and an internal ops agent should usually have separate memory banks — the ops bank may contain sensitive business context you don't want surfacing in customer replies.</li>
+        <li><strong>Agents serving different users:</strong> If Agent A serves your whole team and Agent B is a personal assistant, sharing memory means team conversations could bleed into personal context.</li>
+        <li><strong>High-churn agents:</strong> Agents that process lots of ephemeral tasks (batch jobs, cron workers) generate noise that pollutes shared banks. Keep those isolated.</li>
+      </ul>
+
+      <h2>Bottom line</h2>
+      <p>Multi-agent shared memory in OpenClaw is a one-line config change in Hindsight — but the wrong choice creates context pollution across your whole agent fleet. Take 5 minutes to decide whether you want <code>["provider", "user"]</code> or <code>["user"]</code> scoping before you flip the switch.</p>
+
+      <p><em>Running a multi-agent setup and want a config review? <a href="https://clawreadynow.com/#pricing">ClawReady audits multi-agent configurations</a> and can walk you through the right memory architecture for your use case.</em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
