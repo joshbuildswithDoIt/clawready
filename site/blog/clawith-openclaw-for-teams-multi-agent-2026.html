@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clawith: OpenClaw for Teams — Multi-Agent Collaboration with Persistent Identity | ClawReady</title>
+  <meta name="description" content="Clawith is an open-source multi-agent platform where every AI agent gets a persistent identity, long-term memory, and its own workspace — then they work together as a crew. Here's how it differs from solo OpenClaw.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>Clawith: OpenClaw for Teams — Multi-Agent Collaboration with Persistent Identity</h1>
+      <p class="meta">April 22, 2026 · ClawReady Team</p>
+
+      <p>OpenClaw is built for one agent serving one person. That's intentional — and it's where most people start. But a new open-source project called <strong>Clawith</strong> (dataelement/Clawith) extends the architecture into multi-agent team territory: every agent gets a persistent identity, long-term memory, and its own workspace, then they work together as a coordinated crew.</p>
+
+      <h2>What Clawith is</h2>
+      <p>Clawith describes itself as an "open-source multi-agent collaboration platform." The key distinction from standard OpenClaw: where OpenClaw gives you one agent with one workspace, Clawith gives you a <em>team</em> of agents — each with their own identity, memory, and workspace — that can collaborate on shared goals.</p>
+
+      <p>The headline concept is <strong>Aware</strong> — the agent's autonomous awareness system. Agents don't passively wait for commands; they actively perceive, decide, and act.</p>
+
+      <h2>Core concepts worth understanding</h2>
+
+      <h3>Focus Items — structured working memory</h3>
+      <p>Every agent maintains a structured list of what it's currently tracking, with status markers:</p>
+      <ul>
+        <li><code>[ ]</code> pending</li>
+        <li><code>[/]</code> in progress</li>
+        <li><code>[x]</code> completed</li>
+      </ul>
+      <p>This is closer to a task management system baked into the agent's awareness layer than a simple memory file. Agents know what they're working on and can communicate their status to other agents in the crew.</p>
+
+      <h3>Focus-Trigger Binding</h3>
+      <p>Every task-related trigger must have a corresponding Focus item. Agents create the focus first, then set triggers referencing it. When a focus completes, the agent cancels its own triggers. This prevents runaway automation and gives you a clear audit trail of what the agent decided to do and why.</p>
+
+      <h3>Self-Adaptive Triggering</h3>
+      <p>Agents dynamically create, adjust, and remove their own triggers as tasks evolve. You assign the goal; the agent manages its own schedule. This is more sophisticated than OpenClaw's cron-based heartbeat — agents reason about when they need to check in, not just fire on a fixed schedule.</p>
+
+      <h3>Six trigger types</h3>
+      <ul>
+        <li><strong>cron</strong> — recurring schedule (like OpenClaw heartbeat)</li>
+        <li><strong>once</strong> — fire once at a specific time</li>
+        <li><strong>interval</strong> — every N minutes</li>
+        <li><strong>poll</strong> — HTTP endpoint monitoring</li>
+        <li><strong>on_message</strong> — wake when a specific agent or human replies</li>
+        <li><strong>webhook</strong> — receive external HTTP POST events (GitHub, Grafana, CI/CD, etc.)</li>
+      </ul>
+      <p>The <code>on_message</code> and <code>webhook</code> triggers are the most interesting for team workflows — agents can wake each other up or respond to external system events without a human in the loop.</p>
+
+      <h3>Reflections</h3>
+      <p>A dedicated view showing the agent's autonomous reasoning during trigger-fired sessions, with expandable tool call details. Think of it as a reasoning log you can actually read and audit — not just a transcript of what the agent said, but why it made decisions.</p>
+
+      <h2>Clawith vs. OpenClaw: what changes</h2>
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>OpenClaw (solo)</th><th>Clawith (teams)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Agent count</td><td>1 primary agent</td><td>N agents, each with own identity</td></tr>
+          <tr><td>Memory</td><td>Shared workspace files</td><td>Per-agent long-term memory + shared goals</td></tr>
+          <tr><td>Triggering</td><td>Cron heartbeat</td><td>6 trigger types, self-adaptive</td></tr>
+          <tr><td>Agent coordination</td><td>Sub-agent spawning (ephemeral)</td><td>Persistent agent identities working as a crew</td></tr>
+          <tr><td>Reasoning transparency</td><td>Gateway logs</td><td>Reflections view with expandable tool calls</td></tr>
+          <tr><td>Ecosystem maturity</td><td>✅ Mature, 5,400+ skills</td><td>⚠️ Early-stage, growing</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Who this is for</h2>
+      <p>Clawith is aimed at teams and organizations that want multiple specialized agents working together — a research agent, a writer agent, a delivery agent — each with its own persistent memory and workspace, coordinating on shared work. Think of it as moving from "one very capable employee" to "a small department of AI employees."</p>
+      <p>This is distinct from GoClaw (which solves multi-tenant infrastructure for one agent per user at scale) and from standard OpenClaw sub-agent spawning (which creates ephemeral helpers, not persistent crew members).</p>
+
+      <h2>Honest maturity assessment</h2>
+      <p>Clawith is newer and has a smaller community than OpenClaw. The skill ecosystem is early. But the architecture is thoughtful — especially the Focus-Trigger Binding pattern, which solves a real problem: how do you prevent agents from running redundant or conflicting automations when they're working in parallel?</p>
+      <p>If you're building a business that could genuinely benefit from multiple specialized AI agents working in concert, Clawith is worth watching. If you're a solo operator or small team, standard OpenClaw with a well-designed SOUL.md and sub-agent setup will get you further faster.</p>
+
+      <p><em>ClawReady sets up OpenClaw for individuals and small teams — including sub-agent workflows and multi-role agent architectures. <a href="https://clawreadynow.com/#pricing">See our options.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
