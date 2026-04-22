@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Update Fails with "Cannot find module 'grammy'" — Cause and Fix | ClawReady</title>
+  <meta name="description" content="After running `openclaw update`, the doctor check crashes with 'Cannot find module grammy'. Here's exactly why it happens, how to fix it now, and when the permanent patch lands.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>OpenClaw Update Fails with "Cannot find module 'grammy'" — Cause and Fix</h1>
+      <p class="meta">April 22, 2026 · ClawReady Team</p>
+
+      <p>Multiple GitHub issues filed in the last 24 hours report the same error: running <code>openclaw update</code> causes <code>openclaw doctor</code> to crash immediately with:</p>
+
+      <pre><code>Error: Cannot find module 'grammy'</code></pre>
+
+      <p>This is a real regression, now fixed in a merged PR (#69895). Here's what's happening and how to get past it right now.</p>
+
+      <h2>What's causing it</h2>
+      <p>The root cause is a timing issue introduced by the 4.15 plugin packaging change (PR #67099 — "localize bundled plugin runtime deps to their owning extensions").</p>
+
+      <p>When <code>openclaw update</code> runs, it:</p>
+      <ol>
+        <li>Replaces the package files</li>
+        <li>Immediately runs <code>openclaw doctor</code> to validate the install</li>
+        <li>Doctor triggers the channel registry → Telegram plugin → <code>telegram/allowed-updates.ts</code></li>
+        <li>That file has a <strong>static ESM import</strong> of <code>grammy</code> at the top level</li>
+        <li>But <code>grammy</code> lives under <code>dist/extensions/telegram/node_modules/</code> — which only gets installed <em>later</em>, during plugin loader initialization (<code>ensureBundledPluginRuntimeDeps</code>)</li>
+      </ol>
+
+      <p>The static import runs before the installer has placed grammy. Crash.</p>
+
+      <p>You can reproduce it manually:</p>
+      <pre><code>rm -rf dist/extensions/telegram/node_modules
+openclaw doctor --non-interactive
+# → Error: Cannot find module 'grammy'</code></pre>
+
+      <h2>The fix (already merged)</h2>
+      <p>PR #69895 replaces the top-level static import with a lazy <code>createRequire()</code> call — grammy is only resolved when <code>resolveTelegramAllowedUpdates()</code> is first called, by which point the installer has already run. Fallback constants handle the case where grammy is genuinely absent.</p>
+      <p>This fix is merged and will ship in the next stable release after 4.15.</p>
+
+      <h2>How to fix it now (before the patch releases)</h2>
+
+      <h3>Option 1: Run doctor after the plugin deps install</h3>
+      <p>Skip the update-time doctor check and run it manually after a full restart:</p>
+      <pre><code>openclaw update --skip-doctor   # if this flag exists in your version
+openclaw gateway restart
+openclaw doctor                 # run after gateway restart completes</code></pre>
+      <p>Check your version's <code>openclaw update --help</code> for the exact skip flag name.</p>
+
+      <h3>Option 2: Manually install grammy before running doctor</h3>
+      <pre><code>cd ~/.npm-global/lib/node_modules/openclaw/dist/extensions/telegram
+mkdir -p node_modules
+npm install grammy --prefix .
+openclaw doctor --non-interactive</code></pre>
+      <p>This pre-places the dependency so the static import resolves. Adjust the path to match your openclaw install location (<code>which openclaw</code> → follow the symlink).</p>
+
+      <h3>Option 3: Stay on 4.14 until the patch releases</h3>
+      <p>If you're not urgently needing 4.15 features, roll back:</p>
+      <pre><code>npm install -g --prefix /your/prefix openclaw@2026.4.14</code></pre>
+
+      <h2>Is this related to the Active Memory timeout bug?</h2>
+      <p>Different issue, same release. The <a href="/blog/openclaw-4-15-active-memory-timeout-fix.html">Active Memory timeout</a> is a qmd runtime spawn regression. The grammy crash is a static import timing issue in the update flow. They don't interact — but together they mean 4.15 has two significant known regressions if you use Telegram and Active Memory.</p>
+
+      <h2>Who's affected</h2>
+      <ul>
+        <li>Anyone running <code>openclaw update</code> on 4.15 with Telegram configured</li>
+        <li>Fresh installs are <strong>not</strong> affected — only the update path triggers the timing gap</li>
+        <li>If you don't use Telegram as a channel, the grammy import doesn't get pulled in and you won't see this error</li>
+      </ul>
+
+      <p><em>Running into upgrade issues? <a href="https://clawreadynow.com/#pricing">ClawReady handles version management and safe upgrades</a> as part of our managed service tier.</em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
