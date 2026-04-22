@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwarmClaw: Multi-Agent Orchestration Built on OpenClaw | ClawReady</title>
+  <meta name="description" content="SwarmClaw is a self-hosted multi-agent AI runtime built on OpenClaw — org charts, delegation, schedules, conversation-to-skill learning, 23+ LLM providers, MCP support. Here's what it does and who it's for.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>SwarmClaw: Multi-Agent Orchestration Built on OpenClaw</h1>
+      <p class="meta">April 22, 2026 · ClawReady Team</p>
+
+      <p>Running a single OpenClaw agent is well-documented. Running a <em>team</em> of agents — with delegation, org charts, memory, and scheduled coordination — is a harder problem. <strong>SwarmClaw</strong> is a self-hosted runtime built specifically for that.</p>
+
+      <h2>What SwarmClaw is</h2>
+      <p>SwarmClaw is described as "a self-hosted AI runtime for OpenClaw and multi-agent work." It adds an orchestration layer on top of OpenClaw gateways — giving you tools to manage agent teams, not just single agents. Key features:</p>
+      <ul>
+        <li><strong>Org chart model</strong> — agents have defined roles in a hierarchy; delegation flows through the structure</li>
+        <li><strong>23+ LLM providers</strong> — same broad provider support as OpenClaw (Claude, GPT, Gemini, OpenRouter, Ollama)</li>
+        <li><strong>MCP-native</strong> — Model Context Protocol support built in from the start</li>
+        <li><strong>Heartbeats and schedules</strong> — agents run on cron-like schedules without manual triggering</li>
+        <li><strong>Memory across the swarm</strong> — shared and per-agent memory layers</li>
+        <li><strong>Runtime skills</strong> — skills that can be loaded/unloaded without restarting agents</li>
+        <li><strong>Conversation-to-skill learning</strong> — reviewed conversations can be converted into new skills, with human review gates</li>
+        <li><strong>Delegation</strong> — orchestrator agents can spawn and direct sub-agents across gateways</li>
+        <li><strong>Optional CLI backends</strong> — Claude Code, Codex, OpenCode, Gemini, Copilot, Factory Droid, Cursor Agent, Qwen Code, Goose</li>
+      </ul>
+
+      <h2>The OpenClaw Fleet starter kit</h2>
+      <p>SwarmClaw ships with pre-built starter kits, including <strong>OpenClaw Fleet</strong> — a three-agent pipeline:</p>
+      <ul>
+        <li><strong>Operator</strong> — the orchestrator; receives tasks, delegates to the team</li>
+        <li><strong>Remote Builder</strong> — handles code, tool construction, technical execution</li>
+        <li><strong>Remote Researcher</strong> — handles research, web fetch, information synthesis</li>
+      </ul>
+      <p>The repo example for this fleet: "a writer/editor pipeline for blogs, docs, newsletters, marketing copy, or social posts." That's a production-ready content automation setup you can deploy from a starter kit.</p>
+
+      <h2>Installation</h2>
+      <p>SwarmClaw offers a one-click installer from swarmclaw.ai/downloads for macOS (Apple Silicon + Intel), Windows, and Linux (AppImage + .deb). Or via npm:</p>
+      <pre><code>npm install @swarmclawai/swarmclaw</code></pre>
+      <p>Requires Node.js 22.6+. Docker Desktop recommended for sandbox browser execution.</p>
+
+      <h2>How it compares to vanilla OpenClaw multi-agent setups</h2>
+      <table>
+        <thead>
+          <tr><th></th><th>OpenClaw (vanilla)</th><th>SwarmClaw</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sub-agent spawning</td><td>✅ sessions_spawn</td><td>✅ structured delegation</td></tr>
+          <tr><td>Org chart / roles</td><td>❌ manual AGENTS.md</td><td>✅ built-in hierarchy</td></tr>
+          <tr><td>Cross-gateway delegation</td><td>⚠️ complex setup</td><td>✅ native</td></tr>
+          <tr><td>Conversation-to-skill</td><td>❌</td><td>✅ with human review gate</td></tr>
+          <tr><td>Runtime skill loading</td><td>❌ restart required</td><td>✅ hot-load</td></tr>
+          <tr><td>MCP native</td><td>⚠️ via mcporter skill</td><td>✅ built-in</td></tr>
+          <tr><td>Starter kits</td><td>❌</td><td>✅ OpenClaw Fleet + others</td></tr>
+          <tr><td>Skill ecosystem</td><td>✅ 5,400+ ClawHub</td><td>⚠️ Early, SwarmClaw-specific</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Who this is for</h2>
+      <p>SwarmClaw makes sense if you're:</p>
+      <ul>
+        <li>Running multiple specialized agents that need to coordinate (researcher + builder + operator model)</li>
+        <li>Building a content or research pipeline that benefits from defined agent roles</li>
+        <li>Wanting conversation-to-skill learning with a human review gate (safety-conscious skill accumulation)</li>
+        <li>Needing cross-gateway agent delegation without building the plumbing yourself</li>
+      </ul>
+
+      <p>For solo operators or small setups, vanilla OpenClaw with a well-structured AGENTS.md and sessions_spawn is usually sufficient. SwarmClaw's overhead is worth it when the coordination complexity starts to hurt.</p>
+
+      <h2>The bigger picture</h2>
+      <p>SwarmClaw, GoClaw, IronClaw — the OpenClaw ecosystem is rapidly spawning specialized runtimes for different deployment patterns. OpenClaw remains the reference implementation and has by far the largest skill ecosystem. But the specialized layers built on top of it are filling real gaps that the core project moves too slowly to address.</p>
+      <p>The "OpenClaw Fleet" framing in SwarmClaw's starter kit is telling: this isn't a replacement for OpenClaw, it's an orchestration layer that assumes OpenClaw gateways at the edges.</p>
+
+      <p><em>Building a multi-agent team? <a href="https://clawreadynow.com/#pricing">ClawReady sets up the foundation — from single agent to coordinated fleet.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>

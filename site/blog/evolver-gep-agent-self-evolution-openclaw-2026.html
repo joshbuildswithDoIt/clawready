@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evolver: GEP-Powered Self-Evolution for OpenClaw Agents | ClawReady</title>
+  <meta name="description" content="EvoMap's Evolver lets OpenClaw agents evolve their own skills and behaviors using Genome Evolution Protocol. Here's how it works, who it's for, and the controversy around it going source-available.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>Evolver: GEP-Powered Self-Evolution for OpenClaw Agents</h1>
+      <p class="meta">April 22, 2026 · ClawReady Team</p>
+
+      <p>One of the more conceptually interesting projects in the OpenClaw ecosystem: <strong>Evolver</strong> by EvoMap — a self-evolution engine for AI agents using something called the Genome Evolution Protocol (GEP). It's been around since February 2026 and explicitly names OpenClaw as its primary host runtime.</p>
+
+      <p>There's also some drama: Evolver is transitioning from open source to source-available after another project shipped a "strikingly similar" memory/skill/evolution design without attribution. Worth knowing before you build on it.</p>
+
+      <h2>What Evolver does</h2>
+      <p>The core concept: instead of manually writing new skills for your OpenClaw agent, Evolver generates <strong>Genome Evolution Protocol (GEP) prompts</strong> that describe behavioral mutations — new capabilities, refined heuristics, updated response patterns. OpenClaw then interprets and applies these.</p>
+
+      <p>In standalone mode, Evolver runs a loop (<code>node index.js --loop</code>) and prints GEP prompts to stdout. OpenClaw acts as the host runtime that reads and executes them. The agent effectively writes its own skill updates over time.</p>
+
+      <p>From the repo FAQ: <em>"If you expected it to automatically apply changes, you need a host runtime like OpenClaw that interprets the output."</em> — OpenClaw is the named runtime for a reason. The integration is first-class.</p>
+
+      <h2>The Genome Evolution Protocol (GEP)</h2>
+      <p>GEP is EvoMap's framework for describing agent behavioral changes in a structured, interpretable format — think of it as a diff format for agent behavior rather than code. A GEP prompt might say "when the user asks for a summary, prefer bullet points over paragraphs based on observed user feedback patterns" — and the agent updates its behavior accordingly without a human rewriting a skill file.</p>
+      <p>The memory and skill system in Evolver is designed to accumulate these mutations over time, producing an agent that drifts toward patterns its interactions have reinforced.</p>
+
+      <h2>The license controversy</h2>
+      <p>Evolver launched MIT-licensed in February 2026, switched to GPL-3.0 in April, and is now transitioning to <strong>source-available</strong> (not fully open source). The stated reason: in March 2026, another project — identified as Hermes Agent — shipped a system with "strikingly similar memory / skill / evolution-asset design" without attribution to Evolver. EvoMap published a detailed similarity analysis at evomap.ai.</p>
+      <p>What this means practically:</p>
+      <ul>
+        <li>All already-published MIT and GPL-3.0 versions remain freely usable under their original terms</li>
+        <li><code>npm install @evomap/evolver</code> still works for current versions</li>
+        <li>Future releases will be source-available — you can read the code but commercial use may have restrictions</li>
+        <li>If you're building a product on Evolver, pin to the last GPL-3.0 release or evaluate the source-available terms carefully before upgrading</li>
+      </ul>
+
+      <h2>Should you use Evolver?</h2>
+      <p>The self-evolution concept is compelling for long-running OpenClaw agents that handle repetitive workflows — customer service, research loops, content pipelines. An agent that gradually improves its own response patterns based on interaction history is meaningfully better than one that stays static.</p>
+      <p>The honest caveats:</p>
+      <ul>
+        <li><strong>Early-stage:</strong> GEP is EvoMap's own protocol, not a standard. If they shut down or lock the source, you're on your own.</li>
+        <li><strong>License risk:</strong> Source-available future releases may limit commercial use. Know what you're getting into before building on it.</li>
+        <li><strong>Self-evolution ≠ safety:</strong> An agent that modifies its own behavior needs careful guardrails. Unconstrained drift can produce unexpected results. OpenClaw's approval flows help here, but test before deploying to production.</li>
+      </ul>
+
+      <h2>The Hermes comparison angle</h2>
+      <p>EvoMap's claim that Hermes Agent shipped similar design without attribution is unverified — we're only hearing one side. But the situation highlights a broader dynamic: the OpenClaw ecosystem is moving fast enough that ideas are being copied across projects faster than attribution can keep up. Watch this space.</p>
+
+      <p><em>Interested in setting up an OpenClaw agent with structured skill evolution? <a href="https://clawreadynow.com/#pricing">ClawReady can configure the baseline.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
