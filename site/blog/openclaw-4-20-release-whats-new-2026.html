@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 4.20: What's New — Onboarding, Kimi K2.6, Tiered Pricing, Session Stability | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.20 dropped April 21. Key changes: onboarding wizard improvements, Kimi K2.6 default, tiered model pricing, session OOM fix, cron state split, compaction notices. Here's what matters.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <nav><a href="/">ClawReady</a> › <a href="/blog/">Blog</a></nav>
+  </header>
+  <main>
+    <article>
+      <h1>OpenClaw 4.20: What's New — Onboarding, Kimi K2.6, Tiered Pricing, Session Stability</h1>
+      <p class="meta">April 22, 2026 · ClawReady Team</p>
+
+      <p><strong>OpenClaw 2026.4.20</strong> published April 21. This is a broad quality release — no single headline feature, but a lot of fixes and improvements across onboarding, agents, session management, cron, and model support. If you've been holding at 4.14 to avoid the Active Memory 4.15 regression, 4.20 is the one to watch for whether that's been addressed.</p>
+
+      <h2>Key changes in 4.20</h2>
+
+      <h3>1. Onboarding wizard improvements</h3>
+      <p>The setup wizard got a visual and UX pass:</p>
+      <ul>
+        <li>Security disclaimer restyled with a yellow warning banner, section headings, and bulleted checklists — easier to scan on first setup</li>
+        <li>Loading spinner added during initial model catalog load — the wizard no longer goes blank while fetching models</li>
+        <li>"API key" placeholder added to provider API key prompts (small but reduces confusion for new users)</li>
+      </ul>
+      <p>Minor stuff individually, but collectively makes the first-run experience significantly less confusing for non-technical users.</p>
+
+      <h3>2. Kimi K2.6 is now the Moonshot default</h3>
+      <p>The bundled Moonshot setup, web search, and media-understanding surfaces now default to <strong>kimi-k2.6</strong>. K2.5 remains available for compatibility. K2.6 also now allows <code>thinking.keep = "all"</code> — the K2.5 limitation is lifted.</p>
+      <p>If you set up Moonshot/Kimi previously, you may want to verify your config is pointing to K2.6 for best results.</p>
+
+      <h3>3. Tiered model pricing support</h3>
+      <p>OpenClaw now supports tiered model pricing from cached catalogs and configured models. Bundled Moonshot Kimi K2.6/K2.5 cost estimates are included in token-usage reports. If you track API spend per-agent, this gives you more accurate cost data for Kimi-powered workflows.</p>
+
+      <h3>4. Session OOM fix — important for long-running agents</h3>
+      <p>This is the fix that matters most for production setups: <strong>accumulated cron/executor session backlogs could OOM (out-of-memory) the gateway before the write path ran</strong>, crashing the process. 4.20 enforces the built-in entry cap and age prune by default, and prunes oversized stores at load time.</p>
+      <p>If your gateway has been running for weeks and you're seeing memory growth or unexpected crashes, this fix is directly relevant. Update.</p>
+
+      <h3>5. Cron state split (jobs-state.json)</h3>
+      <p>Cron execution state is now split into a separate <code>jobs-state.json</code> file, keeping <code>jobs.json</code> stable for git-tracked job definitions. This is a clean separation: your job definitions (what crons exist) stay clean and committable; runtime state (when they last ran, etc.) lives separately. Good for teams version-controlling their OpenClaw config.</p>
+
+      <h3>6. GPT-5 system prompt improvements</h3>
+      <p>The default system prompt and OpenAI GPT-5 overlay have been strengthened with:</p>
+      <ul>
+        <li>Clearer completion bias</li>
+        <li>Live-state checks</li>
+        <li>Weak-result recovery guidance</li>
+        <li>Verification-before-final guidance</li>
+      </ul>
+      <p>This addresses the pattern where GPT-5 models would produce partial or low-confidence outputs without flagging them. Better behavior out of the box for OpenAI users.</p>
+
+      <h3>7. Compaction opt-in notices</h3>
+      <p>Agents can now receive opt-in start and completion notices during context compaction. If you've ever had an agent behave strangely during a long session without understanding why (context compaction can cause apparent "amnesia"), this gives visibility into when compaction is happening.</p>
+
+      <h3>8. Mattermost streaming</h3>
+      <p>Mattermost now streams thinking, tool activity, and partial reply text into a single draft preview post that finalizes in place when the response is complete. If you use OpenClaw with Mattermost for team workflows, this significantly improves the UX — replies appear to build in real-time rather than posting only when complete.</p>
+
+      <h2>Should you upgrade from 4.14/4.15?</h2>
+      <p>The Active Memory regression from 4.15 (#68825) is not specifically mentioned in the 4.20 changelog. Before upgrading if you rely on Active Memory: check the GitHub issue for confirmation of a fix. The session OOM fix and Kimi K2.6 default are both strong reasons to upgrade if you're on older versions.</p>
+      <p>As always: test on a non-production gateway before upgrading a live agent setup.</p>
+
+      <p><em>Need help managing OpenClaw upgrades safely? <a href="https://clawreadynow.com/#pricing">ClawReady handles upgrades and regression validation.</a></em></p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 ClawReady · <a href="/">Home</a> · <a href="/blog/">Blog</a></p>
+  </footer>
+</body>
+</html>
