@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>40,000 Exposed OpenClaw Instances: SecurityScorecard's Full Research Breakdown — ClawReady</title>
+  <meta name="description" content="SecurityScorecard found 40,214 internet-exposed OpenClaw instances, 63% vulnerable to remote code execution. Here's what the research actually says — and the three config changes that remove you from the risk pool entirely.">
+  <meta property="og:title" content="40,000 Exposed OpenClaw Instances: What SecurityScorecard Found and How to Not Be One of Them">
+  <meta property="og:description" content="SecurityScorecard scanned the internet and found 40,214 exposed OpenClaw control panels. 63% are vulnerable to RCE. 549 are linked to prior breaches. Here's the data — and the fix.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/securityscorecard-openclaw-40000-exposed-instances-rce-2026">
+  <link rel="canonical" href="https://clawreadynow.com/blog/securityscorecard-openclaw-40000-exposed-instances-rce-2026">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:var(--muted)}
+    .article-header .meta span{margin-right:16px}
+    .article-body h2{font-size:1.35rem;font-weight:700;margin:36px 0 14px;letter-spacing:-.01em}
+    .article-body h3{font-size:1.05rem;font-weight:700;margin:24px 0 8px;color:var(--accent)}
+    .article-body p{margin-bottom:18px;color:#d0d0d0}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#d0d0d0}
+    .article-body li{margin-bottom:8px}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88em;font-family:'SF Mono','Fira Code',monospace}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin:28px 0}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center}
+    .stat-card .stat-number{font-size:2rem;font-weight:800;color:var(--accent);line-height:1;margin-bottom:6px}
+    .stat-card.yellow .stat-number{color:var(--yellow)}
+    .stat-card.orange .stat-number{color:var(--orange)}
+    .stat-card.red .stat-number{color:var(--accent)}
+    .stat-card .stat-label{font-size:.8rem;color:var(--muted);line-height:1.4}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .callout p+p{margin-top:10px}
+    .callout strong{color:var(--text)}
+    .fix-steps{counter-reset:fix-counter;list-style:none;margin:0 0 24px 0}
+    .fix-steps li{counter-increment:fix-counter;display:flex;gap:16px;margin-bottom:20px;align-items:flex-start}
+    .fix-steps li::before{content:counter(fix-counter);background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0;margin-top:2px}
+    .fix-steps .fix-content h4{font-weight:700;margin-bottom:4px;font-size:.95rem}
+    .fix-steps .fix-content p{margin:0;color:#bbb;font-size:.9rem}
+    .fix-steps .fix-content code{background:rgba(255,255,255,.07);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.85em}
+    .quote-block{border-left:3px solid var(--border);padding:14px 20px;margin:24px 0;color:var(--muted);font-style:italic;font-size:1rem}
+    .quote-block cite{display:block;font-style:normal;font-size:.82rem;margin-top:8px;color:#666}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.1),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:32px;margin:48px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:20px;font-size:.95rem}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover);text-decoration:none}
+    footer{border-top:1px solid var(--border);margin-top:60px;padding:40px 0;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted)}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">Security Research</span>
+    <h1>40,000 Exposed OpenClaw Instances: What SecurityScorecard Found — and How to Not Be One of Them</h1>
+    <p class="subtitle">SecurityScorecard scanned the internet and found over 40,000 OpenClaw control panels exposed to the public. 63% are vulnerable to remote code execution. Here's the full data breakdown and the three config changes that remove you from the risk pool.</p>
+    <div class="meta">
+      <span>ClawReady</span>
+      <span>April 23, 2026</span>
+      <span>6 min read</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>SecurityScorecard published a deep analysis of internet-exposed OpenClaw deployments this week, and the numbers are striking. While the media coverage focused on a malware campaign that borrowed the OpenClaw name, the more important finding is about legitimate OpenClaw installations that operators left exposed without protective measures.</p>
+
+    <p>Here's what the research actually says — and what it means for your setup.</p>
+
+    <h2>The Numbers</h2>
+
+    <div class="stat-grid">
+      <div class="stat-card red">
+        <div class="stat-number">40,214</div>
+        <div class="stat-label">Internet-exposed OpenClaw instances found</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-number">28,663</div>
+        <div class="stat-label">Unique IPs with accessible control panels</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-number">63%</div>
+        <div class="stat-label">Vulnerable to remote code execution</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-number">549</div>
+        <div class="stat-label">Linked to previous breach activity</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-number">1,493</div>
+        <div class="stat-label">Tied to known active vulnerabilities</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-number">7.8–8.8</div>
+        <div class="stat-label">CVSS scores on the three high-severity CVEs</div>
+      </div>
+    </div>
+
+    <p>The three CVEs with CVSS scores between 7.8 and 8.8 all have public exploit code available. That means anyone can download a working exploit and run it against an exposed instance — no sophistication required.</p>
+
+    <h2>What "Exposed" Actually Means</h2>
+
+    <p>When SecurityScorecard says "internet-exposed," they mean the OpenClaw gateway control panel is reachable from the public internet — no VPN, no authentication layer in front, just a direct connection from anywhere in the world.</p>
+
+    <p>This happens for a few common reasons:</p>
+
+    <ul>
+      <li><strong>Running OpenClaw on a VPS or cloud server</strong> and binding to <code>0.0.0.0</code> (all interfaces) instead of a private interface</li>
+      <li><strong>Port forwarding on a home router</strong> to make the gateway reachable remotely</li>
+      <li><strong>Following tutorials that prioritize convenience over security</strong> — many setup guides tell you to expose the port to make remote access easy</li>
+      <li><strong>Using a reverse proxy that unintentionally exposes the gateway port</strong> alongside the intended web traffic</li>
+    </ul>
+
+    <p>The problem isn't running OpenClaw. It's running OpenClaw with the control panel accessible to the entire internet.</p>
+
+    <div class="callout yellow">
+      <p><strong>The name identification risk:</strong> SecurityScorecard also noted that users commonly configure their OpenClaw bots with identifiable personal or company names — making them easily findable targets. If your gateway responds to requests with your name or business name in the headers or UI, attackers can use Shodan or similar tools to find you specifically.</p>
+    </div>
+
+    <h2>What an Attacker Can Do with a Vulnerable Exposed Instance</h2>
+
+    <p>The three CVEs in the research enable remote code execution — meaning an attacker who reaches your exposed gateway can run arbitrary commands on the machine hosting it. With a CVSS of 7.8-8.8, that's high-severity without requiring any authentication.</p>
+
+    <p>From there, the attacker has everything OpenClaw has access to:</p>
+
+    <ul>
+      <li>Files in your workspace directory and any mounted volumes</li>
+      <li>API keys stored in your config or environment variables</li>
+      <li>Connected email, calendar, or messaging accounts</li>
+      <li>Any shell commands the gateway can run via exec tools</li>
+      <li>Your model API keys — which they can use for their own purposes at your cost</li>
+    </ul>
+
+    <div class="quote-block">
+      "In practice, because it was written by AI, security wasn't a dominating feature in the development process."
+      <cite>— Jeremy Turner, VP of Threat Intelligence, SecurityScorecard</cite>
+    </div>
+
+    <p>Turner's quote is worth sitting with. It applies to the malware campaign they studied — but it's also a fair characterization of many self-hosted OpenClaw setups. People move fast, follow convenience-first tutorials, and don't think about the exposure surface until something goes wrong.</p>
+
+    <h2>The Fix: Three Config Changes That Remove You from the Risk Pool</h2>
+
+    <p>The good news is that fixing this is not hard. The 40,214 exposed instances in SecurityScorecard's scan share a common trait: their gateways are reachable from the internet. Remove that exposure and you remove the attack surface for the CVEs entirely.</p>
+
+    <ul class="fix-steps">
+      <li>
+        <div class="fix-content">
+          <h4>Bind the gateway to localhost only</h4>
+          <p>In your <code>openclaw.json</code>, set <code>"gateway": {"bind": "127.0.0.1"}</code>. This ensures the gateway only accepts connections from the local machine — not from the network. If you're running on a VPS, this is the single most important change you can make.</p>
+        </div>
+      </li>
+      <li>
+        <div class="fix-content">
+          <h4>Use Tailscale or a VPN for remote access</h4>
+          <p>If you need to reach your OpenClaw gateway from another device or location, do it over a private tunnel — not a public port. Tailscale is free for personal use, takes about 10 minutes to set up, and means your gateway is only reachable from devices you've explicitly authorized. No port forwarding, no public exposure.</p>
+        </div>
+      </li>
+      <li>
+        <div class="fix-content">
+          <h4>Update to the latest version and run <code>openclaw doctor</code></h4>
+          <p>The three CVEs referenced in the SecurityScorecard report are patched in recent releases. Run <code>npm update -g openclaw</code> followed by <code>openclaw doctor --fix</code> and restart your gateway. If you're on an old version, you're carrying known vulnerabilities with public exploit code — update now.</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="callout green">
+      <p><strong>If you're on ClawReady's setup:</strong> Your gateway was configured with <code>bind: 127.0.0.1</code> from day one. You're not in the 40,214. If you've made changes since your initial setup, run <code>openclaw doctor</code> to verify your current config state.</p>
+    </div>
+
+    <h2>Why the Scale Is So Large</h2>
+
+    <p>40,000+ exposed instances is a lot — but it reflects the pace of OpenClaw adoption in 2026. The framework went from niche to mainstream extremely quickly. A huge wave of first-time self-hosters followed tutorials written for convenience, deployed to cloud VMs, and left their gateways public-facing.</p>
+
+    <p>This pattern repeats with every fast-growing open-source project. It happened with Jupyter notebooks (thousands exposed with no auth), with MongoDB (hundreds of millions of records exposed), with Elasticsearch. The attack surface scales with adoption, and the attackers know it.</p>
+
+    <p>OpenClaw is now mainstream enough to be worth scanning for at scale. That's not a reason to avoid it — it's a reason to configure it properly.</p>
+
+    <h2>The SecurityScorecard Research vs. the "OpenClaw Trojan" Story</h2>
+
+    <p>Earlier this week, Tweaktown covered a malware campaign called the "OpenClaw Trojan" — malware that borrowed the OpenClaw name to appear legitimate (we covered it <a href="/blog/openclaw-trojan-ai-agent-malware-28000-systems">here</a>). That's a separate issue from what SecurityScorecard found.</p>
+
+    <p>SecurityScorecard's research is about legitimate OpenClaw installations that are misconfigured and exposed. The trojan story is about a different piece of software that borrowed the name. Both are real security concerns — they just affect different populations.</p>
+
+    <ul>
+      <li><strong>Trojan:</strong> Victims who downloaded fake OpenClaw software from phishing links</li>
+      <li><strong>SecurityScorecard research:</strong> Legitimate OpenClaw users with exposed gateways running vulnerable versions</li>
+    </ul>
+
+    <p>If you downloaded OpenClaw from npm or GitHub, you have the real thing. The question SecurityScorecard is raising is: is your real OpenClaw exposed to the internet, and is it patched?</p>
+
+    <h2>Quick Self-Audit</h2>
+
+    <p>Take 5 minutes right now:</p>
+
+    <ol>
+      <li>Run <code>openclaw --version</code> — compare against the latest on npmjs.com/package/openclaw</li>
+      <li>Check your <code>openclaw.json</code> for <code>gateway.bind</code> — it should be <code>127.0.0.1</code>, not <code>0.0.0.0</code></li>
+      <li>If you're on a VPS, run <code>ss -tlnp | grep openclaw</code> — if the gateway port shows <code>0.0.0.0</code>, you're exposed</li>
+      <li>Run <code>openclaw doctor</code> — check for any config warnings</li>
+    </ol>
+
+    <p>If any of those checks come back wrong, fix them before you do anything else today.</p>
+
+    <div class="cta-box">
+      <h3>Not sure if your setup is exposed?</h3>
+      <p>We'll audit your gateway binding, version, config, and network exposure. You'll get a plain-English report of what's at risk and a prioritized fix list. Takes 24 hours or less.</p>
+      <a href="https://clawreadynow.com/#contact" class="cta-btn">Book a Security Audit — $49</a>
+    </div>
+
+    <h2>Summary</h2>
+
+    <p>SecurityScorecard found 40,214 internet-exposed OpenClaw instances, with 63% vulnerable to remote code execution via CVEs with CVSS scores up to 8.8 and publicly available exploit code. This is a configuration problem, not a framework problem — operators who left gateways public-facing without patching are at risk. Operators who bind to localhost, use VPN for remote access, and stay updated are not in the risk pool.</p>
+
+    <p>Three changes: bind to <code>127.0.0.1</code>, add Tailscale for remote access, update and run <code>openclaw doctor --fix</code>. Do those and you're out of the 40,000.</p>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2026 ClawReady · <a href="/">clawreadynow.com</a> · Professional OpenClaw Setup & Configuration</p>
+  </div>
+</footer>
+
+</body>
+</html>
