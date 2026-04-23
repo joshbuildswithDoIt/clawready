@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw April 2026 Security Advisories: 4 CVEs Explained (GHSA-7jm2, GHSA-2xcp, GHSA-c4qg + QQBot SSRF) — ClawReady</title>
+  <meta name="description" content="OpenClaw published 4 security advisories on April 21, 2026. Here's what each one means for self-hosters — gateway config mutations, hook session-key bypass, dotenv override, and QQBot SSRF — plus exactly how to patch.">
+  <meta property="og:title" content="OpenClaw April 2026 Security Advisories: 4 CVEs Explained + How to Patch">
+  <meta property="og:description" content="Four OpenClaw security advisories landed April 21, 2026. We break down GHSA-7jm2 (gateway config mutation), GHSA-2xcp (hook session-key bypass), GHSA-c4qg (dotenv override), and QQBot SSRF — severity, impact, and patch steps.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-april-2026-security-advisories-ghsa">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-april-2026-security-advisories-ghsa">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:var(--muted)}
+    .article-header .meta span{margin-right:16px}
+    .article-body h2{font-size:1.35rem;font-weight:700;margin:36px 0 14px;letter-spacing:-.01em}
+    .article-body h3{font-size:1.05rem;font-weight:700;margin:24px 0 8px}
+    .article-body p{margin-bottom:18px;color:#d0d0d0}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#d0d0d0}
+    .article-body li{margin-bottom:8px}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88em;font-family:'SF Mono','Fira Code',monospace}
+    .article-body pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin:20px 0;overflow-x:auto}
+    .article-body pre code{background:none;border:none;padding:0;font-size:.87em}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .callout p+p{margin-top:10px}
+    .callout strong{color:var(--text)}
+    .cve-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin:28px 0}
+    .cve-card .cve-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+    .cve-card .cve-id{font-family:'SF Mono','Fira Code',monospace;font-size:.85rem;color:var(--muted);background:rgba(255,255,255,.05);padding:3px 10px;border-radius:4px;border:1px solid var(--border)}
+    .cve-card h3{font-size:1.05rem;font-weight:700;margin:0}
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+    .badge-moderate{background:rgba(230,126,34,.15);color:var(--orange)}
+    .badge-low{background:rgba(39,174,96,.15);color:var(--green)}
+    .badge-high{background:rgba(231,76,60,.15);color:var(--accent)}
+    .cve-meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:14px 0;font-size:.85rem}
+    .cve-meta-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:8px 12px}
+    .cve-meta-item .label{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+    .cve-meta-item .value{color:var(--text);font-weight:600}
+    .cve-card p{margin:10px 0 0;color:#d0d0d0;font-size:.95rem}
+    .summary-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.88rem}
+    .summary-table th{background:var(--surface);padding:10px 14px;text-align:left;border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+    .summary-table td{padding:10px 14px;border:1px solid var(--border);color:#d0d0d0;vertical-align:top}
+    .summary-table tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+    .cta-box{background:linear-gradient(135deg,rgba(231,76,60,.1),rgba(231,76,60,.05));border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:32px;margin:48px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:20px;font-size:.95rem}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;transition:background .2s}
+    .cta-btn:hover{background:var(--accent-hover);text-decoration:none}
+    footer{border-top:1px solid var(--border);margin-top:60px;padding:40px 0;text-align:center;color:var(--muted);font-size:.85rem}
+    footer a{color:var(--muted)}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <span class="tag">Security Patch</span>
+    <h1>OpenClaw April 2026 Security Advisories: 4 CVEs Explained + How to Patch</h1>
+    <p class="subtitle">Four advisories dropped on April 21 covering gateway config mutations, hook session-key bypass, dotenv variable override, and QQBot SSRF. Here's what each one actually means for your setup.</p>
+    <div class="meta">
+      <span>ClawReady</span>
+      <span>April 23, 2026</span>
+      <span>6 min read</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>OpenClaw's security team — led by steipete — published four advisories on April 21, 2026. All four are rated Moderate or Low, meaning none represent a critical remote code execution risk for typical self-hosted setups. But two of them touch the gateway and hooks layers, which are worth understanding clearly.</p>
+
+    <div class="callout green">
+      <p><strong>Quick verdict:</strong> Update to the latest version (<code>npm update -g openclaw</code>), restart your gateway, and you're patched. Read on if you want to understand what was actually fixed and whether your config was affected.</p>
+    </div>
+
+    <h2>All Four at a Glance</h2>
+
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Advisory</th>
+          <th>Component</th>
+          <th>Severity</th>
+          <th>What It Did</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>GHSA-7jm2-g593-4qrc</code></td>
+          <td>Gateway config API</td>
+          <td><span class="badge badge-moderate">Moderate</span></td>
+          <td>Config mutations could overwrite protected operator settings</td>
+        </tr>
+        <tr>
+          <td><code>GHSA-2xcp-x87w-q377</code></td>
+          <td>Hooks layer</td>
+          <td><span class="badge badge-moderate">Moderate</span></td>
+          <td>Hook mapping templates could bypass session-key opt-in</td>
+        </tr>
+        <tr>
+          <td><code>GHSA-c4qg-j8jg-42q5</code></td>
+          <td>Workspace dotenv</td>
+          <td><span class="badge badge-low">Low</span></td>
+          <td>Workspace .env files could override runtime-control env vars</td>
+        </tr>
+        <tr>
+          <td>QQBot SSRF</td>
+          <td>QQBot channel</td>
+          <td><span class="badge badge-moderate">Moderate</span></td>
+          <td>Direct media uploads skipped URL SSRF validation</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Advisory Deep Dives</h2>
+
+    <!-- CVE 1 -->
+    <div class="cve-card">
+      <div class="cve-header">
+        <span class="cve-id">GHSA-7jm2-g593-4qrc</span>
+        <span class="badge badge-moderate">Moderate</span>
+        <h3>Gateway Config Mutations Could Change Protected Operator Settings</h3>
+      </div>
+      <div class="cve-meta">
+        <div class="cve-meta-item"><div class="label">Published</div><div class="value">Apr 21, 2026</div></div>
+        <div class="cve-meta-item"><div class="label">Component</div><div class="value">Gateway config API</div></div>
+        <div class="cve-meta-item"><div class="label">Reporter</div><div class="value">steipete</div></div>
+        <div class="cve-meta-item"><div class="label">Attack Vector</div><div class="value">Local / authenticated</div></div>
+      </div>
+      <p><strong>What happened:</strong> The gateway's runtime configuration mutation API — the path that lets agents or scripts modify settings on the fly — was not enforcing "protected" flag checks on a subset of operator-level keys. This meant an authenticated session (your own agent, or a script with a valid session key) could potentially overwrite configuration values that should be immutable at runtime.</p>
+      <p><strong>Real-world risk:</strong> For single-user self-hosted setups (the typical ClawReady deployment), this is lower-risk than it sounds — you're the only one with session access anyway. The risk increases if you share your gateway with other users, run multi-tenant setups, or have skill-generated tool calls that touch config endpoints. The fix enforces the protected flag check on all mutation paths.</p>
+      <p><strong>Check your setup:</strong> If you use <code>openclaw config set</code> via the agent, or have any hooks/skills that write to gateway configuration, verify those still behave as expected after updating.</p>
+    </div>
+
+    <!-- CVE 2 -->
+    <div class="cve-card">
+      <div class="cve-header">
+        <span class="cve-id">GHSA-2xcp-x87w-q377</span>
+        <span class="badge badge-moderate">Moderate</span>
+        <h3>Hook Mapping Templates Could Bypass Hook Session-Key Opt-In</h3>
+      </div>
+      <div class="cve-meta">
+        <div class="cve-meta-item"><div class="label">Published</div><div class="value">Apr 21, 2026</div></div>
+        <div class="cve-meta-item"><div class="label">Component</div><div class="value">Hooks / automation layer</div></div>
+        <div class="cve-meta-item"><div class="label">Reporter</div><div class="value">steipete</div></div>
+        <div class="cve-meta-item"><div class="label">Attack Vector</div><div class="value">Hook template injection</div></div>
+      </div>
+      <p><strong>What happened:</strong> OpenClaw hooks support a session-key opt-in — a mechanism that restricts which sessions a hook can fire into. Hook <em>mapping templates</em> (the variable-expansion layer that constructs hook payloads) were not honoring this restriction in all code paths. A hook configured with session-key opt-in could still be triggered into unauthorized sessions via a crafted template expansion.</p>
+      <p><strong>Real-world risk:</strong> If you use hooks at all — and especially if you have session-key restrictions configured — this is the most relevant of the four. The attack path requires a hook with a template that an adversarial input could influence. For most personal-use setups with hardcoded hook configs, real exposure is low. The fix aligns template evaluation with the session-key opt-in check at every code path.</p>
+      <p><strong>Check your setup:</strong> Review any hooks in your workspace that use <code>session-key</code> restrictions. After patching, test that those restrictions still fire correctly. Run <code>openclaw hooks</code> to see what's loaded.</p>
+    </div>
+
+    <!-- CVE 3 -->
+    <div class="cve-card">
+      <div class="cve-header">
+        <span class="cve-id">GHSA-c4qg-j8jg-42q5</span>
+        <span class="badge badge-low">Low</span>
+        <h3>Workspace .env Could Override OpenClaw Runtime-Control Environment Variables</h3>
+      </div>
+      <div class="cve-meta">
+        <div class="cve-meta-item"><div class="label">Published</div><div class="value">Apr 21, 2026</div></div>
+        <div class="cve-meta-item"><div class="label">Component</div><div class="value">Workspace dotenv loader</div></div>
+        <div class="cve-meta-item"><div class="label">Reporter</div><div class="value">steipete</div></div>
+        <div class="cve-meta-item"><div class="label">Attack Vector</div><div class="value">Workspace file write</div></div>
+      </div>
+      <p><strong>What happened:</strong> If a workspace's <code>.env</code> file contained keys that matched OpenClaw's internal runtime-control variables (the environment variables the gateway uses to manage its own behavior — not your API keys), those values would silently win. This is a precedence bug: workspace dotenv was loaded too late in the env merge order, allowing it to overwrite vars that should be process-level only.</p>
+      <p><strong>Real-world risk:</strong> Low in practice. Exploiting this requires write access to the workspace <code>.env</code> file — which an adversary with that access already has plenty of other ways to cause harm. Rated Low because the attack surface requires pre-existing workspace compromise. The fix restructures the env merge order so runtime-control vars always take priority over workspace dotenv.</p>
+      <p><strong>Check your setup:</strong> If you have a <code>.env</code> file in your workspace root, scan it for any keys starting with <code>OPENCLAW_</code> — those could have been silently overriding gateway behavior. Remove anything that isn't a third-party API key.</p>
+    </div>
+
+    <!-- CVE 4 -->
+    <div class="cve-card">
+      <div class="cve-header">
+        <span class="cve-id">QQBot SSRF</span>
+        <span class="badge badge-moderate">Moderate</span>
+        <h3>QQBot Direct Media Upload Skipped URL SSRF Validation</h3>
+      </div>
+      <div class="cve-meta">
+        <div class="cve-meta-item"><div class="label">Published</div><div class="value">Apr 21, 2026</div></div>
+        <div class="cve-meta-item"><div class="label">Component</div><div class="value">QQBot channel plugin</div></div>
+        <div class="cve-meta-item"><div class="label">Reporter</div><div class="value">steipete</div></div>
+        <div class="cve-meta-item"><div class="label">Attack Vector</div><div class="value">Crafted media URL via QQBot</div></div>
+      </div>
+      <p><strong>What happened:</strong> The QQBot channel's direct media upload path — the code that handles file/image uploads from QQBot messages — was not running the same SSRF (Server-Side Request Forgery) URL validation that the regular URL fetch path uses. This means a crafted media URL pointing at an internal address (e.g. <code>http://169.254.169.254</code> for cloud metadata endpoints, or localhost services) could be fetched by the gateway without the normal block list applying.</p>
+      <p><strong>Real-world risk:</strong> Only affects setups with QQBot channel enabled. If you're not using QQBot, you have zero exposure. For QQBot users running on cloud infrastructure (VPS, EC2, etc.), this is the most practically serious of the four — metadata endpoint SSRF is a real attack path for cloud credential theft. The fix applies the existing SSRF validation to all media upload URLs regardless of path.</p>
+      <p><strong>Check your setup:</strong> If you have QQBot enabled, update immediately. If you don't use QQBot, no action needed beyond the standard update.</p>
+    </div>
+
+    <h2>How to Patch: 3 Steps</h2>
+
+    <p>All four vulnerabilities are fixed in the latest OpenClaw release. The patch process is the same as any routine update:</p>
+
+    <pre><code># Step 1 — Update OpenClaw globally
+npm update -g openclaw
+
+# Step 2 — Verify you're on the patched version
+openclaw --version
+
+# Step 3 — Restart the gateway
+openclaw gateway restart</code></pre>
+
+    <p>That's it. No config migration, no schema changes. Restart and you're done.</p>
+
+    <div class="callout yellow">
+      <p><strong>If you use PM2 or systemd to run the gateway:</strong> Make sure you're restarting the actual process, not just sending a reload signal. The env merge fix (GHSA-c4qg) requires a full process restart to take effect.</p>
+      <p>PM2: <code>pm2 restart openclaw-gateway</code> | systemd: <code>sudo systemctl restart openclaw-gateway</code></p>
+    </div>
+
+    <h2>Context: OpenClaw's Security Cadence</h2>
+
+    <p>These four advisories in a single batch is consistent with OpenClaw's approach: collect moderate/low issues and publish them together to reduce advisory noise. The fact that they're all Moderate-or-below (and published proactively by the core team rather than by external researchers post-exploitation) is a healthy sign.</p>
+
+    <p>This week also saw the "OpenClaw" malware story (a trojan that borrows the name — <a href="/blog/openclaw-trojan-ai-agent-malware-28000-systems">see our full explainer</a>), which is unrelated to these advisories. The legitimate framework's security posture is improving, not degrading.</p>
+
+    <p>For self-hosters, the pattern to develop is: watch the GitHub security page, update within a week of any moderate advisory, and update within 24 hours of anything rated high or critical.</p>
+
+    <h2>What We Do at ClawReady</h2>
+
+    <p>When we set up OpenClaw for clients, security maintenance is part of the service — not an afterthought. We:</p>
+
+    <ul>
+      <li>Monitor the <a href="https://github.com/openclaw/openclaw/security" target="_blank" rel="noopener">GitHub security page</a> and advisory feeds</li>
+      <li>Notify clients of patch-required updates within 24 hours of moderate+ advisories</li>
+      <li>Review hooks and workspace dotenv configs during initial setup to remove common misconfiguration patterns</li>
+      <li>Scope channel plugins to only what each client actually uses (so a QQBot SSRF doesn't affect a Telegram-only setup)</li>
+    </ul>
+
+    <p>If you've been running OpenClaw unmanaged and want a one-time config review, the <a href="https://clawreadynow.com/#services">$49 Security Audit</a> covers exactly this — gateway exposure, hook config review, workspace dotenv audit, and channel plugin scope check.</p>
+
+    <div class="cta-box">
+      <h3>Running OpenClaw unmanaged?</h3>
+      <p>Get a one-time security audit. We review your gateway config, hooks setup, channel plugins, and workspace for the patterns these advisories exposed — and give you a plain-English fix list.</p>
+      <a href="https://clawreadynow.com/#contact" class="cta-btn">Book a Security Audit — $49</a>
+    </div>
+
+    <h2>Summary</h2>
+
+    <p>Four advisories, all Moderate or Low, all fixed in the latest release. Update with <code>npm update -g openclaw</code> and restart your gateway. The only one requiring urgency is the QQBot SSRF if you're running QQBot on cloud infrastructure — patch that today.</p>
+
+    <p>For the three non-QQBot fixes: update this week, review your hooks and workspace dotenv, and you're covered.</p>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2026 ClawReady · <a href="/">clawreadynow.com</a> · Professional OpenClaw Setup & Configuration</p>
+  </div>
+</footer>
+
+</body>
+</html>
