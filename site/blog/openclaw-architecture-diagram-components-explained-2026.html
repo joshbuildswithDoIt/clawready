@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Architecture Explained: 5-Layer System, Data Flow, and Security (2026) — ClawReady</title>
+  <meta name="description" content="A practical breakdown of the OpenClaw architecture in 2026: five layers from input sources through the gateway, agent core, and output layer. For technical evaluators, ops leads, and teams deciding whether to deploy.">
+  <meta property="og:title" content="OpenClaw Architecture Explained: 5-Layer System, Data Flow, and Security (2026)">
+  <meta property="og:description" content="How OpenClaw is actually built: five-layer architecture from input sources through the integration gateway, agent core (orchestrator + specialized agents + shared memory), to the output/action layer. Security at each stage.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-architecture-diagram-components-explained-2026">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-architecture-diagram-components-explained-2026">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(52,152,219,.15);color:#3498db;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:var(--muted)}
+    .article-header .meta span{margin-right:16px}
+    .article-body h2{font-size:1.35rem;font-weight:700;margin:36px 0 14px;letter-spacing:-.01em}
+    .article-body h3{font-size:1.05rem;font-weight:700;margin:24px 0 8px;color:var(--accent)}
+    .article-body p{margin-bottom:18px;color:#d0d0d0}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#d0d0d0}
+    .article-body li{margin-bottom:8px}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88em;font-family:'SF Mono','Fira Code',monospace}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .callout p+p{margin-top:10px}
+    .callout strong{color:var(--text)}
+    .arch-diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:32px 0;font-family:'SF Mono','Fira Code',monospace;font-size:.88rem;line-height:1.8}
+    .arch-diagram .layer{margin-bottom:8px;padding:14px 18px;border-radius:8px;border:1px solid var(--border)}
+    .arch-diagram .layer-1{background:rgba(52,152,219,.08);border-color:rgba(52,152,219,.3)}
+    .arch-diagram .layer-2{background:rgba(243,156,18,.08);border-color:rgba(243,156,18,.3)}
+    .arch-diagram .layer-3{background:rgba(155,89,182,.08);border-color:rgba(155,89,182,.3)}
+    .arch-diagram .layer-4{background:rgba(39,174,96,.08);border-color:rgba(39,174,96,.3)}
+    .arch-diagram .layer-5{background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3)}
+    .arch-diagram .layer-label{font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;color:var(--muted)}
+    .arch-diagram .layer-content{color:var(--text);font-size:.85rem}
+    .security-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+    .security-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px}
+    .security-item h4{font-size:.9rem;font-weight:700;margin-bottom:8px;color:var(--text)}
+    .security-item p{margin:0;color:#bbb;font-size:.88rem}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:40px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;transition:background .2s}
+    .btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:60px;text-align:center;color:var(--muted);font-size:.9rem}
+    @media(max-width:600px){.security-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">Technical</div>
+    <h1>OpenClaw Architecture Explained: 5-Layer System, Data Flow, and Security (2026)</h1>
+    <div class="subtitle">For technical evaluators, operations leads, and teams deciding whether to deploy. A layer-by-layer breakdown of how OpenClaw is actually built — and what it means for your deployment.</div>
+    <div class="meta">
+      <span>April 24, 2026</span>
+      <span>9 min read</span>
+      <span>ClawReady</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>Most OpenClaw documentation tells you what the system does. This post tells you how it's built — the architecture behind the agent, the data flow between components, and how security fits into each layer. If you're a CTO, ops lead, or technical evaluator deciding whether to deploy OpenClaw for a team, this is the layer-by-layer picture you need.</p>
+
+    <h2>The Five-Layer Architecture</h2>
+
+    <p>OpenClaw's architecture is organized as a coordinated pipeline: five horizontal layers, each with a distinct role. Reading top to bottom, data flows from your tools and systems, through a normalization gateway, into the agent processing core, and out through an action layer to wherever it needs to land.</p>
+
+    <p>This layered design is intentional. OpenClaw is not a monolithic application — each layer can be deployed, secured, updated, and scaled independently.</p>
+
+    <div class="arch-diagram">
+      <div class="layer layer-1">
+        <div class="layer-label">Layer 1 — Input Sources</div>
+        <div class="layer-content">Email (Gmail/Outlook) · Calendar · Slack/Discord/Telegram/Signal · CRM (HubSpot/Salesforce) · Task systems (Notion/Asana) · Webhooks · Any API/RSS</div>
+      </div>
+      <div style="text-align:center;color:var(--muted);padding:4px">↓ events normalized</div>
+      <div class="layer layer-2">
+        <div class="layer-label">Layer 2 — Integration Gateway</div>
+        <div class="layer-content">Single entry point · Normalizes signals from all sources → common internal event format · Auth + connection management · Channel routing · Rate limiting</div>
+      </div>
+      <div style="text-align:center;color:var(--muted);padding:4px">↓ processed events</div>
+      <div class="layer layer-3">
+        <div class="layer-label">Layer 3 — Agent Core</div>
+        <div class="layer-content">Orchestrator → Specialized Agents → Shared Memory Layer → Execution Engine</div>
+      </div>
+      <div style="text-align:center;color:var(--muted);padding:4px">↓ action decisions</div>
+      <div class="layer layer-4">
+        <div class="layer-label">Layer 4 — Output / Action Layer</div>
+        <div class="layer-content">Message sends · Record updates · File writes · API calls · Email/calendar actions · Tool results logged to memory</div>
+      </div>
+      <div style="text-align:center;color:var(--muted);padding:4px">↓ delivered to</div>
+      <div class="layer layer-5">
+        <div class="layer-label">Layer 5 — External Integrations</div>
+        <div class="layer-content">The same input sources — now receiving actions back (email sent, record updated, message delivered, task created)</div>
+      </div>
+    </div>
+
+    <h2>Layer 1: Input Sources</h2>
+
+    <p>The top of the stack is your existing toolset — the platforms and systems OpenClaw monitors continuously. No manual triggering required after setup. OpenClaw connects to these sources and listens for events that match your configured workflows.</p>
+
+    <p>What counts as an "input source" is broad:</p>
+    <ul>
+      <li><strong>Messaging channels:</strong> Telegram, Discord, WhatsApp, Signal, iMessage, Slack, Teams</li>
+      <li><strong>Email:</strong> Gmail and Outlook via API integration</li>
+      <li><strong>Calendar:</strong> Google Calendar events and reminders</li>
+      <li><strong>Business systems:</strong> HubSpot, Salesforce, Notion, Asana, Monday.com</li>
+      <li><strong>Webhooks:</strong> Any system that can POST an HTTP event</li>
+      <li><strong>Internal crons:</strong> Time-based heartbeat triggers (daily briefings, scheduled tasks, monitoring checks)</li>
+    </ul>
+
+    <p>The key property: OpenClaw is event-driven at this layer. It doesn't poll continuously in a loop — it receives and routes inbound events, which is both more efficient and more secure.</p>
+
+    <h2>Layer 2: Integration Gateway</h2>
+
+    <p>All incoming signals pass through a single gateway before the agent ever sees them. This is OpenClaw's normalization layer — it translates heterogeneous inputs (a Slack message, a new Salesforce lead, a calendar event) into a common internal event format the agent core can process consistently.</p>
+
+    <p>The gateway also handles:</p>
+    <ul>
+      <li><strong>Authentication management</strong> for each integrated service</li>
+      <li><strong>Channel routing</strong> — determining which agent or skill should handle this event</li>
+      <li><strong>Access control</strong> — who can trigger which capabilities (owner vs. DM allowlist vs. group policy)</li>
+      <li><strong>Rate limiting</strong> — preventing runaway loops or API quota exhaustion</li>
+    </ul>
+
+    <div class="callout blue">
+      <p><strong>Deployment note:</strong> The gateway is what you configure when you run <code>openclaw gateway start</code>. For self-hosted deployments, it should bind to <code>127.0.0.1</code> (not <code>0.0.0.0</code>) and be accessed remotely via Tailscale. Exposing the gateway directly to the internet is the single most common security mistake — and what the SecurityScorecard report flagged in 40,000+ instances.</p>
+    </div>
+
+    <h2>Layer 3: Agent Core</h2>
+
+    <p>This is the processing engine. The agent core has four sub-components:</p>
+
+    <h3>Orchestrator</h3>
+    <p>The top-level controller. Receives processed events from the gateway, decides which agent handles them, sequences multi-step task chains, and manages the turn loop. When you send a message to your OpenClaw instance, the orchestrator is what reads your SOUL.md, selects the appropriate model, and decides which tools to invoke.</p>
+
+    <h3>Specialized Agents</h3>
+    <p>Individual AI agents assigned to specific domains or workflows. In a minimal setup, this is a single general-purpose agent. In more sophisticated deployments, you might have dedicated agents for email triage, research, code review, or customer operations — each with its own SOUL.md constraints and tool access scope.</p>
+
+    <p>OpenClaw's ACP (Agent Coding Protocol) allows specialized agents like Codex, Claude Code, or custom agents to be spawned for specific tasks and report results back to the orchestrator.</p>
+
+    <h3>Shared Memory Layer</h3>
+    <p>A structured context store that all agents can read and write. This is what enables continuity across sessions and cross-agent coordination. The memory layer maps directly to the files in your workspace:</p>
+    <ul>
+      <li><code>SOUL.md</code> — Persistent personality, rules, and priorities (injected every turn)</li>
+      <li><code>memory.md</code> — Long-form persistent context (projects, contacts, decisions)</li>
+      <li><code>memory/heartbeat-log.md</code> — Autonomous action log for auditability</li>
+      <li>Domain-specific files — Custom context organized by project or function</li>
+    </ul>
+
+    <h3>Execution Engine</h3>
+    <p>Translates agent decisions into actions. When the agent decides to send a message, write a file, run a shell command, or call an API, the execution engine routes that action through the appropriate tool — subject to the permission model configured in your gateway.</p>
+
+    <h2>Layer 4: Output / Action Layer</h2>
+
+    <p>The output layer handles delivery of the agent's decisions to the real world. This includes:</p>
+    <ul>
+      <li>Sending messages back to the originating channel</li>
+      <li>Writing or modifying files on the host filesystem</li>
+      <li>Executing shell commands (with approval gates for elevated permissions)</li>
+      <li>Making API calls to external services</li>
+      <li>Updating CRM records, calendar events, or task systems</li>
+      <li>Logging action results to the memory layer for continuity</li>
+    </ul>
+
+    <h2>Layer 5: External Integrations</h2>
+
+    <p>The same systems that feed events into Layer 1 receive the outputs from Layer 4. The loop closes: an incoming Slack message triggers an agent action, which sends a Slack reply and updates a Notion record. The integration points are the same on both ends — which keeps the architecture simple and auditable.</p>
+
+    <h2>Security at Each Layer</h2>
+
+    <div class="security-grid">
+      <div class="security-item">
+        <h4>Layer 1 — Input</h4>
+        <p>Source allowlisting. Only configured providers can inject events. Untrusted content flagged as EXTERNAL in prompt context.</p>
+      </div>
+      <div class="security-item">
+        <h4>Layer 2 — Gateway</h4>
+        <p>Bind to 127.0.0.1. Tailscale for remote access. Owner-only commands enforced here. DM and group allowlists.</p>
+      </div>
+      <div class="security-item">
+        <h4>Layer 3 — Agent Core</h4>
+        <p>SOUL.md defines behavior constraints. Approval gates before destructive actions. Prompt injection protections in system context.</p>
+      </div>
+      <div class="security-item">
+        <h4>Layer 4 — Output</h4>
+        <p>Elevated exec requires explicit approval. File writes logged. Shell commands scoped by allowlist. API calls rate-limited.</p>
+      </div>
+    </div>
+
+    <div class="callout yellow">
+      <p><strong>Current threat landscape:</strong> All of the critical CVEs in 2026 (CVE-2026-41352, CVE-2026-41349) targeted the gateway and execution engine layers — not the agent core logic itself. Proper gateway binding and current patching addresses both. The architecture is sound; the risk is misconfigured deployment.</p>
+    </div>
+
+    <h2>What This Means for Deployment Decisions</h2>
+
+    <p>A few practical implications of the architecture:</p>
+
+    <p><strong>Self-hosting on a mini PC beats VPS for most users.</strong> The gateway layer benefits from local network binding — a mini PC at home or in the office is inherently less exposed than a cloud VPS. Local network + Tailscale for remote access is the canonical secure deployment pattern.</p>
+
+    <p><strong>Memory architecture determines capability ceiling.</strong> The shared memory layer is the part most people underinvest in. A well-structured SOUL.md + memory.md + domain files is what separates a demo from a production agent. The orchestrator is only as good as the context it has to work with.</p>
+
+    <p><strong>The execution engine's approval gates are the primary safety control.</strong> If you're deploying OpenClaw with elevated permissions (shell exec, file write, API calls), the approval gate configuration in your gateway is the last line of defense. Don't skip it.</p>
+
+    <p><strong>The layered design makes skills safe to add.</strong> Skills extend the execution engine with new tools, but they can't bypass the gateway's access controls or the orchestrator's permission model. A skill that tries to do something outside its declared scope will be stopped at the execution layer.</p>
+
+    <h2>The ClawReady Take</h2>
+
+    <p>We see a lot of OpenClaw deployments. The architecture is sound — the five-layer design is clean and the security model is correct when properly configured. The problems we fix consistently are at Layer 2 (gateway misconfiguration, wrong bind address, no access control), Layer 3 (no memory architecture, generic SOUL.md), and Layer 4 (no approval gates on elevated actions).</p>
+
+    <p>If you understand the architecture, the setup isn't magic — it's just configuration. The goal of ClawReady is to make that configuration fast and correct, rather than something you iterate to over several debugging sessions.</p>
+
+    <div class="cta-box">
+      <h3>Get Your OpenClaw Architecture Right from Day One</h3>
+      <p>ClawReady sets up every layer correctly — gateway binding, memory architecture, approval gates, local model routing, and security hardening. You get the architecture working the way it's designed to, not the way a rushed tutorial set it up.</p>
+      <a href="https://clawreadynow.com/#pricing" class="btn">See What We Set Up →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2026 ClawReady · <a href="https://clawreadynow.com" style="color:var(--accent)">clawreadynow.com</a> · OpenClaw setup, audit, and managed services</p>
+  </div>
+</footer>
+</body>
+</html>
