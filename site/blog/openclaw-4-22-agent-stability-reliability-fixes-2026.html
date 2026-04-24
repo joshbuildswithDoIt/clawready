@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 2026.4.22: What the Stability Fixes Actually Fix — ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.22 isn't just about xAI and new models — it fixes message duplication, session interruptions, config loss, and plugin instability that made long-running agents unreliable. Here's what changed and why it matters.">
+  <meta property="og:title" content="OpenClaw 2026.4.22: What the Agent Stability Fixes Actually Fix">
+  <meta property="og:description" content="Beyond the xAI headlines, OpenClaw 2026.4.22 fixed the session and message reliability problems that broke long-running agents. Message duplication, config loss, WhatsApp instability, plugin crashes — here's what changed.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-4-22-agent-stability-reliability-fixes-2026">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-22-agent-stability-reliability-fixes-2026">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataScript.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(39,174,96,.15);color:#27ae60;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:var(--muted)}
+    .article-header .meta span{margin-right:16px}
+    .article-body h2{font-size:1.35rem;font-weight:700;margin:36px 0 14px;letter-spacing:-.01em}
+    .article-body h3{font-size:1.05rem;font-weight:700;margin:24px 0 8px;color:var(--accent)}
+    .article-body p{margin-bottom:18px;color:#d0d0d0}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#d0d0d0}
+    .article-body li{margin-bottom:8px}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88em;font-family:'SF Mono','Fira Code',monospace}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout p{margin:0;font-size:.95rem}
+    .callout p+p{margin-top:10px}
+    .callout strong{color:var(--text)}
+    .fix-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0}
+    .fix-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+    .fix-item .fix-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+    .fix-item h4{font-size:.95rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+    .fix-item p{margin:0;color:#bbb;font-size:.88rem;line-height:1.5}
+    .update-cmd{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin:24px 0;font-family:'SF Mono','Fira Code',monospace;font-size:.9rem;color:#b0d0ff}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:40px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;transition:background .2s}
+    .btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:60px;text-align:center;color:var(--muted);font-size:.9rem}
+    @media(max-width:600px){.fix-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">Release Notes</div>
+    <h1>OpenClaw 2026.4.22: What the Agent Stability Fixes Actually Fix</h1>
+    <div class="subtitle">Everyone covered the xAI integration. Here's what actually matters for people running long-term agents: the message reliability, session stability, config management, and plugin fixes that make 24/7 operation viable.</div>
+    <div class="meta">
+      <span>April 24, 2026</span>
+      <span>7 min read</span>
+      <span>ClawReady</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>OpenClaw 2026.4.22 dropped April 22 with a lot of headline features: full xAI integration (Grok image generation, 6 TTS voices, real-time STT), new local TUI mode, <code>/models add</code> from chat, WhatsApp native reply quoting. Those are real additions worth knowing about.</p>
+
+    <p>But if you're running OpenClaw as a production agent — not just experimenting with it — the more important story is the stability fixes. A 24/7 agent that duplicates messages, loses config on restart, or crashes when a plugin throws an unexpected error is worse than no agent at all. This release addressed several of those chronic failure modes.</p>
+
+    <p>Here's what actually changed for reliability, and what it means in practice.</p>
+
+    <h2>The Three Core Problem Areas This Release Fixed</h2>
+
+    <p>The 2026.4.22 changelog addresses three categories of production pain:</p>
+    <ol>
+      <li><strong>Message delivery reliability</strong> — duplicate sends, dropped messages, wrong routing</li>
+      <li><strong>Session and config stability</strong> — settings lost on restart, config merge conflicts causing unexpected behavior</li>
+      <li><strong>Plugin and service compatibility</strong> — crashes and silent failures when third-party plugins or integrations behaved unexpectedly</li>
+    </ol>
+
+    <h2>Message Delivery Fixes</h2>
+
+    <h3>WhatsApp message duplication</h3>
+    <p>A persistent issue for WhatsApp users: certain message types were delivered multiple times, with no clear trigger. 2026.4.22 fixes the underlying deduplication logic. If you've been working around this by adding delays or avoiding certain response formats on WhatsApp, you can remove those workarounds.</p>
+
+    <h3>WhatsApp native reply quoting</h3>
+    <p>OpenClaw can now reference the specific message it's replying to in WhatsApp conversations — the native "quote reply" behavior that makes threaded WhatsApp conversations readable. Previously, replies appeared as standalone messages with no visual connection to the original. This matters for group chat deployments where multiple people are talking to the same agent.</p>
+
+    <h3>Slack thread alias preservation</h3>
+    <p>Slack thread continuity was breaking in certain configurations — replies going to the wrong thread or losing thread context after restart. Fixed in this release. If you're using OpenClaw for Slack-based team operations, restart after updating to reset the thread state correctly.</p>
+
+    <h2>Session and Config Stability Fixes</h2>
+
+    <h3>Config merge logic overhaul</h3>
+    <p>One of the most frustrating long-running issues: settings changed in <code>openclaw.json</code> sometimes failing to apply correctly, or reverting after gateway restart. The root cause was a config merge conflict when multiple sources (base config, plugin config, workspace config) provided overlapping keys. 2026.4.22 rewrites the merge logic to be deterministic and order-of-precedence based.</p>
+
+    <p>Practical implication: if you've been applying config changes and seeing them not stick, update to 4.22 and re-apply. The new merge logic should hold.</p>
+
+    <h3>Onboarding TUI startup speed</h3>
+    <p>The <code>openclaw configure</code> wizard was significantly slower than it needed to be — it was running full gateway probe logic even when the gateway wasn't available. Fixed: configure now skips the gateway probe on startup, so the onboarding TUI reaches its first prompt immediately.</p>
+
+    <h3>Model catalog on fresh install</h3>
+    <p>Fresh installs now show bundled provider catalog rows (including Kimi K2.6 rows for Moonshot, OpenRouter, and Vercel AI Gateway) in <code>models list --all</code> before any auth is configured. Previously, the model list was empty until you'd set up API keys, which made initial model selection confusing.</p>
+
+    <h2>Plugin and Service Compatibility Fixes</h2>
+
+    <h3>Plugin discovery hang (lossless-claw)</h3>
+    <p>A strict-match contract added in 2026.4.14 broke plugins whose internal engine ID didn't exactly equal their registered slot ID — including lossless-claw and several other community plugins. This produced repeated <code>info.id must match registered id</code> failures on every turn without crashing, just silently degrading performance. Fixed in 4.22.</p>
+
+    <h3>Browser ref validation speed</h3>
+    <p>Browser automation tool calls were taking longer than expected due to ref validation overhead. The validation logic has been optimized — no behavior change, just faster execution for any workflow that uses the browser tool heavily.</p>
+
+    <h3>Owner command security enforcement</h3>
+    <p>Commands restricted to the owner role were not consistently enforcing that restriction in certain edge cases — specifically when channel routing passed through an intermediary plugin. This is a security fix, not just a stability fix. Patched in 4.22.</p>
+
+    <h2>The New Features Worth Knowing</h2>
+
+    <p>For completeness, the headline additions:</p>
+
+    <div class="fix-grid">
+      <div class="fix-item">
+        <div class="fix-label">New</div>
+        <h4>Full xAI / Grok integration</h4>
+        <p>Image generation (grok-imagine), 6 TTS voices (MP3/WAV/PCM/G.711), real-time and batch STT. Configure with <code>xai/grok-3</code> as model.</p>
+      </div>
+      <div class="fix-item">
+        <div class="fix-label">New</div>
+        <h4>Local TUI embedded mode</h4>
+        <p>Run OpenClaw in a terminal UI without starting the gateway. Good for local-only testing and development workflows.</p>
+      </div>
+      <div class="fix-item">
+        <div class="fix-label">New</div>
+        <h4>/models add from chat</h4>
+        <p>Add new models live during a session without restarting: <code>/models add moonshot/kimi-k2.5</code>. Useful when switching providers mid-session.</p>
+      </div>
+      <div class="fix-item">
+        <div class="fix-label">New</div>
+        <h4>Per-group WhatsApp system prompts</h4>
+        <p>Different SOUL.md behavior per WhatsApp group. Useful for teams using one OpenClaw instance across multiple group contexts.</p>
+      </div>
+    </div>
+
+    <h2>How to Update</h2>
+
+    <div class="update-cmd">npm update -g openclaw && openclaw gateway restart</div>
+
+    <p>Verify the version with <code>openclaw --version</code> — you should see <code>2026.4.22</code> or newer. After restarting, check your config loaded correctly with <code>openclaw status</code>.</p>
+
+    <div class="callout blue">
+      <p><strong>If you're on any version before 2026.3.31:</strong> Update immediately regardless of these features. CVE-2026-41352 (CVSS 8.8 RCE) and CVE-2026-41349 (CVSS 8.8 consent bypass) are both fixed in the 2026.3.x patch series. Running unpatched is a meaningful risk if your gateway is reachable from outside your local network.</p>
+    </div>
+
+    <h2>Who Should Prioritize This Update</h2>
+
+    <p>This update is worth prioritizing if you're:</p>
+    <ul>
+      <li>Running WhatsApp integrations (duplication fix + native replies)</li>
+      <li>Using Slack for team operations (thread continuity fix)</li>
+      <li>Using lossless-claw or any plugin that was throwing <code>info.id must match</code> errors</li>
+      <li>Experiencing config changes not applying correctly after restart</li>
+      <li>Interested in xAI Grok for image generation or TTS</li>
+      <li>On any version before 2026.3.31 (security — do this immediately)</li>
+    </ul>
+
+    <p>If none of those apply, it's still a good routine update — the config merge and browser validation improvements benefit every deployment even if you haven't noticed the symptoms.</p>
+
+    <div class="cta-box">
+      <h3>Running OpenClaw and Not Sure If It's Configured Correctly?</h3>
+      <p>ClawReady's $49 audit reviews your full setup: version, config, gateway binding, security posture, and memory architecture. You get a written report and a prioritized fix list. Takes 24 hours.</p>
+      <a href="https://clawreadynow.com/#pricing" class="btn">Book an Audit →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2026 ClawReady · <a href="https://clawreadynow.com" style="color:var(--accent)">clawreadynow.com</a> · OpenClaw setup, audit, and managed services</p>
+  </div>
+</footer>
+</body>
+</html>
