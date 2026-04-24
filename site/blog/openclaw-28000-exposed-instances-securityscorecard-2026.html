@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecurityScorecard: 28,000+ OpenClaw Instances Exposed Online — 63% Vulnerable to RCE | ClawReady</title>
+  <meta name="description" content="SecurityScorecard found 40,214 internet-exposed OpenClaw deployments, 28,663 with publicly accessible control panels, and ~63% vulnerable to remote code execution. Here's what that means and how to fix it." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-28000-exposed-instances-securityscorecard-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-22">April 22, 2026</time>
+      <span class="tag">Security</span>
+      <span class="tag">Critical</span>
+      <span class="tag">CVE</span>
+    </div>
+
+    <h1>SecurityScorecard: 28,000+ OpenClaw Instances Exposed Online — 63% Vulnerable to Remote Code Execution</h1>
+
+    <p>A new SecurityScorecard report published today paints a stark picture of how OpenClaw is being deployed in the wild — and how badly many of those deployments are misconfigured.</p>
+
+    <p>Key findings:</p>
+    <ul>
+      <li><strong>40,214 internet-exposed OpenClaw instances</strong> identified in total</li>
+      <li><strong>28,663 unique IP addresses</strong> hosting control panels accessible from anywhere on the internet</li>
+      <li><strong>~63% of observed deployments</strong> appear vulnerable to remote code execution (RCE)</li>
+      <li><strong>Three high-severity CVEs</strong> with CVSS scores between 7.8 and 8.8 — all with public exploit code available</li>
+      <li><strong>549 exposed instances</strong> correlate with prior breach activity</li>
+      <li><strong>1,493 instances</strong> associated with known compounding vulnerabilities</li>
+    </ul>
+
+    <p>The headline from SecurityScorecard's researchers: <em>"The math is simple: when you give an AI agent full access to your computer, you give that same access to anyone who can compromise it."</em></p>
+
+    <h2>What's Going Wrong</h2>
+
+    <p>The report isn't an indictment of OpenClaw itself — it's an indictment of how people are deploying it. The pattern SecurityScorecard identified:</p>
+
+    <ul>
+      <li>Gateways exposed directly to the internet with no firewall, reverse proxy, or auth layer</li>
+      <li>Agents configured with excessive permissions (full filesystem, email, calendar access) without scoping</li>
+      <li>Control panels left on default ports without authentication</li>
+      <li>No updates — leaving known CVEs unpatched for weeks or months</li>
+      <li>Deployments on major cloud hosts in repeatable, easily-replicated insecure patterns — suggesting people are copying bad tutorials</li>
+    </ul>
+
+    <p>Jeremy Turner, VP of Threat Intelligence at SecurityScorecard, noted: <em>"For the folks that want to use the more agentic AI systems, you really need to take careful consideration in what integrations you support and what permissions you actually give."</em></p>
+
+    <p>The research also flagged that many users configure their agents with personal and company names — making it trivial for attackers to identify high-value targets among the exposed instances.</p>
+
+    <h2>The Three CVEs</h2>
+
+    <p>The report references three high-severity CVEs affecting OpenClaw deployments, CVSS 7.8–8.8, all with public exploit code. One of these is <a href="/blog/cve-2026-41296-openclaw-sandbox-escape-toctou.html">CVE-2026-41296</a> (CVSS 8.2, sandbox escape via TOCTOU race), which we covered when it was published in April. The others target gateway exposure patterns.</p>
+
+    <p>If you're running any version of OpenClaw older than 2026.3.31, you are vulnerable to at least CVE-2026-41296 and should patch immediately.</p>
+
+    <h2>Is Your Setup Exposed?</h2>
+
+    <p>Quick self-check:</p>
+
+    <ol>
+      <li><strong>Is your gateway port accessible from the internet?</strong> Run <code>curl -s https://api.ipify.org</code> to get your public IP, then try <code>curl http://[YOUR_IP]:18789</code> from a different network. If you get a response, you're exposed.</li>
+      <li><strong>Are you on a patched version?</strong> Run <code>openclaw --version</code> — you want 2026.4.21 or later.</li>
+      <li><strong>Is your gateway behind auth?</strong> Run <code>openclaw doctor</code> and check the gateway security section.</li>
+      <li><strong>Are your agent permissions scoped?</strong> Review your SOUL.md and AGENTS.md for overly broad tool grants.</li>
+    </ol>
+
+    <h2>How to Lock Down Your Deployment</h2>
+
+    <h3>1. Never expose the gateway directly</h3>
+    <p>Put your gateway behind a reverse proxy (Nginx, Caddy, Cloudflare Tunnel) with authentication. The gateway should never be on a public IP without an auth layer in front of it.</p>
+
+    <h3>2. Use Cloudflare Tunnel for remote access</h3>
+    <pre><code># Free, no open inbound ports required
+cloudflared tunnel create openclaw
+cloudflared tunnel route dns openclaw your-domain.com</code></pre>
+
+    <h3>3. Scope agent permissions explicitly</h3>
+    <p>In SOUL.md, add explicit boundaries for what your agent can and cannot do. Don't grant filesystem, email, or calendar access unless the agent specifically needs it.</p>
+
+    <h3>4. Keep OpenClaw updated</h3>
+    <pre><code>openclaw update
+openclaw doctor</code></pre>
+    <p>Run this weekly. Three CVEs with public exploits available means attackers are actively scanning and exploiting unpatched instances.</p>
+
+    <h3>5. Firewall your gateway port</h3>
+    <pre><code># Block external access to gateway port
+sudo ufw deny 18789
+sudo ufw allow from 127.0.0.1 to any port 18789</code></pre>
+
+    <h2>The Bottom Line</h2>
+
+    <p>OpenClaw is not inherently insecure — but a misconfigured OpenClaw instance is a very high-value target. You're giving an AI agent broad access to your systems; if that agent is reachable by anyone on the internet, you've handed that access to every threat actor scanning cloud IP ranges.</p>
+
+    <p>28,000+ exposed instances tells us the ecosystem has a serious deployment quality problem. Most of those setups were done by people following incomplete instructions or copying config from tutorials that didn't cover security.</p>
+
+    <p>If you're not certain your setup is hardened — it probably isn't.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Get a Security Audit → $49, 48-Hour Turnaround</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Doctor Fails on WhatsApp After 2026.4.20 Update (Missing Baileys) | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.20 has a bundled runtime regression: after updating, openclaw doctor fails with missing @whiskeysockets/baileys for WhatsApp even after npm rebuild. Here's the fix." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-whatsapp-doctor-fails-4-20-baileys.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-22">April 22, 2026</time>
+      <span class="tag">Troubleshooting</span>
+      <span class="tag">WhatsApp</span>
+      <span class="tag">OpenClaw 4.20</span>
+    </div>
+
+    <h1>OpenClaw Doctor Fails on WhatsApp After 2026.4.20 Update (Missing @whiskeysockets/baileys)</h1>
+
+    <p>If you updated to OpenClaw 2026.4.20 and are now seeing this error from <code>openclaw doctor</code>:</p>
+
+    <pre><code>Error: Cannot find module '@whiskeysockets/baileys'
+Require stack:
+/root/.nvm/.../openclaw/dist/extensions/whatsapp/auth-store-DY1p5mrF.js</code></pre>
+
+    <p>You've hit GitHub issue <a href="https://github.com/openclaw/openclaw/issues/69842" target="_blank" rel="noopener">#69842</a> — a broader bundled runtime regression in the 4.20 update path.</p>
+
+    <h2>What's Actually Happening</h2>
+
+    <p>OpenClaw bundles channel runtimes (Telegram uses <code>grammy</code>, WhatsApp uses <code>@whiskeysockets/baileys</code>) directly inside the npm package. The 4.20 update broke the rebuild path that restores these bundled deps after an upgrade.</p>
+
+    <p>The failure happens in two stages:</p>
+    <ol>
+      <li><strong>First:</strong> <code>openclaw update</code> fails on missing <code>grammy</code> (Telegram runtime) — covered in <a href="/blog/openclaw-update-grammy-doctor-crash-fix.html">our earlier post</a></li>
+      <li><strong>Then:</strong> After running <code>npm rebuild -g openclaw</code> to fix Telegram, the doctor now fails on WhatsApp's <code>@whiskeysockets/baileys</code></li>
+    </ol>
+
+    <p>This isn't a WhatsApp-specific issue — it's a sign that the rebuild doesn't fully restore all bundled channel runtimes in one pass.</p>
+
+    <h2>Workarounds (Pick One)</h2>
+
+    <h3>Option 1: Full Reinstall (Most Reliable)</h3>
+    <pre><code>openclaw gateway stop
+npm uninstall -g openclaw
+npm install -g openclaw@latest
+openclaw gateway start
+openclaw doctor</code></pre>
+
+    <p>A clean install skips the broken rebuild path entirely and starts fresh with all bundled deps intact.</p>
+
+    <h3>Option 2: Run npm install Inside the Package Dir</h3>
+    <pre><code>cd $(npm root -g)/openclaw
+npm install
+openclaw gateway restart</code></pre>
+
+    <p>This forces npm to re-resolve and install all bundled deps from inside the package directory, which the global rebuild doesn't always cover.</p>
+
+    <h3>Option 3: Stay on 2026.4.15</h3>
+    <pre><code>npm install -g openclaw@2026.4.15</code></pre>
+
+    <p>If you don't need 4.20 features right now, 4.15 is stable. Wait for the patch release before upgrading.</p>
+
+    <h2>Who Is Affected</h2>
+
+    <ul>
+      <li>Global npm installs (<code>npm install -g openclaw</code>) — not git checkouts</li>
+      <li>Users upgrading from 2026.4.15 or earlier to 2026.4.20</li>
+      <li>Anyone using WhatsApp <em>or</em> Telegram channels (both bundled runtimes are broken)</li>
+      <li>Node v22+ on Linux/Ubuntu (most common reported environment)</li>
+    </ul>
+
+    <p>If you're running a git checkout or Docker image that builds from source, you're likely not affected.</p>
+
+    <h2>Status</h2>
+
+    <p>As of April 22, 2026: open issue, no patch released yet. The Telegram grammy fix (<a href="https://github.com/openclaw/openclaw/issues/69837" target="_blank" rel="noopener">#69837</a>) was merged separately but the underlying rebuild regression persists for WhatsApp.</p>
+
+    <h2>Don't Want to Debug This Yourself?</h2>
+
+    <p>This is exactly the kind of upstream regression that breaks production setups without warning. ClawReady's managed care clients get:</p>
+    <ul>
+      <li>Upgrade monitoring — we watch GitHub issues so you don't have to</li>
+      <li>Same-day remediation on critical bugs like this one</li>
+      <li>Rollback assistance when an update breaks your setup</li>
+    </ul>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Book a Free Audit →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

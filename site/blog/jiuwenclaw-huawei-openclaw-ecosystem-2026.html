@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JiuwenClaw: Huawei's OpenClaw-Style AI Agent With Xiaoyi and Lark Integration | ClawReady</title>
+  <meta name="description" content="JiuwenClaw is a Python-based AI agent in the OpenClaw mold — self-hosted, skills-based, heartbeat-driven — with native Huawei Cloud MaaS and Xiaoyi assistant integration. A signal of how far the ecosystem has spread." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/jiuwenclaw-huawei-openclaw-ecosystem-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-23">April 23, 2026</time>
+      <span class="tag">Ecosystem</span>
+      <span class="tag">Huawei</span>
+      <span class="tag">China</span>
+    </div>
+
+    <h1>JiuwenClaw: Huawei's OpenClaw-Style AI Agent With Xiaoyi and Lark Integration</h1>
+
+    <p><strong>JiuwenClaw</strong> (openJiuwen-ai) is a newly surfaced Python-based personal AI agent that follows the OpenClaw playbook closely — self-hosted, data-sovereign, skills-based, heartbeat-driven — but with a distinctly Huawei-native twist.</p>
+
+    <p>The headline differentiator: <strong>native Xiaoyi integration</strong>. Huawei phone users can invoke JiuwenClaw directly through Xiaoyi, Huawei's built-in voice assistant, without opening a separate app. That's a distribution channel OpenClaw doesn't have — direct access to Huawei's installed hardware base.</p>
+
+    <h2>What JiuwenClaw Is</h2>
+
+    <p>Core architecture mirrors OpenClaw closely:</p>
+    <ul>
+      <li><strong>Self-hosted</strong> — full data sovereignty, runs on your infrastructure</li>
+      <li><strong>Skills-based</strong> — custom skills stored at <code>.jiuwenclaw/agent/skills/</code>, auto-loaded</li>
+      <li><strong>Memory system</strong> — persistent memory at <code>.jiuwenclaw/agent/memory/</code></li>
+      <li><strong>Heartbeat</strong> — scheduled task execution, "wakes up on schedule to execute tasks automatically"</li>
+      <li><strong>Multi-channel</strong> — web frontend, Xiaoyi (Huawei), Lark (Feishu)</li>
+    </ul>
+
+    <p>Built in Python (<code>pip install jiuwenclaw</code>) rather than Node.js. Huawei Cloud MaaS is the primary model platform, though "other mainstream model platforms" are supported.</p>
+
+    <p>A TUI companion (<code>jiuwenclaw-tui</code>) provides a terminal interface — similar to OpenClaw's web console.</p>
+
+    <h2>Notable Features</h2>
+
+    <h3>Adaptive Skill Refinement</h3>
+    <p>JiuwenClaw claims to automatically refine skills based on user feedback: "When you express dissatisfaction or an error occurs, JiuwenClaw automatically refines the relevant skills based on your feedback — continuously improving." This is similar in concept to OpenClaw-RL's continuous learning, but implemented as a feedback loop rather than RL fine-tuning.</p>
+
+    <h3>Intent-Aware Task Management</h3>
+    <p>"Whether dealing with task additions, mid-flow interruptions, or shifting requirements, JiuwenClaw understands your intent precisely — intelligently scheduling and executing tasks in an orderly, stress-free manner." The focus on interruption handling and intent precision suggests investment in multi-turn planning robustness.</p>
+
+    <h3>Lark/Feishu Channel</h3>
+    <p>Native Lark integration — the same channel that's currently broken in OpenClaw 4.21's curl installer (the <code>@larksuiteoapi/node-sdk</code> bug). JiuwenClaw being Python-based sidesteps that Node.js bundling issue entirely.</p>
+
+    <h2>Why This Matters</h2>
+
+    <p>JiuwenClaw is another data point in the pattern: the OpenClaw architecture — self-hosted gateway, skills, memory, heartbeat, multi-channel — is being independently replicated by teams around the world. This week alone: QwenPaw (Alibaba), JiuwenClaw (Huawei ecosystem), SwarmClaw (multi-agent), Clawith (team agents).</p>
+
+    <p>The convergence on this architecture isn't coincidence. It works. The question isn't whether self-hosted agentic AI is the right model — the question is which implementation you commit to and how well it's configured.</p>
+
+    <p>For Western users on non-Huawei hardware, JiuwenClaw's Xiaoyi integration advantage doesn't apply. OpenClaw's ecosystem depth — 247K GitHub stars, 13,700+ skills, 20+ channel integrations, active maintainership — still makes it the primary choice. But it's worth knowing these alternatives exist and where they innovate.</p>
+
+    <h2>Quick Setup (If You Want to Try It)</h2>
+
+    <pre><code>pip install jiuwenclaw
+jiuwenclaw-init
+jiuwenclaw-start
+# Web UI at http://localhost:5173</code></pre>
+
+    <p>Note: v0.1.7 has breaking changes requiring reinitialization. Back up your data before upgrading.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Stick With OpenClaw, Done Right →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NVIDIA Publishes Official NemoClaw Repo: Run OpenClaw Securely Inside NVIDIA OpenShell | ClawReady</title>
+  <meta name="description" content="NVIDIA just published the official NVIDIA/NemoClaw GitHub repo — an open-source reference stack for running OpenClaw securely inside NVIDIA OpenShell with sandboxed inference. Here's what it is and who it's for." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/nvidia-nemoclaw-official-repo-openShell-security-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-23">April 23, 2026</time>
+      <span class="tag">NVIDIA</span>
+      <span class="tag">Security</span>
+      <span class="tag">Infrastructure</span>
+    </div>
+
+    <h1>NVIDIA Publishes Official NemoClaw Repo: Run OpenClaw Securely Inside NVIDIA OpenShell</h1>
+
+    <p>NVIDIA just published <strong>NVIDIA/NemoClaw</strong> to their official GitHub — an open-source reference stack that simplifies running OpenClaw always-on assistants more securely using the NVIDIA OpenShell runtime.</p>
+
+    <p>This is NVIDIA's formal entry into the OpenClaw deployment infrastructure space, part of their broader NVIDIA Agent Toolkit.</p>
+
+    <h2>What NemoClaw Is</h2>
+
+    <p>NemoClaw wraps OpenClaw in a hardened deployment blueprint that adds:</p>
+    <ul>
+      <li><strong>Guided onboarding</strong> — <code>nemoclaw onboard</code> sets up the full stack</li>
+      <li><strong>Hardened security blueprint</strong> — sandboxed agent execution via OpenShell runtime</li>
+      <li><strong>State management</strong> — managed lifecycle for long-running agents</li>
+      <li><strong>OpenShell-managed channel messaging</strong> — channel access routed through the secure runtime</li>
+      <li><strong>Routed inference</strong> — managed model routing inside the sandbox</li>
+      <li><strong>Layered protection</strong> — additional security controls on top of OpenClaw's existing model</li>
+    </ul>
+
+    <p>The sandbox image is ~2.4 GB compressed, running via Docker/k3s with the OpenShell gateway. The whole thing is managed through <code>nemoclaw onboard</code> rather than raw OpenClaw commands — NVIDIA explicitly warns against mixing OpenShell self-update commands with NemoClaw's managed environment.</p>
+
+    <h2>Supported Platforms</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>OS</th>
+          <th>Runtime</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Linux</td>
+          <td>Docker</td>
+          <td>✅ Tested (primary path)</td>
+        </tr>
+        <tr>
+          <td>macOS (Apple Silicon)</td>
+          <td>Colima, Docker Desktop</td>
+          <td>✅ Tested with limitations</td>
+        </tr>
+        <tr>
+          <td>DGX Spark</td>
+          <td>Docker</td>
+          <td>✅ Tested</td>
+        </tr>
+        <tr>
+          <td>Windows WSL2</td>
+          <td>Docker Desktop (WSL backend)</td>
+          <td>✅ Tested with limitations</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>WSL2 support is notable — NemoClaw is explicitly tested on the same environment many self-hosted Windows users run OpenClaw on today.</p>
+
+    <h2>Hardware Requirements</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Resource</th>
+          <th>Minimum</th>
+          <th>Recommended</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CPU</td>
+          <td>4 vCPU</td>
+          <td>4+ vCPU</td>
+        </tr>
+        <tr>
+          <td>RAM</td>
+          <td>8 GB</td>
+          <td>16 GB</td>
+        </tr>
+        <tr>
+          <td>Disk</td>
+          <td>20 GB free</td>
+          <td>40 GB free</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>NVIDIA specifically warns: machines with less than 8 GB RAM may hit OOM during image push due to Docker daemon + k3s + OpenShell gateway combined memory usage. 8 GB of swap is the workaround at the cost of slower performance.</p>
+
+    <h2>Why This Matters</h2>
+
+    <p>NVIDIA publishing an official OpenClaw integration under their own GitHub organization — alongside DGX Spark hardware support — is a significant legitimacy signal. This isn't a community fork or a third-party wrapper; it's NVIDIA's Agent Toolkit making OpenClaw a first-class deployment target.</p>
+
+    <p>The timing is notable too. This drops the same week as SecurityScorecard's report on 28K+ exposed OpenClaw instances with weak security configurations. NVIDIA's response: a hardened reference stack that addresses exactly those exposure patterns — sandboxed execution, managed inference routing, layered protection.</p>
+
+    <h2>Alpha Status — Who Should Use It</h2>
+
+    <p>NemoClaw is currently in early preview (available since March 16, 2026). NVIDIA is clear: <em>"This software is not production-ready. Interfaces, APIs, and behavior may change without notice."</em></p>
+
+    <p>It's worth experimenting with if you:</p>
+    <ul>
+      <li>Run OpenClaw on NVIDIA hardware (especially DGX or high-end GPU setups)</li>
+      <li>Have security requirements that standard OpenClaw configuration doesn't fully address</li>
+      <li>Want to get ahead of what NVIDIA's Agent Toolkit direction looks like</li>
+      <li>Are evaluating enterprise-grade deployment options</li>
+    </ul>
+
+    <p>For most individual and small business operators, standard OpenClaw with proper configuration (hardened gateway, scoped permissions, Cloudflare Tunnel for remote access) addresses the security concerns without the Docker/k3s overhead. NemoClaw is more appropriate for team or enterprise deployments where managed sandboxing and audit trails are requirements.</p>
+
+    <p>Either way — the fact that NVIDIA is formally investing in OpenClaw deployment infrastructure tells you everything about where the market is heading.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Get a Security-First OpenClaw Setup — $49 Audit or $99 Full →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

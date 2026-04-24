@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vercel Ships npx skills — A Universal Agent Skill Installer That Works With OpenClaw | ClawReady</title>
+  <meta name="description" content="Vercel Labs released 'npx skills' — a CLI that installs agent skills across 41+ AI coding agents including OpenClaw. One command, any skill, any agent." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/vercel-npx-skills-openclaw-agent-skill-installer-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-22">April 22, 2026</time>
+      <span class="tag">Tools</span>
+      <span class="tag">Skills</span>
+      <span class="tag">Vercel</span>
+      <span class="tag">Ecosystem</span>
+    </div>
+
+    <h1>Vercel Ships <code>npx skills</code> — A Universal Agent Skill Installer That Works With OpenClaw</h1>
+
+    <p>Vercel Labs just released <strong><code>npx skills</code></strong> — an open-source CLI for installing agent skills across 41+ AI coding agents and runtimes, including OpenClaw.</p>
+
+    <p>The pitch: one command installs any skill from any GitHub repo into any agent's skill directory, with no manual file-copying or path-hunting required.</p>
+
+    <h2>What It Does</h2>
+
+    <pre><code># Install a skill from GitHub
+npx skills add vercel-labs/agent-skills
+
+# Install a specific skill
+npx skills add vercel-labs/agent-skills --skill frontend-design
+
+# Install to a specific agent
+npx skills add vercel-labs/agent-skills -a openclaw
+
+# Global install (available across all projects)
+npx skills add vercel-labs/agent-skills -g -a openclaw
+
+# List available skills without installing
+npx skills add vercel-labs/agent-skills --list</code></pre>
+
+    <p>For OpenClaw, skills land in <code>~/.openclaw/skills/</code> (global) or <code>./openclaw/skills/</code> (project-scoped). The CLI handles symlinking vs copying, supports GitLab and arbitrary git URLs, and works non-interactively for CI/CD pipelines.</p>
+
+    <h2>Supported Agents (Partial List)</h2>
+
+    <p>The tool supports 41+ agents as of launch, including:</p>
+    <ul>
+      <li>OpenClaw (<code>openclaw</code>)</li>
+      <li>Claude Code (<code>claude-code</code>)</li>
+      <li>Codex (<code>codex</code>)</li>
+      <li>Cursor (<code>cursor</code>)</li>
+      <li>OpenCode (<code>opencode</code>)</li>
+      <li>Cline, Warp, CodeBuddy, Factory Droid, Trae, Google Antigravity, and more</li>
+    </ul>
+
+    <p>This matters because skills are converging on a shared format across the ecosystem. A skill written for OpenClaw's <code>SKILL.md</code> convention can be installed into Codex or Claude Code through the same CLI — the tool writes the appropriate <code>AGENTS.md</code> entries per agent.</p>
+
+    <h2>Why This Is Worth Paying Attention To</h2>
+
+    <p><strong>The skill ecosystem is becoming infrastructure.</strong> Vercel building a universal skill installer signals that skills aren't just a cool OpenClaw feature anymore — they're becoming the standard unit of AI agent capability extension across the entire space.</p>
+
+    <p>For OpenClaw users, this means:</p>
+    <ul>
+      <li><strong>More skills available faster.</strong> Any skill published to GitHub can now be installed in one command. The catalog will grow quickly.</li>
+      <li><strong>Cross-agent portability.</strong> Skills you invest in for OpenClaw may work in other agents too. The ecosystem is standardizing around the <code>SKILL.md</code> format.</li>
+      <li><strong>Vercel's distribution.</strong> Vercel has millions of developers in their ecosystem. <code>npx skills</code> getting traction there means more skill authors, more quality control, and more enterprise-grade options landing in OpenClaw's skill directory.</li>
+    </ul>
+
+    <h2>How to Try It</h2>
+
+    <pre><code># Install Vercel's agent skills into OpenClaw globally
+npx skills add vercel-labs/agent-skills -a openclaw -g
+
+# See what's available first
+npx skills add vercel-labs/agent-skills --list</code></pre>
+
+    <p>No install required — <code>npx</code> runs it directly. The repo is at <a href="https://github.com/vercel-labs/skills" target="_blank" rel="noopener">github.com/vercel-labs/skills</a>.</p>
+
+    <p>This is the kind of tooling that makes OpenClaw more powerful without you doing anything — the ecosystem is doing the work. Getting your base setup right first is what lets you take advantage of it.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Get Your OpenClaw Foundation Set Up Right →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

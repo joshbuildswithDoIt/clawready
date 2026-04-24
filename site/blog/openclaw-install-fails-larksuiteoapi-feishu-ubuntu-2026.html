@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Install Fails: "Cannot find module '@larksuiteoapi/node-sdk'" on Ubuntu 24.04 | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.21 installation via the curl installer fails on Ubuntu 24.04 with a missing @larksuiteoapi/node-sdk error during model selection. Here's the workaround." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-install-fails-larksuiteoapi-feishu-ubuntu-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-22">April 22, 2026</time>
+      <span class="tag">Troubleshooting</span>
+      <span class="tag">Installation</span>
+      <span class="tag">Ubuntu</span>
+    </div>
+
+    <h1>OpenClaw Install Fails: "Cannot find module '@larksuiteoapi/node-sdk'" on Ubuntu 24.04</h1>
+
+    <p>If you're installing OpenClaw on Ubuntu 24.04 using the official curl installer and hitting this error:</p>
+
+    <pre><code>Error: Cannot find module '@larksuiteoapi/node-sdk'</code></pre>
+
+    <p>You've hit GitHub issue <a href="https://github.com/openclaw/openclaw/issues/70292" target="_blank" rel="noopener">#70292</a>, filed today against OpenClaw 2026.4.21.</p>
+
+    <h2>When It Happens</h2>
+
+    <p>The error occurs during the <code>openclaw onboard</code> flow — specifically after you select a model provider (confirmed with both Kimi via OpenRouter and Claude Sonnet via OpenRouter). The install script errors and exits back to bash.</p>
+
+    <p>Reproduction path:</p>
+    <ol>
+      <li>Run: <code>curl -fsSL https://openclaw.ai/install.sh | bash</code></li>
+      <li>Proceed through provider and model selection</li>
+      <li>Error fires, installation exits</li>
+    </ol>
+
+    <h2>What's Causing It</h2>
+
+    <p><code>@larksuiteoapi/node-sdk</code> is the bundled runtime dependency for OpenClaw's Feishu/Lark channel integration. This is the same class of bundled channel runtime regression that affected Telegram (<code>grammy</code>) and WhatsApp (<code>@whiskeysockets/baileys</code>) in 4.20 — the 4.21 patch addressed those, but this issue against 4.21 suggests the bundled runtime repair is still incomplete for Feishu.</p>
+
+    <h2>Workarounds</h2>
+
+    <h3>Option 1: npm global install (skip curl installer)</h3>
+    <pre><code>npm install -g openclaw@latest
+openclaw onboard</code></pre>
+    <p>The npm global install path has different bundling behavior than the curl script. This is the most reliable workaround for the install failure.</p>
+
+    <h3>Option 2: Manual dep install after curl</h3>
+    <pre><code># After the curl install exits
+cd $(npm root -g)/openclaw
+npm install
+openclaw onboard</code></pre>
+    <p>Forces npm to resolve and install bundled channel deps from inside the package directory before running onboard.</p>
+
+    <h3>Option 3: Disable Feishu channel during onboard</h3>
+    <p>If you don't use Feishu/Lark, you can skip that channel in the onboarding wizard. The error fires when the installer tries to initialize Feishu's SDK — if you're not configuring that channel, you can safely skip it and complete setup without it.</p>
+
+    <h2>Status</h2>
+
+    <p>Open issue as of April 22, 2026. No patch yet. This is the third bundled runtime regression to surface in the 4.20/4.21 release cycle (after Telegram grammy and WhatsApp baileys). A comprehensive fix is likely coming in 4.22 or later.</p>
+
+    <p>If you're setting up OpenClaw fresh and hit this — use the npm install path above. It takes 2 extra minutes and avoids the curl installer's current bundling issues.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Skip the Setup Headaches — Book a ClawReady Setup →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

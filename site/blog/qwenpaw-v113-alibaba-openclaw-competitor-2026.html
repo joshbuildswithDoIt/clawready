@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QwenPaw v1.1.3: Alibaba's OpenClaw Competitor Ships ACP Server, Proactive Messaging & Shell Guard | ClawReady</title>
+  <meta name="description" content="QwenPaw (formerly CoPaw, backed by Alibaba's Qwen ecosystem) released v1.1.3 today with ACP Server support, proactive agent messaging, and Shell Evasion Guard. Here's how it compares to OpenClaw." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/qwenpaw-v113-alibaba-openclaw-competitor-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-22">April 22, 2026</time>
+      <span class="tag">Ecosystem</span>
+      <span class="tag">Competitors</span>
+      <span name="tag">QwenPaw</span>
+    </div>
+
+    <h1>QwenPaw v1.1.3: Alibaba's OpenClaw Competitor Ships ACP Server, Proactive Messaging & Shell Guard</h1>
+
+    <p><strong>QwenPaw</strong> — formerly CoPaw, now rebranded to reflect deep integration with Alibaba's Qwen open-source ecosystem — shipped v1.1.3 today. It's one of the most capable OpenClaw-adjacent personal AI agent projects, and it's moving fast.</p>
+
+    <h2>What QwenPaw Is</h2>
+
+    <p>QwenPaw is a self-hosted personal AI assistant with a pitch nearly identical to OpenClaw:</p>
+    <ul>
+      <li>Deploy locally or in the cloud — data stays on your machine</li>
+      <li>Skills-based extension system — custom skills auto-loaded, no lock-in</li>
+      <li>Multi-agent collaboration — agents with independent roles, inter-agent communication</li>
+      <li>Multi-layer security — tool guard, file access control, skill security scanning</li>
+      <li>Multi-channel — DingTalk, Feishu, WeChat, Discord, Telegram, and more</li>
+    </ul>
+
+    <p>The key difference: QwenPaw defaults to Qwen models and is purpose-built for the Chinese tech stack (DingTalk, Feishu, WeChat) while also supporting Western channels. The April 12 rebrand from CoPaw to QwenPaw signals a tighter alignment with Alibaba's model ecosystem going forward.</p>
+
+    <h2>What's New in v1.1.3 (April 22)</h2>
+
+    <h3>QwenPaw as ACP Server</h3>
+    <p>This is the headliner. QwenPaw can now act as an ACP (Agent Communication Protocol) server — meaning other agents and tools can connect to it as a runtime, not just use it as a standalone assistant. This is the architecture OpenClaw's multi-agent sub-agent system uses. QwenPaw supporting it means cross-platform agent orchestration becomes possible.</p>
+
+    <h3>Proactive Agent Messaging</h3>
+    <p>Agents can now initiate messages proactively — without waiting for user input. This is equivalent to OpenClaw's heartbeat system: scheduled or triggered outbound messages from the agent to the user. Previously QwenPaw was reactive-only.</p>
+
+    <h3>Shell Evasion Guard</h3>
+    <p>A new security layer that detects and blocks shell evasion attempts — prompt injection patterns that try to get the agent to execute unintended shell commands. With SecurityScorecard's report this week showing 63% of exposed agent deployments vulnerable to RCE, this is a timely addition.</p>
+
+    <h3>Console Plugin System</h3>
+    <p>Plugins can now expose interfaces directly in the QwenPaw console — similar to OpenClaw's canvas system. Enables richer interactive UIs without leaving the agent interface.</p>
+
+    <h3>Backup & Restore</h3>
+    <p>Full system backup and restore for agent state, memory, and configuration. OpenClaw doesn't have a native backup system — this is a genuine gap QwenPaw is filling.</p>
+
+    <h3>Agent Statistics Page</h3>
+    <p>Usage metrics, token consumption, and task history per agent. Useful for monitoring cost and activity across multi-agent setups.</p>
+
+    <h2>QwenPaw vs. OpenClaw: Where They Stand</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>OpenClaw</th>
+          <th>QwenPaw v1.1.3</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Default model</td>
+          <td>Any (Kimi K2.6 as new default)</td>
+          <td>Qwen ecosystem</td>
+        </tr>
+        <tr>
+          <td>Channels</td>
+          <td>20+ (WhatsApp, Telegram, Discord, Signal, iMessage…)</td>
+          <td>DingTalk, Feishu, WeChat, Discord, Telegram</td>
+        </tr>
+        <tr>
+          <td>Skills/extensions</td>
+          <td>13,700+ community skills, ClawHub</td>
+          <td>Built-in + custom, smaller catalog</td>
+        </tr>
+        <tr>
+          <td>ACP support</td>
+          <td>Yes (as client + server)</td>
+          <td>Yes as of v1.1.3 (server)</td>
+        </tr>
+        <tr>
+          <td>Proactive messaging (heartbeat)</td>
+          <td>Yes, mature</td>
+          <td>Yes as of v1.1.3</td>
+        </tr>
+        <tr>
+          <td>Backup/restore</td>
+          <td>No native system</td>
+          <td>Yes as of v1.1.3</td>
+        </tr>
+        <tr>
+          <td>Shell security guard</td>
+          <td>Sandbox + elevated permissions model</td>
+          <td>Shell Evasion Guard as of v1.1.3</td>
+        </tr>
+        <tr>
+          <td>Western market fit</td>
+          <td>Strong (US/EU channels, English-first)</td>
+          <td>Growing (Chinese market primary)</td>
+        </tr>
+        <tr>
+          <td>Community/ecosystem</td>
+          <td>247K GitHub stars, massive</td>
+          <td>Smaller but backed by Alibaba</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Why This Matters</h2>
+
+    <p>QwenPaw shipping proactive messaging and ACP server support in the same release brings it architecturally close to OpenClaw's core feature set. The backup/restore system is a genuine advantage OpenClaw doesn't match yet. And Shell Evasion Guard is a smart security response to the current threat landscape.</p>
+
+    <p>Alibaba's backing gives QwenPaw distribution advantages in China that no Western alternative can match. For the global market, OpenClaw still has the larger ecosystem and deeper Western channel support — but QwenPaw is closing the gap faster than most OpenClaw alternatives have.</p>
+
+    <p>For users evaluating which platform to commit to: OpenClaw remains the better choice for Western channels, larger skill catalogs, and established community support. QwenPaw is worth watching if your workflow is China-adjacent or you want native Qwen model integration.</p>
+
+    <p>Either way — both platforms reward a well-configured setup. A ClawReady setup on OpenClaw gives you everything QwenPaw is catching up to, configured correctly from day one.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Get OpenClaw Set Up Right →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

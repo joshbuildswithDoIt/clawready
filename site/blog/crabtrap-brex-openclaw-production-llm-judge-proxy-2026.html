@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrabTrap: Brex Built an LLM-as-a-Judge HTTP Proxy to Run OpenClaw Agents Safely in Production | ClawReady</title>
+  <meta name="description" content="Brex open-sourced CrabTrap — an HTTP proxy that intercepts every outbound agent request and uses an LLM-as-judge to enforce policy in real time. Built specifically for OpenClaw production deployments." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/crabtrap-brex-openclaw-production-llm-judge-proxy-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-23">April 23, 2026</time>
+      <span class="tag">Security</span>
+      <span class="tag">Production</span>
+      <span class="tag">Brex</span>
+    </div>
+
+    <h1>CrabTrap: Brex Built an LLM-as-a-Judge HTTP Proxy to Run OpenClaw Agents Safely in Production</h1>
+
+    <p>Brex — the corporate card and financial software company — open-sourced <strong>CrabTrap</strong> this week: an HTTP/HTTPS proxy that intercepts every outbound network request from an AI agent and uses an LLM-as-a-judge to determine if it should be allowed.</p>
+
+    <p>The motivation, straight from Brex's engineering blog:</p>
+
+    <blockquote>
+      <p>"While OpenClaw is the fastest-growing project on GitHub, there are few successful cases of enterprise deployments. Brex decided to change that."</p>
+    </blockquote>
+
+    <p>The community summary is even punchier: <em>"OpenClaw + Composio alone gets you to 'the agent works.' Add CrabTrap and you get to 'the agent works and I can sleep.'"</em></p>
+
+    <h2>The Problem CrabTrap Solves</h2>
+
+    <p>When you run an OpenClaw agent with real credentials — API keys, OAuth tokens, service accounts — those credentials can be used to take actions with production consequences. The agent can hallucinate destructive requests. It can get prompt-injected. And once a request leaves the process, it hits real APIs.</p>
+
+    <p>Existing guardrails have gaps:</p>
+    <ul>
+      <li><strong>MCP gateways</strong> — enforce policy at protocol layer, but only for MCP traffic</li>
+      <li><strong>LLM provider guardrails</strong> — tied to a single model, opaque to customize</li>
+      <li><strong>NVIDIA OpenShell</strong> — sandbox-level egress control, not request-level judgment</li>
+      <li><strong>Scoped tools + per-action approvals</strong> — don't scale as agent capabilities grow</li>
+    </ul>
+
+    <p>Brex needed something that sat between every agent and every network request, framework-agnostic, with the ability to make nuanced decisions. They built it.</p>
+
+    <h2>How CrabTrap Works</h2>
+
+    <p><strong>Transport-layer interception:</strong> Set <code>HTTP_PROXY</code> and <code>HTTPS_PROXY</code> in the agent's environment. Every outbound request routes through CrabTrap — no SDK, no wrappers, no per-tool integration required. Works with OpenClaw regardless of which channels or tools it's using.</p>
+
+    <p><strong>TLS interception for HTTPS:</strong> CrabTrap generates certificates per host, negotiates TLS with the client, opens a separate upstream connection. Optionally add iptables rules to block direct outbound connections as an extra enforcement layer.</p>
+
+    <p><strong>Two-stage evaluation on every request:</strong></p>
+    <ol>
+      <li><strong>Static rules first</strong> — deterministic URL pattern matching (prefix, exact, glob), optionally scoped to HTTP methods. Deny rules always take priority. Executes in microseconds from cached regexps.</li>
+      <li><strong>LLM-as-judge for the long tail</strong> — if no static rule matches, the full request context goes to the judge along with a natural-language policy for that agent. Returns a structured JSON decision — allow, deny, or allow-with-modification.</li>
+    </ol>
+
+    <p>The natural-language policy is the key innovation. Instead of hand-coding every allowed API pattern, you write what the agent is supposed to do in plain English: "This agent manages calendar events and reads email. It should not write to external databases, send messages to contacts it hasn't received messages from first, or access financial APIs." The LLM judge enforces that intent.</p>
+
+    <h2>Setup for OpenClaw</h2>
+
+    <pre><code># Install CrabTrap
+git clone https://github.com/brexhq/CrabTrap
+cd CrabTrap && docker compose up -d
+
+# In your OpenClaw environment
+export HTTP_PROXY=http://localhost:8080
+export HTTPS_PROXY=http://localhost:8080
+
+# Define your agent policy (natural language)
+# CrabTrap evaluates all outbound requests against it</code></pre>
+
+    <p>The proxy is framework-agnostic — it works with any OpenClaw channel, any tool, any skill. You don't change how OpenClaw is configured; you change where its network traffic goes.</p>
+
+    <h2>This Week's Security Layer Stack</h2>
+
+    <p>Between the SecurityScorecard report (28K exposed instances), NVIDIA NemoClaw (sandbox-level execution), and CrabTrap (request-level LLM judgment), this week has produced a complete layered security stack for OpenClaw production deployments:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Tool</th>
+          <th>What It Protects</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Network perimeter</td>
+          <td>Cloudflare Tunnel + gateway auth</td>
+          <td>Keeps gateway off public internet</td>
+        </tr>
+        <tr>
+          <td>Agent behavior</td>
+          <td>SOUL.md + AGENTS.md permissions</td>
+          <td>Limits what agent is allowed to attempt</td>
+        </tr>
+        <tr>
+          <td>Sandbox isolation</td>
+          <td>NVIDIA NemoClaw / OpenShell</td>
+          <td>Isolates agent execution environment</td>
+        </tr>
+        <tr>
+          <td>Request-level enforcement</td>
+          <td>CrabTrap</td>
+          <td>Judges every outbound API call in real time</td>
+        </tr>
+        <tr>
+          <td>Patch cadence</td>
+          <td>OpenClaw update monitoring</td>
+          <td>Keeps CVEs patched (3 active this week)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>For most individual and small business operators, layers 1 and 2 — network perimeter hardening and proper SOUL.md/AGENTS.md configuration — are sufficient and achievable in a single setup session. CrabTrap and NemoClaw add meaningful additional protection for production deployments with real credentials doing real work.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Get a Security-First Setup — $49 Audit Covers All Five Layers →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

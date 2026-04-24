@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiniMax M2.7 Built Its Evaluation Benchmark on OpenClaw Tasks — And Trained Itself With an Agent Harness | ClawReady</title>
+  <meta name="description" content="MiniMax's new M2.7 model built 'MM Claw' — an evaluation set based on real OpenClaw tasks — and used OpenClaw agent harnesses internally to drive its own self-evolution. Here's what that means for OpenClaw users." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/minimax-m27-openclaw-mm-claw-benchmark-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-23">April 23, 2026</time>
+      <span class="tag">Models</span>
+      <span class="tag">MiniMax</span>
+      <span class="tag">Benchmarks</span>
+    </div>
+
+    <h1>MiniMax M2.7 Built Its Evaluation Benchmark on OpenClaw Tasks — And Trained Itself With an Agent Harness</h1>
+
+    <p>MiniMax's newly released <strong>M2.7</strong> model announcement contains two details that matter specifically for OpenClaw users.</p>
+
+    <p>First: MiniMax built their primary real-world evaluation set — <strong>"MM Claw"</strong> — directly from common OpenClaw usage patterns, covering personal learning planning, office document processing, scheduled tasks, and more. OpenClaw is their benchmark for what real agentic work looks like.</p>
+
+    <p>Second: MiniMax used OpenClaw agent harnesses <em>internally</em> to help train M2.7. They tasked an internal version of the model with building a research agent harness supporting data pipelines, training environments, cross-team collaboration, and persistent memory — then let the model improve its own learning process based on experiment results. Agent harness drives model evolution.</p>
+
+    <h2>Why MM Claw Matters</h2>
+
+    <p>When a frontier model lab builds its real-world capability benchmark on top of your platform's usage patterns, that's a strong validation signal. MiniMax isn't testing M2.7 against abstract NLP tasks — they're testing it against the actual workflows OpenClaw users run every day.</p>
+
+    <p>That means M2.7 is specifically tuned for:</p>
+    <ul>
+      <li>Personal productivity automation (the core OpenClaw use case)</li>
+      <li>Office document processing and complex editing (Excel, PPT, Word)</li>
+      <li>Scheduled and recurring task execution (heartbeat-style workflows)</li>
+      <li>Complex skill management — 97% adherence rate across 40+ skills exceeding 2,000 tokens each</li>
+    </ul>
+
+    <p>That last number is striking. Maintaining 97% behavioral adherence across 40 complex skills simultaneously is exactly the kind of capability that matters for multi-skill OpenClaw setups where agents are juggling multiple concurrent responsibilities.</p>
+
+    <h2>M2.7 Performance Numbers</h2>
+
+    <ul>
+      <li><strong>SWE-Pro:</strong> 56.22% — "nearly approaching Opus's best level" for software engineering tasks</li>
+      <li><strong>VIBE-Pro:</strong> 55.6% (end-to-end full project delivery)</li>
+      <li><strong>Terminal Bench 2:</strong> 57.0% (deep understanding of complex engineering systems)</li>
+      <li><strong>GDPval-AA ELO:</strong> 1495 — highest among open-source models for professional office tasks</li>
+      <li><strong>Skill adherence:</strong> 97% across 40+ skills, each >2,000 tokens</li>
+    </ul>
+
+    <h2>The Self-Evolution Story</h2>
+
+    <p>M2.7 is MiniMax's "first model deeply participating in its own evolution." The internal workflow: M2.7 built a research agent harness from scratch — with data pipelines, training environments, infrastructure connections, cross-team collaboration channels, and persistent memory — then used that harness to run RL experiments and improve its own learning process based on the results.</p>
+
+    <p>This is the same architecture pattern OpenClaw-RL (from Gen-Verse) explored, but implemented by MiniMax as a production training workflow rather than a research framework. The convergence is notable: both projects conclude that agent harnesses + self-directed feedback are the path to model improvement.</p>
+
+    <h2>M2.7 for OpenClaw: Practical Considerations</h2>
+
+    <p>M2.7 has been the community's top-recommended budget alternative after Claude's recent pricing changes (covered in our <a href="/blog/openclaw-best-model-april-2026-kimi-glm-minimax.html">model rankings post</a>). The "impossible to exhaust quota" reports from users combined with genuine near-Opus performance on structured tasks make it a compelling OpenClaw primary or fallback.</p>
+
+    <p>Setup in OpenClaw:</p>
+
+    <pre><code># openclaw.json
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "minimax/minimax-m2.7",
+        "fallbacks": ["ollama/qwen3.6:27b"]
+      }
+    }
+  }
+}</code></pre>
+
+    <p>Best use cases based on MM Claw benchmark coverage:</p>
+    <ul>
+      <li>Heartbeat-driven scheduled tasks (strong recurring task performance)</li>
+      <li>Document processing and summarization workflows</li>
+      <li>Multi-skill agent setups where skill count is high (97% adherence)</li>
+      <li>Coding and engineering tasks where Opus-level quality matters but budget is a constraint</li>
+    </ul>
+
+    <p>Less optimal for: highly creative tasks, nuanced judgment calls, or scenarios requiring the absolute top-end reasoning that Claude Opus or Kimi K2.5 deliver.</p>
+
+    <h2>The Bigger Signal</h2>
+
+    <p>MiniMax building MM Claw on OpenClaw usage patterns is the same kind of ecosystem validation we saw with Tencent (QClaw), Alibaba (QwenPaw), and Huawei (JiuwenClaw) this week. OpenClaw has become the de facto reference platform for what real-world agentic AI work looks like — even for frontier model labs benchmarking their own models.</p>
+
+    <p>That's a strong moat for the platform. And it means models that optimize for OpenClaw compatibility (like M2.7 explicitly does) will keep getting better at the tasks OpenClaw users actually run.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Get Your Model Stack Optimized for 2026 →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>

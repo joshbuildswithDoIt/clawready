@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 2026.4.21 Released — Bundled Runtime Fix & Copilot Default Model Update | ClawReady</title>
+  <meta name="description" content="OpenClaw 2026.4.21 shipped 8 hours after 4.20, addressing the bundled channel runtime regression that left Telegram and WhatsApp broken after upgrades. Here's what changed." />
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-4-21-release-bundled-runtime-fix-2026.html" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/">ClawReady</a>
+    <nav>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://calendly.com/grofresh2018" target="_blank">Book a Call</a>
+    </nav>
+  </header>
+
+  <main class="post">
+    <div class="post-meta">
+      <time datetime="2026-04-22">April 22, 2026</time>
+      <span class="tag">Release Notes</span>
+      <span class="tag">OpenClaw 4.21</span>
+      <span class="tag">Bug Fix</span>
+    </div>
+
+    <h1>OpenClaw 2026.4.21 Released — Bundled Runtime Fix & Copilot Default Model Update</h1>
+
+    <p>OpenClaw <strong>2026.4.21</strong> shipped approximately 8 hours after 4.20, making it one of the fastest patch turnarounds in recent memory. The release is now live on npm.</p>
+
+    <p>If you've been holding off on upgrading due to the Telegram/WhatsApp bundled runtime failures introduced in 4.20, this is the release to watch.</p>
+
+    <h2>What's in 4.21</h2>
+
+    <h3>Bundled Runtime Regression Fix</h3>
+    <p>The primary driver for this patch release is the bundled channel runtime regression in 4.20 — the same issue behind:</p>
+    <ul>
+      <li>GitHub <a href="https://github.com/openclaw/openclaw/issues/69837" target="_blank" rel="noopener">#69837</a> — <code>grammy</code> missing after Telegram update</li>
+      <li>GitHub <a href="https://github.com/openclaw/openclaw/issues/69842" target="_blank" rel="noopener">#69842</a> — <code>@whiskeysockets/baileys</code> missing after WhatsApp rebuild</li>
+    </ul>
+    <p>Both issues stem from the global npm upgrade path leaving bundled channel deps in a partially repaired state. 4.21 addresses the underlying packaging regression so <code>openclaw update</code> completes cleanly on global installs.</p>
+
+    <h3>GitHub Copilot Default Model: claude-opus-4.6</h3>
+    <p>New GitHub Copilot setups via OpenClaw now default to <strong>claude-opus-4.6</strong> instead of the older gpt-4o default. The bundled model list is kept aligned, so new Copilot integrations start on a more capable model out of the box.</p>
+
+    <p>This is notable: it signals that claude-opus-4.6 is now considered the practical default for agentic coding workflows in the OpenClaw ecosystem, not just an option.</p>
+
+    <h2>Should You Upgrade Now?</h2>
+
+    <p>If you're on 4.15 or earlier and use Telegram or WhatsApp channels — yes, upgrade directly to 4.21, skipping 4.20.</p>
+
+    <pre><code>openclaw gateway stop
+npm install -g openclaw@latest
+openclaw gateway start
+openclaw doctor</code></pre>
+
+    <p>If you're already on 4.20 and hit the bundled runtime failures — upgrade to 4.21 directly:</p>
+
+    <pre><code>npm install -g openclaw@2026.4.21
+openclaw gateway restart
+openclaw doctor</code></pre>
+
+    <p>If <code>openclaw doctor</code> still complains after upgrading, the nuclear option remains reliable:</p>
+
+    <pre><code>openclaw gateway stop
+npm uninstall -g openclaw
+npm install -g openclaw@latest
+openclaw gateway start
+openclaw doctor</code></pre>
+
+    <h2>The Bigger Picture</h2>
+
+    <p>OpenClaw shipping a patch within hours of a regression is a healthy sign for the project's maturity. The 4.20 bundled runtime issue was reported, escalated, and fixed within a single day — that's a responsive maintainer cadence for an open-source project this size.</p>
+
+    <p>That said, if managing upgrades, monitoring GitHub issues, and testing new releases every few days isn't how you want to spend your time — that's what ClawReady's managed care is for.</p>
+
+    <p><a href="https://calendly.com/grofresh2018" class="cta-btn">Let Us Handle Upgrades For You →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ClawReady. OpenClaw setup &amp; support specialists.</p>
+  </footer>
+</body>
+</html>
