@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw v2026.4.22: Stability Fixes, WhatsApp Improvements & Live Model Management — ClawReady</title>
+  <meta name="description" content="OpenClaw v2026.4.22 fixes duplicate messages, adds /models add for live model registration, improves WhatsApp per-group prompts, and strengthens the setup wizard. Full breakdown of the stability-focused changes.">
+  <meta property="og:title" content="OpenClaw v2026.4.22: What Changed for Daily Reliability — Duplicate Fixes, WhatsApp & /models add">
+  <meta property="og:description" content="Beyond the xAI headline features, v2026.4.22 fixes the bugs that frustrated long-running OpenClaw instances — duplicate messages, session interruptions, config loss. Here's what changed and why it matters.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-v2026-4-22-stability-duplicate-messages-whatsapp-models-add">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-v2026-4-22-stability-duplicate-messages-whatsapp-models-add">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:var(--muted)}
+    .article-header .meta span{margin-right:16px}
+    .article-body h2{font-size:1.35rem;font-weight:700;margin:36px 0 14px;letter-spacing:-.01em}
+    .article-body h3{font-size:1.05rem;font-weight:700;margin:24px 0 8px;color:var(--accent)}
+    .article-body p{margin-bottom:18px;color:#d0d0d0}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#d0d0d0}
+    .article-body li{margin-bottom:8px}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88em;font-family:'SF Mono','Fira Code',monospace}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .callout p+p{margin-top:10px}
+    .callout strong{color:var(--text)}
+    .change-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin:20px 0}
+    .change-block .change-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+    .change-block h3{font-size:1.05rem;font-weight:700;margin-bottom:10px;color:var(--text)}
+    .change-block p{margin:0;color:#d0d0d0;font-size:.93rem}
+    .change-block p+p{margin-top:8px}
+    .change-block code{background:rgba(255,255,255,.07);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.85em}
+    .update-cmd{background:#111;border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin:20px 0;font-family:'SF Mono','Fira Code',monospace;font-size:.9rem;color:var(--green)}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:40px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;transition:background .2s}
+    .btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:60px;text-align:center;color:var(--muted);font-size:.9rem}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">Release Notes</div>
+    <h1>OpenClaw v2026.4.22: Stability Fixes, WhatsApp Improvements & Live Model Management</h1>
+    <div class="subtitle">The xAI/Grok headline gets the attention — but the more important changes in v2026.4.22 are the reliability fixes that make long-running instances more trustworthy.</div>
+    <div class="meta">
+      <span>April 24, 2026</span>
+      <span>6 min read</span>
+      <span>ClawReady</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>OpenClaw v2026.4.22 shipped April 22, and most coverage led with the xAI integration — Grok image generation, 6 TTS voices, real-time STT. That's the flashy headline.</p>
+
+    <p>But for operators running OpenClaw day-to-day as production infrastructure, the more consequential changes are the stability and usability fixes buried lower in the changelog. Duplicate messages. Session interruptions. Config loss on restart. WhatsApp group behavior. Live model management without a restart.</p>
+
+    <p>This post focuses on what actually changed for the daily reliability of your instance.</p>
+
+    <h2>Update Command</h2>
+
+    <div class="update-cmd">npm update -g openclaw && openclaw gateway restart</div>
+
+    <p>Always restart the gateway after updating. The stability fixes in this release are gateway-side — they don't take effect until the process restarts.</p>
+
+    <h2>The Stability Changes That Matter</h2>
+
+    <div class="change-block">
+      <div class="change-label">Reliability</div>
+      <h3>Duplicate Message Fixes</h3>
+      <p>Several paths that caused OpenClaw to deliver the same message multiple times have been patched in this release. This was one of the more common complaints for WhatsApp and Discord users on long-running instances — the agent would respond correctly, then repeat itself after a few seconds.</p>
+      <p>If you've been seeing duplicates: update and restart. This should resolve the most common duplication paths.</p>
+    </div>
+
+    <div class="change-block">
+      <div class="change-label">WhatsApp</div>
+      <h3>Native Reply Quoting + Per-Group System Prompts</h3>
+      <p>Two meaningful WhatsApp improvements in this release:</p>
+      <p><strong>Native reply quoting:</strong> OpenClaw now supports configurable native reply quoting (<code>replyToMode</code> for WhatsApp conversations). When your agent replies, it properly threads back to the original message — cleaner UX on mobile, especially in active group chats.</p>
+      <p><strong>Per-group system prompts:</strong> You can now configure a different <code>systemPrompt</code> per WhatsApp group (or per direct chat), with <code>"*"</code> wildcard support. This is major for operators running one OpenClaw instance across multiple WhatsApp groups — each group can have a different persona, scope, and set of instructions. The config now forwards <code>GroupSystemPrompt</code> into inbound context on every turn.</p>
+    </div>
+
+    <div class="change-block">
+      <div class="change-label">Models / CLI</div>
+      <h3>/models add — Register Models Live, No Restart Required</h3>
+      <p>New command: <code>/models add &lt;provider&gt; &lt;modelId&gt;</code></p>
+      <p>Previously, adding a new model required editing config and restarting the gateway. Now you can register a model directly from chat and use it immediately — no restart, no downtime. The model becomes available to the current session instantly.</p>
+      <p>This matters most for operators who iterate on model configuration frequently, or who want to test a new model without interrupting a running agent. Combined with the existing <code>/model</code> command for switching, this makes model management a live operation rather than a restart-required config change.</p>
+    </div>
+
+    <div class="change-block">
+      <div class="change-label">Onboarding / Setup Wizard</div>
+      <h3>Redesigned Setup Wizard + Auto-Install Plugins</h3>
+      <p>The setup wizard got a meaningful UX refresh in this release:</p>
+      <ul>
+        <li>Security disclaimer now uses a single yellow warning banner with section headings and bulleted checklists — the key guidance is no longer easy to miss</li>
+        <li>Loading spinner during the initial model catalog load — the wizard no longer goes blank for 10–20 seconds while it fetches providers</li>
+        <li>"API key" placeholder on provider API key prompts — clearer what's expected</li>
+        <li>Missing provider and channel plugins now auto-install during setup — first-run configuration can complete without manual plugin recovery</li>
+      </ul>
+      <p>If you've tried setting up OpenClaw before and hit the blank-screen-during-setup problem or the "plugin not found" error on first run, these changes address both.</p>
+    </div>
+
+    <div class="change-block">
+      <div class="change-label">Models / CLI</div>
+      <h3>Kimi K2.6 Rows + Smarter Provider Handling</h3>
+      <p>The <code>models list --all</code> command now shows bundled provider-owned static catalog rows (including Kimi K2.6 rows for Moonshot, OpenRouter, and Vercel AI Gateway) before auth is configured — so you can see what's available without needing to authenticate first.</p>
+      <p><code>models list --provider</code> now validates that you pass provider IDs, not display labels, and gives a clear error before loading model discovery if you get this wrong. Cleaner error messages = less time debugging model config.</p>
+    </div>
+
+    <div class="change-block">
+      <div class="change-label">TUI</div>
+      <h3>Local Embedded Mode (No Gateway Required)</h3>
+      <p>New: <code>--local</code> / embedded mode for running terminal chats without a Gateway. Useful for quick local testing, scripts, or CI pipelines where you don't want to spin up the full gateway process. Plugin approval gates are still enforced in this mode.</p>
+    </div>
+
+    <h2>The xAI Summary (Quick Version)</h2>
+
+    <p>For completeness — the headline features covered elsewhere:</p>
+    <ul>
+      <li><strong>Image generation:</strong> <code>grok-imagine-image</code> and <code>grok-imagine-image-pro</code>, with reference-image editing</li>
+      <li><strong>TTS:</strong> 6 live xAI voices, MP3/WAV/PCM/G.711 output formats</li>
+      <li><strong>STT:</strong> <code>grok-stt</code> batch transcription + real-time transcription for Voice Call streaming</li>
+      <li><strong>Voice Call STT:</strong> Extended to Deepgram, ElevenLabs, and Mistral (alongside existing OpenAI and xAI paths)</li>
+      <li><strong>OpenAI web search:</strong> Native <code>web_search</code> tool auto-used for Responses models when web search is enabled</li>
+    </ul>
+
+    <h2>Should You Update Now?</h2>
+
+    <p>Yes. The duplicate message fixes and WhatsApp per-group system prompts alone are worth it for most operators. The setup wizard changes matter if you're onboarding new users. The <code>/models add</code> command is a quality-of-life improvement that will compound over time.</p>
+
+    <div class="callout yellow">
+      <p><strong>Security reminder:</strong> While you're updating — verify your gateway is bound to <code>127.0.0.1</code>, not <code>0.0.0.0</code>. The recent CVE-2026-41352 and CVE-2026-41349 patches were in earlier releases, but misconfig is still the most common exposure vector. <code>openclaw gateway status</code> will show your bind address.</p>
+    </div>
+
+    <h2>Changelog Reference</h2>
+
+    <p>Full release notes available at <a href="https://newreleases.io/project/github/openclaw/openclaw/release/v2026.4.22">newreleases.io</a> and the <a href="https://github.com/openclaw/openclaw">openclaw/openclaw GitHub repo</a>.</p>
+
+    <div class="cta-box">
+      <h3>Running an Older Version?</h3>
+      <p>If you're not on a recent version, you may be missing security patches from the last 3 releases. A ClawReady audit checks your version, binding config, and security posture — and documents every remediation step.</p>
+      <a href="https://clawreadynow.com/#pricing" class="btn">Get a Security Audit →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2026 ClawReady · <a href="https://clawreadynow.com" style="color:var(--accent)">clawreadynow.com</a> · OpenClaw setup, audit, and managed services</p>
+  </div>
+</footer>
+</body>
+</html>
