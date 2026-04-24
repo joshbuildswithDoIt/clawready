@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hermes Agent Now Has a Built-In OpenClaw Migrator — What It Means — ClawReady</title>
+  <meta name="description" content="NousResearch's Hermes agent just shipped `hermes claw migrate` — a one-command migration from OpenClaw. Here's what it imports, what it can't, and how to decide if switching makes sense.">
+  <meta property="og:title" content="Hermes Agent's OpenClaw Migrator: What `hermes claw migrate` Does — and What It Doesn't">
+  <meta property="og:description" content="Hermes now has a built-in tool to import your OpenClaw settings, memories, skills, and API keys. Here's what that actually means for existing OpenClaw users.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/hermes-agent-openclaw-migration-claw-migrate-2026">
+  <link rel="canonical" href="https://clawreadynow.com/blog/hermes-agent-openclaw-migration-claw-migrate-2026">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:var(--muted)}
+    .article-header .meta span{margin-right:16px}
+    .article-body h2{font-size:1.35rem;font-weight:700;margin:36px 0 14px;letter-spacing:-.01em}
+    .article-body h3{font-size:1.05rem;font-weight:700;margin:24px 0 8px;color:var(--accent)}
+    .article-body p{margin-bottom:18px;color:#d0d0d0}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#d0d0d0}
+    .article-body li{margin-bottom:8px}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88em;font-family:'SF Mono','Fira Code',monospace}
+    .article-body pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin:20px 0;overflow-x:auto}
+    .article-body pre code{background:none;border:none;padding:0;font-size:.9em}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .callout p+p{margin-top:10px}
+    .callout strong{color:var(--text)}
+    .migrate-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+    .migrate-col{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+    .migrate-col h4{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+    .migrate-col.yes h4{color:var(--green)}
+    .migrate-col.no h4{color:var(--accent)}
+    .migrate-col ul{margin:0 0 0 16px;color:#c0c0c0;font-size:.9rem}
+    .migrate-col li{margin-bottom:6px}
+    .decision-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin:24px 0}
+    .decision-box h3{font-size:1.05rem;font-weight:700;margin-bottom:10px}
+    .decision-box p{margin:0;color:#d0d0d0;font-size:.95rem}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:40px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;transition:background .2s}
+    .btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:60px;text-align:center;color:var(--muted);font-size:.9rem}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">Competitor Watch</div>
+    <h1>Hermes Agent Now Has a Built-In OpenClaw Migrator — What It Means</h1>
+    <div class="subtitle">NousResearch shipped <code>hermes claw migrate</code> — a dedicated command that imports your OpenClaw settings, memories, skills, and API keys into Hermes. Here's the honest breakdown.</div>
+    <div class="meta">
+      <span>April 24, 2026</span>
+      <span>6 min read</span>
+      <span>ClawReady</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>NousResearch's Hermes agent — 113,000 GitHub stars and the most serious OpenClaw competitor in the open-source space — just made switching significantly easier. Their GitHub README now documents <code>hermes claw migrate</code>, a dedicated command for importing your existing OpenClaw configuration into Hermes.</p>
+
+    <p>This is worth paying attention to, not because it signals a mass exodus from OpenClaw, but because it tells you something important about how the agent market is developing in 2026. And if you're an OpenClaw user wondering whether to explore Hermes, this post gives you the actual picture.</p>
+
+    <h2>What <code>hermes claw migrate</code> Actually Does</h2>
+
+    <p>Based on the README documentation, the migration command handles the following imports from an existing OpenClaw installation:</p>
+
+    <ul>
+      <li><strong>Settings</strong> — model selection, channel configs, tool permissions</li>
+      <li><strong>Memories</strong> — your SOUL.md, memory.md, and related context files</li>
+      <li><strong>Skills</strong> — installed skills and their configurations</li>
+      <li><strong>API keys</strong> — provider credentials stored in your OpenClaw config</li>
+    </ul>
+
+    <p>The full Hermes CLI reference shows:</p>
+    <pre><code>hermes claw migrate   # Migrate from OpenClaw (if coming from OpenClaw)
+hermes setup          # Run the full setup wizard
+hermes gateway        # Start messaging gateway (Telegram, Discord, etc.)
+hermes model          # Choose your LLM provider and model</code></pre>
+
+    <p>The intent is clear: lower the switching cost for OpenClaw users who want to try Hermes. A dedicated migration path is a meaningful competitive move — it signals NousResearch is explicitly targeting OpenClaw's user base.</p>
+
+    <h2>What Migration Can and Can't Transfer</h2>
+
+    <div class="migrate-grid">
+      <div class="migrate-col yes">
+        <h4>✅ Likely migrates cleanly</h4>
+        <ul>
+          <li>Model provider API keys</li>
+          <li>Channel tokens (Telegram, Discord)</li>
+          <li>SOUL.md content (personality/context)</li>
+          <li>memory.md and flat memory files</li>
+          <li>Basic skill configurations</li>
+        </ul>
+      </div>
+      <div class="migrate-col no">
+        <h4>❌ Won't migrate</h4>
+        <ul>
+          <li>OpenClaw-specific skill implementations</li>
+          <li>Custom tool code (exec scripts, integrations)</li>
+          <li>Heartbeat cron configurations</li>
+          <li>OpenClaw workspace structure and git history</li>
+          <li>ClawHub skill dependencies</li>
+          <li>ACP agent configurations (Codex, Claude Code)</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>The migration handles the portable, text-based data layer. Your OpenClaw-specific tooling, automation architecture, and skill stack don't transfer — those are platform-specific and would need to be rebuilt in Hermes's equivalent systems.</p>
+
+    <h2>What Makes Hermes Different From OpenClaw</h2>
+
+    <p>This isn't just a surface-level fork. Hermes has meaningfully different architecture decisions:</p>
+
+    <h3>Self-improving learning loop</h3>
+    <p>Hermes creates skills from experience, improves them during use, and builds a deepening model of who you are across sessions. OpenClaw's memory is more static — you write SOUL.md and memory.md; the agent reads them. Hermes's memory is more dynamic and self-updating.</p>
+
+    <h3>Infrastructure flexibility</h3>
+    <p>Hermes explicitly supports VPS and serverless deployment alongside local hardware. It's designed to run on a $5 cloud server with costs that approach zero when idle — a different cost model than OpenClaw's always-on local gateway.</p>
+
+    <h3>Python ecosystem first</h3>
+    <p>Hermes is Python-native (NousResearch's stack). OpenClaw is TypeScript/Node.js. If you're a Python developer, Hermes integrates more naturally with your toolchain. The community rule of thumb emerging in 2026: TypeScript shops → OpenClaw/NanoClaw; Python shops → Hermes/Agent Zero.</p>
+
+    <h3>Smaller community</h3>
+    <p>OpenClaw has 188,000+ GitHub stars, an active Discord, and ClawHub for skills. Hermes has 113,000 stars and is growing fast — but the ecosystem (skills, tutorials, community knowledge) is significantly smaller. That gap matters for real-world deployments.</p>
+
+    <h2>Who Should Actually Consider Migrating</h2>
+
+    <div class="decision-box">
+      <h3>Consider Hermes if:</h3>
+      <p>You want a self-improving agent that builds its own skills from experience. You're Python-first and want deeper ecosystem alignment. You prefer cloud/serverless deployment over dedicated hardware. You don't have a heavily customized OpenClaw skill stack yet.</p>
+    </div>
+
+    <div class="decision-box">
+      <h3>Stay on OpenClaw if:</h3>
+      <p>You have a working memory architecture and skill stack already invested. You value the larger community, ClawHub skill marketplace, and TypeScript tooling. You're running local models on dedicated hardware. You use ACP agents (Codex, Claude Code) as part of your workflow — no Hermes equivalent exists yet.</p>
+    </div>
+
+    <h2>What This Move Actually Signals</h2>
+
+    <p>Building a dedicated migration command is a significant competitive statement. You don't build <code>hermes claw migrate</code> unless you believe a meaningful portion of your addressable market is currently using OpenClaw and considering a switch.</p>
+
+    <p>NousResearch is right that some users will migrate — especially those who:</p>
+    <ul>
+      <li>Got frustrated with OpenClaw's setup complexity and never fully configured it</li>
+      <li>Want the self-improving memory model Hermes offers</li>
+      <li>Prefer Python ecosystem alignment</li>
+    </ul>
+
+    <p>But the users most likely to migrate are the ones who never deeply invested in OpenClaw's architecture. Anyone who has a proper SOUL.md, memory architecture, custom skills, and heartbeat automation will find that "migration" means rebuilding from scratch in a new system — not clicking a button.</p>
+
+    <div class="callout blue">
+      <p><strong>The real competitive dynamic:</strong> Hermes is competing for OpenClaw users who are still in "demo" mode — capable setup, never fully configured. A properly configured OpenClaw deployment has so much invested architecture that switching has high real cost, regardless of what the migration command imports.</p>
+      <p><strong>This is another reason why getting properly set up matters.</strong> The more you invest in your OpenClaw architecture, the more durable your platform choice becomes.</p>
+    </div>
+
+    <h2>The OpenClaw Advantage That Doesn't Migrate</h2>
+
+    <p>One thing <code>hermes claw migrate</code> can't import: your production architecture. The heartbeat cron that sends you morning briefings. The skills that integrate with your CRM, calendar, and communication tools. The ACP agent sessions that handle long coding tasks. The memory hierarchy that makes your agent actually know your business.</p>
+
+    <p>That architecture is what makes OpenClaw valuable. It's also what ClawReady builds. If you've never gotten past the demo phase, Hermes's migration pitch is rational. If you've actually built the thing out, you're not going anywhere.</p>
+
+    <div class="cta-box">
+      <h3>Build the OpenClaw Architecture Worth Keeping</h3>
+      <p>The users who stick with OpenClaw long-term are the ones who got properly set up — memory architecture, skill stack, heartbeat automation, channel connections. That's what we build. Once it's running, you won't be looking at migration guides.</p>
+      <a href="https://clawreadynow.com/#pricing" class="btn">See What We Build →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2026 ClawReady · <a href="https://clawreadynow.com" style="color:var(--accent)">clawreadynow.com</a> · OpenClaw setup, audit, and managed services</p>
+  </div>
+</footer>
+</body>
+</html>
