@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw v2026.4.22: xAI/Grok Image Gen, TTS, Local TUI Mode, WhatsApp Quoting — ClawReady</title>
+  <meta name="description" content="OpenClaw v2026.4.22 adds xAI image generation (grok-imagine), Grok TTS with 6 voices, Deepgram/ElevenLabs/Mistral streaming STT, local TUI mode, and WhatsApp native reply quoting.">
+  <meta property="og:title" content="OpenClaw v2026.4.22: xAI Grok Image Gen, TTS, Local TUI Mode & More">
+  <meta property="og:description" content="The biggest OpenClaw update since gpt-image-2 support. Adds full xAI provider support, voice streaming for Deepgram/ElevenLabs/Mistral, local TUI mode, /models add command, and WhatsApp reply quoting.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-v2026-4-22-xai-grok-tts-tui-local-mode">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-v2026-4-22-xai-grok-tts-tui-local-mode">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(231,76,60,.15);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:var(--muted)}
+    .article-header .meta span{margin-right:16px}
+    .article-body h2{font-size:1.35rem;font-weight:700;margin:36px 0 14px;letter-spacing:-.01em}
+    .article-body h3{font-size:1.05rem;font-weight:700;margin:24px 0 8px;color:var(--accent)}
+    .article-body p{margin-bottom:18px;color:#d0d0d0}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#d0d0d0}
+    .article-body li{margin-bottom:8px}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88em;font-family:'SF Mono','Fira Code',monospace}
+    .article-body pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto}
+    .article-body pre code{background:none;border:none;padding:0;font-size:.9em}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .callout p+p{margin-top:10px}
+    .callout strong{color:var(--text)}
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:28px 0}
+    .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+    .feature-card h4{font-size:.95rem;font-weight:700;margin-bottom:8px}
+    .feature-card p{font-size:.88rem;color:var(--muted);margin:0}
+    .change-list{list-style:none;margin:0 0 24px 0;padding:0}
+    .change-list li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+    .change-list li:last-child{border-bottom:none}
+    .change-list .badge{flex-shrink:0;background:rgba(52,152,219,.15);color:var(--blue);padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-top:2px}
+    .change-list .badge.fix{background:rgba(231,76,60,.15);color:var(--accent)}
+    .change-list .badge.new{background:rgba(39,174,96,.15);color:var(--green)}
+    .change-list .text{font-size:.92rem;color:#d0d0d0}
+    .update-cmd{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:28px 0}
+    .update-cmd h4{font-size:.9rem;color:var(--muted);font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em}
+    .update-cmd code{font-size:1rem;color:var(--green);font-family:'SF Mono','Fira Code',monospace}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:40px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;transition:background .2s}
+    .btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:60px;text-align:center;color:var(--muted);font-size:.9rem}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">Release Notes</div>
+    <h1>OpenClaw v2026.4.22: xAI Image Gen, Grok TTS, Local TUI Mode, WhatsApp Quoting</h1>
+    <div class="subtitle">The biggest provider expansion since gpt-image-2. xAI gets full multimodal support, three more STT providers go streaming, and you can now run a local TUI chat without a gateway.</div>
+    <div class="meta">
+      <span>April 24, 2026</span>
+      <span>6 min read</span>
+      <span>ClawReady</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>OpenClaw v2026.4.22 dropped overnight and it's one of the more feature-dense releases in recent memory. The headline is full xAI provider support — Grok now handles image generation, text-to-speech, and speech-to-text alongside its existing chat capabilities. But there are several other changes worth knowing about, especially if you run voice pipelines or a gateway-less setup.</p>
+
+    <p>Here's everything that changed and what it means for your setup.</p>
+
+    <h2>1. xAI / Grok Gets Full Multimodal Support</h2>
+
+    <p>Previously, xAI in OpenClaw meant Grok for chat. v2026.4.22 turns it into a full multimodal provider:</p>
+
+    <ul>
+      <li><strong>Image generation:</strong> <code>grok-imagine-image</code> and <code>grok-imagine-image-pro</code> — with reference-image edit support (send an existing image, get a modified version back)</li>
+      <li><strong>Text-to-speech:</strong> Six live xAI voices, MP3/WAV/PCM/G.711 output formats</li>
+      <li><strong>Speech-to-text:</strong> <code>grok-stt</code> for batch audio transcription; xAI realtime transcription for Voice Call streaming</li>
+    </ul>
+
+    <p>This makes xAI a serious competitor to OpenAI's full provider stack within OpenClaw. If you have an xAI API key and want to stay on one provider for text + voice + images, you now can.</p>
+
+    <h3>How to Configure xAI Image Gen</h3>
+
+    <pre><code># In openclaw.json → providers → xai
+{
+  "providers": {
+    "xai": {
+      "apiKey": "your-xai-key",
+      "imageModel": "grok-imagine-image",
+      "ttsVoice": "aurora"
+    }
+  }
+}</code></pre>
+
+    <p>Voices available: aurora, echo, flash, nimbus, orion, zephyr (exact names may vary — check <code>/models</code> after update).</p>
+
+    <h2>2. Streaming STT for Deepgram, ElevenLabs, and Mistral</h2>
+
+    <p>Real-time Voice Call transcription now extends beyond OpenAI and xAI. Three more providers gain streaming STT in this release:</p>
+
+    <ul>
+      <li><strong>Deepgram</strong> — Voice Call streaming transcription</li>
+      <li><strong>ElevenLabs</strong> — Voice Call streaming + Scribe v2 batch audio transcription for inbound media</li>
+      <li><strong>Mistral</strong> — Voice Call streaming transcription</li>
+    </ul>
+
+    <p>If you're running OpenClaw for voice-first workflows (call summaries, live transcription, voice-driven task entry), this significantly expands your provider options beyond OpenAI's realtime API.</p>
+
+    <div class="callout blue">
+      <p><strong>ElevenLabs users:</strong> Scribe v2 batch transcription is new — it processes inbound audio media (voice messages on WhatsApp, Telegram, etc.) rather than just live streams. This makes ElevenLabs a solid all-in-one voice stack alongside its TTS capabilities.</p>
+    </div>
+
+    <h2>3. Local TUI Mode — Gateway No Longer Required for Terminal Chat</h2>
+
+    <p>This is a quiet but meaningful change. Previously, OpenClaw's terminal UI (TUI) required a running gateway daemon. v2026.4.22 adds a local embedded mode that lets you run terminal chats without a gateway — while still enforcing plugin approval gates.</p>
+
+    <p>What this means:</p>
+    <ul>
+      <li>You can now use OpenClaw from the terminal on a machine that doesn't have the gateway running</li>
+      <li>Useful for portable setups, air-gapped machines, or quick one-off chats without spinning up the full daemon</li>
+      <li>Plugin approval gates still apply — you're not bypassing security, just skipping the daemon dependency</li>
+    </ul>
+
+    <pre><code>openclaw chat --local   # runs embedded, no gateway needed</code></pre>
+
+    <div class="callout yellow">
+      <p><strong>Note:</strong> Local mode won't have access to channel-specific context (your Telegram/WhatsApp conversations, etc.) since those route through the gateway. It's best for quick tasks, testing, and offline use.</p>
+    </div>
+
+    <h2>4. /models add — Register Models From Chat</h2>
+
+    <p>Previously, adding a custom model required editing <code>openclaw.json</code> and restarting the gateway. v2026.4.22 adds a <code>/models add</code> command that registers a model live from chat:</p>
+
+    <pre><code>/models add openai gpt-5.5
+/models add xai grok-imagine-image-pro
+/models add ollama llama3.3:70b</code></pre>
+
+    <p>No restart needed. The model is available immediately after the command. The existing <code>/models</code> command (provider browser) is unchanged — <code>/models add</code> is an extension, not a replacement.</p>
+
+    <h2>5. WhatsApp Native Reply Quoting</h2>
+
+    <p>OpenClaw can now quote messages in WhatsApp replies natively, using configurable <code>replyToMode</code>. This means when your agent responds to a specific WhatsApp message, it shows as a threaded reply rather than a standalone message — which is how humans actually communicate in WhatsApp.</p>
+
+    <p>Also new for WhatsApp: per-group and per-direct system prompt overrides. You can now configure different agent personalities for different WhatsApp groups or DM conversations:</p>
+
+    <pre><code># openclaw.json example
+"channels": {
+  "whatsapp": {
+    "groups": {
+      "Family Chat": { "systemPrompt": "You are a friendly family assistant..." },
+      "Work Team": { "systemPrompt": "You are a professional work assistant..." },
+      "*": { "systemPrompt": "Default prompt for all other groups" }
+    }
+  }
+}</code></pre>
+
+    <h2>6. Onboarding Auto-Install</h2>
+
+    <p>A minor but welcome fix: missing provider and channel plugins now auto-install during first-run setup. Previously, if you skipped a plugin step during onboarding, you'd hit cryptic errors later and need to manually recover. Now setup just handles it.</p>
+
+    <h2>7. Bug Fix: Plugin Discovery Hang (lossless-claw compat)</h2>
+
+    <p>The strict-match contract added in v2026.4.14 broke plugins whose internal engine id doesn't match their registered slot id — most notably <code>lossless-claw</code> and similar third-party plugins. This produced repeated <code>info.id must match registered id</code> errors on every turn.</p>
+
+    <p>v2026.4.22 fixes this. If you've been seeing that error since mid-April, update and it should clear.</p>
+
+    <h2>Full Change Summary</h2>
+
+    <ul class="change-list">
+      <li><span class="badge new">New</span><span class="text">xAI: image generation (grok-imagine-image / grok-imagine-image-pro), 6 TTS voices, grok-stt transcription, realtime STT streaming</span></li>
+      <li><span class="badge new">New</span><span class="text">STT: Deepgram, ElevenLabs (+ Scribe v2 batch), Mistral all gain Voice Call streaming transcription</span></li>
+      <li><span class="badge new">New</span><span class="text">TUI: local embedded mode — run terminal chat without a gateway (plugin gates still enforced)</span></li>
+      <li><span class="badge new">New</span><span class="text">/models add &lt;provider&gt; &lt;modelId&gt; — register models live from chat without restart</span></li>
+      <li><span class="badge new">New</span><span class="text">WhatsApp: configurable native reply quoting (replyToMode); per-group and per-direct system prompt overrides with wildcard fallback</span></li>
+      <li><span class="badge new">New</span><span class="text">Onboarding: auto-install missing plugins during first-run setup</span></li>
+      <li><span class="badge new">New</span><span class="text">OpenAI/Responses: native web_search auto-used for direct Responses models when search enabled</span></li>
+      <li><span class="badge new">New</span><span class="text">Sessions: mailbox-style sessions_list filters (label, agent, search)</span></li>
+      <li><span class="badge fix">Fix</span><span class="text">Plugin discovery hang — lossless-claw and plugins where engine id ≠ slot id now work correctly</span></li>
+      <li><span class="badge fix">Fix</span><span class="text">Agents/compaction: Pi compaction events renamed to compaction_start/compaction_end to align with pi-coding-agent 0.66.1</span></li>
+      <li><span class="badge fix">Fix</span><span class="text">Models/auth: provider-owned default-model additions now merge instead of replace on re-auth</span></li>
+    </ul>
+
+    <h2>How to Update</h2>
+
+    <div class="update-cmd">
+      <h4>Update command</h4>
+      <code>npm update -g openclaw && openclaw gateway restart</code>
+    </div>
+
+    <p>Check your version after: <code>openclaw --version</code> should show <code>2026.4.22</code> or later.</p>
+
+    <div class="callout green">
+      <p><strong>If you were affected by the lossless-claw plugin hang:</strong> After updating, do a full gateway restart (<code>openclaw gateway stop && openclaw gateway start</code>) rather than just a reload. The plugin registry needs to be rebuilt cleanly.</p>
+    </div>
+
+    <h2>What This Release Means for Your Setup</h2>
+
+    <p>If you're running a voice-first setup, this is a significant upgrade — Deepgram, ElevenLabs, and Mistral users can now use streaming STT for Voice Call without depending on OpenAI's realtime API. If you're a Grok user, you now have a complete multimodal stack in one provider.</p>
+
+    <p>The local TUI mode and <code>/models add</code> command are quality-of-life wins that reduce friction in daily use — especially for operators who frequently test new models or use OpenClaw from multiple machines.</p>
+
+    <div class="cta-box">
+      <h3>Running an Older OpenClaw Version?</h3>
+      <p>Staying current matters — especially with active security CVEs in the ecosystem right now. ClawReady's $49 audit covers your version, config, and exposure — and flags anything that needs attention before it becomes a problem.</p>
+      <a href="https://clawreadynow.com/#pricing" class="btn">Get a Security Audit →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2026 ClawReady · <a href="https://clawreadynow.com" style="color:var(--accent)">clawreadynow.com</a> · OpenClaw setup, audit, and managed services</p>
+  </div>
+</footer>
+</body>
+</html>
