@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Building a Family Tech-Support Bot With OpenClaw: Voice Clone, Telegram, and $4.99/mo VPS — ClawReady</title>
+  <meta name="description" content="One developer built an OpenClaw agent that handles family tech-support messages — complete with an ElevenLabs voice clone that sounds exactly like him. Here's the actual setup: VPS, Telegram bot, SOUL.md, voice profile, and what happens to relationships when a delegate handles your obligations.">
+  <meta property="og:title" content="Building a Family Tech-Support Bot With OpenClaw: Voice Clone, Telegram, and $4.99/mo VPS">
+  <meta property="og:description" content="A developer built an OpenClaw agent to handle 'the printer is doing the thing again' messages from family — with an ElevenLabs voice clone of himself. The real build: $4.99 VPS, Telegram bot, SOUL.md personality, 11-second response time.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://clawreadynow.com/blog/openclaw-family-tech-support-bot-voice-clone-telegram-2026">
+  <link rel="canonical" href="https://clawreadynow.com/blog/openclaw-family-tech-support-bot-voice-clone-telegram-2026">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-07JN7219ZL"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-07JN7219ZL');</script>
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:#2a2a2a;--text:#e8e8e8;--muted:#888;--accent:#e74c3c;--accent-hover:#c0392b;--green:#27ae60;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:780px;margin:0 auto;padding:0 24px}
+    nav{padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:40px}
+    nav .nav-inner{max-width:780px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:var(--text);text-decoration:none}
+    nav .logo{font-weight:800;font-size:1.2rem}
+    nav .logo span{color:var(--accent)}
+    nav .nav-links a{color:var(--muted);margin-left:24px;font-size:.95rem;transition:color .2s}
+    nav .nav-links a:hover{color:var(--text)}
+    .article-header{padding:40px 0 30px;border-bottom:1px solid var(--border);margin-bottom:40px}
+    .article-header .tag{display:inline-block;background:rgba(39,174,96,.15);color:#27ae60;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
+    .article-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+    .article-header .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:16px}
+    .article-header .meta{font-size:.85rem;color:var(--muted)}
+    .article-header .meta span{margin-right:16px}
+    .article-body h2{font-size:1.35rem;font-weight:700;margin:36px 0 14px;letter-spacing:-.01em}
+    .article-body h3{font-size:1.05rem;font-weight:700;margin:24px 0 8px;color:var(--accent)}
+    .article-body p{margin-bottom:18px;color:#d0d0d0}
+    .article-body ul,.article-body ol{margin:0 0 18px 24px;color:#d0d0d0}
+    .article-body li{margin-bottom:8px}
+    .article-body a{color:var(--accent);text-decoration:none}
+    .article-body a:hover{text-decoration:underline}
+    .article-body code{background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.88em;font-family:'SF Mono','Fira Code',monospace}
+    .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin:28px 0}
+    .callout.green{border-left-color:var(--green)}
+    .callout.blue{border-left-color:var(--blue)}
+    .callout.yellow{border-left-color:var(--yellow)}
+    .callout p{margin:0;font-size:.95rem}
+    .callout p+p{margin-top:10px}
+    .callout strong{color:var(--text)}
+    .stack-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.9rem}
+    .stack-table th{background:var(--surface);padding:11px 14px;text-align:left;border-bottom:2px solid var(--border);font-weight:700;color:var(--muted);text-transform:uppercase;font-size:.78rem;letter-spacing:.05em}
+    .stack-table td{padding:11px 14px;border-bottom:1px solid var(--border);color:#d0d0d0;vertical-align:top}
+    .stack-table tr:last-child td{border-bottom:none}
+    .stack-table .cost{color:var(--green);font-weight:700}
+    .soul-block{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:24px 0;font-family:'SF Mono','Fira Code',monospace;font-size:.85rem;line-height:1.7;color:#d0d0d0}
+    .soul-block .comment{color:var(--muted)}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin:40px 0;text-align:center}
+    .cta-box h3{font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--muted);margin-bottom:20px}
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;transition:background .2s}
+    .btn:hover{background:var(--accent-hover)}
+    footer{border-top:1px solid var(--border);padding:32px 0;margin-top:60px;text-align:center;color:var(--muted);font-size:.9rem}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Claw<span>Ready</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="article-header">
+    <div class="tag">Use Case</div>
+    <h1>Building a Family Tech-Support Bot With OpenClaw: Voice Clone, Telegram, and $4.99/mo VPS</h1>
+    <div class="subtitle">One developer got tired of "the printer is doing the thing again" messages. He built an OpenClaw agent — with an ElevenLabs voice clone of himself — that handles them. Here's the actual build.</div>
+    <div class="meta">
+      <span>April 24, 2026</span>
+      <span>8 min read</span>
+      <span>ClawReady</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>The third "the printer is doing the thing again" message arrived on a Wednesday at 7:42 AM. The developer was already a coffee in. His mother had taken a photo of an HP error code, sent it to the family group chat, and tagged him by name — in case he missed the photo of the HP error code.</p>
+
+    <p>He closed Telegram. He opened his OpenClaw config. And he started building the version of himself that handles printer errors so he doesn't have to.</p>
+
+    <p>The result: a Telegram bot that responds to family tech-support messages in his voice — literally, an ElevenLabs voice clone trained on 30 minutes of his own audio — within about 11 seconds of receipt. Running on a $4.99/month Hostinger VPS. Handled by an OpenClaw agent with a SOUL.md file that gives it his personality.</p>
+
+    <p>This is one of the most interesting real-world OpenClaw deployments we've seen in 2026. Not because of the technology — all the pieces exist — but because of what it reveals about where the platform is heading.</p>
+
+    <h2>The Stack</h2>
+
+    <table class="stack-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Choice</th>
+          <th>Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hosting</td>
+          <td>Hostinger KVM VPS</td>
+          <td class="cost">$4.99/mo</td>
+        </tr>
+        <tr>
+          <td>Agent platform</td>
+          <td>OpenClaw (self-hosted)</td>
+          <td class="cost">$0</td>
+        </tr>
+        <tr>
+          <td>Channel</td>
+          <td>Telegram bot</td>
+          <td class="cost">$0</td>
+        </tr>
+        <tr>
+          <td>LLM</td>
+          <td>Claude Sonnet (primary) + local fallback</td>
+          <td class="cost">~$10-20/mo at family volume</td>
+        </tr>
+        <tr>
+          <td>Voice synthesis</td>
+          <td>ElevenLabs with custom voice clone</td>
+          <td class="cost">~$5/mo</td>
+        </tr>
+        <tr>
+          <td>Voice training data</td>
+          <td>30 minutes of personal audio recordings</td>
+          <td class="cost">$0 (one-time)</td>
+        </tr>
+        <tr>
+          <td>Orchestration</td>
+          <td>Python script + OpenClaw skills</td>
+          <td class="cost">$0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Total monthly cost: roughly $20–30. Total response time: ~11 seconds from message receipt to voice memo delivery. The family can't tell the difference.</p>
+
+    <h2>The SOUL.md That Makes It Feel Like Him</h2>
+
+    <p>The most interesting technical choice in this build isn't the voice clone — it's the SOUL.md file. This is what gives OpenClaw its personality, tone, and behavioral rules. For a family tech-support bot, the SOUL.md has to do something subtle: be helpful and patient without being so obviously an AI that it breaks the illusion.</p>
+
+    <p>The approximate structure he used:</p>
+
+    <div class="soul-block">
+      <span class="comment"># SOUL.md — Family Tech Support Agent</span><br><br>
+      ## Identity<br>
+      You are helping my family with tech questions. You sound like me — calm, slightly dry, never condescending.<br><br>
+      ## Tone<br>
+      - Short answers first. Explain if asked.<br>
+      - Never say "Great question!" or "Certainly!"<br>
+      - Treat the person like an intelligent adult who just doesn't know this specific thing.<br>
+      - If you can't solve it, be honest — say I'll look at it when I'm back.<br><br>
+      ## What you handle<br>
+      - Printer errors, WiFi issues, phone settings, app problems<br>
+      - Photo and file questions<br>
+      - "How do I..." questions about any consumer tech<br><br>
+      ## What you escalate<br>
+      - Anything that requires physical access<br>
+      - Anything financial or account security related — flag and stop<br>
+      - Anything you're genuinely uncertain about — say so, don't guess
+    </div>
+
+    <p>The key insight: the SOUL.md doesn't try to perfectly impersonate him. It sets behavioral constraints that make the agent feel like a specific person responding — patient, concise, honest about limits — rather than a generic AI assistant.</p>
+
+    <h2>The Voice Clone Layer</h2>
+
+    <p>ElevenLabs released voice cloning features that work well with 15–30 minutes of clean audio. The setup:</p>
+    <ol>
+      <li>Record 30 minutes of natural speech — mix of casual conversation and explanatory content, not a script</li>
+      <li>Upload to ElevenLabs, create a custom voice profile</li>
+      <li>The profile ID goes into the OpenClaw config under the xAI/ElevenLabs TTS settings (OpenClaw 4.22 added native ElevenLabs Scribe v2 support)</li>
+      <li>Any text response from the agent gets routed through the voice profile before sending</li>
+    </ol>
+
+    <p>The result: a voice memo in the family Telegram that sounds like him. The family hears his voice, his cadence, his word choices (shaped by the SOUL.md). The response time is fast enough that it doesn't feel asynchronous.</p>
+
+    <div class="callout yellow">
+      <p><strong>The ethics layer:</strong> This particular build is transparent within the family — they know there's an agent, they just find it easier to think of it as him. Your mileage may vary on disclosure. If the agent is responding as you in contexts where the other party would reasonably expect a human, that's worth thinking through carefully before deploying.</p>
+    </div>
+
+    <h2>What Actually Runs on the $4.99 VPS</h2>
+
+    <p>A Hostinger KVM VPS at $4.99/month gets you 1 vCPU and 1GB RAM. That's enough for:</p>
+    <ul>
+      <li>OpenClaw gateway (Node.js, low idle memory)</li>
+      <li>The Telegram channel plugin</li>
+      <li>A Python orchestration script handling the ElevenLabs API calls</li>
+      <li>Cron-based heartbeat (lightweight, fires every 30 minutes)</li>
+    </ul>
+
+    <p>It's not enough for local model inference. The LLM calls go to Claude Sonnet via API. At family tech-support volumes (maybe 5–15 messages a day), the API cost is negligible — well under $20/month even with voice synthesis added.</p>
+
+    <div class="callout blue">
+      <p><strong>VPS vs. mini PC for this use case:</strong> A $4.99 VPS works because the workload is light and API-dependent. If you're running local models, you need more RAM than a budget VPS provides. For personal or business agents with heavier compute needs, a dedicated mini PC (NucBoxM5, Beelink, Mac Mini M4) is the better long-term choice — more RAM, local inference, no ongoing hosting fees.</p>
+    </div>
+
+    <h2>The Broader Implication: Delegate Computing</h2>
+
+    <p>The developer noted something that goes beyond the tech: "The interesting part isn't that it works. The interesting part is what happens to your relationship with repetitive social obligations once they're being handled by a delegate that nobody can tell isn't you."</p>
+
+    <p>This is the genuinely new thing about OpenClaw deployments like this one. Not "AI assistant that answers questions" — every phone has that. But a persistent agent that handles a specific slice of your social and logistical life, at the fidelity of your own voice and communication style, continuously.</p>
+
+    <p>The family tech-support bot is a contained, low-stakes version of this. The same architecture applied to client communications, team updates, or customer support is a much larger surface area — with correspondingly larger questions about disclosure and appropriate use.</p>
+
+    <h2>How to Build Something Like This</h2>
+
+    <p>If you want to build a version of this for a specific use case:</p>
+    <ol>
+      <li><strong>Define the domain narrowly.</strong> "Family tech support" is specific. "General assistant" is not. The tighter the scope, the more useful the SOUL.md constraints and the less likely the agent is to go off-script.</li>
+      <li><strong>Write a real SOUL.md.</strong> Don't use defaults. Write the personality, the tone, the handling rules, and the escalation conditions explicitly. The SOUL.md is doing most of the work here.</li>
+      <li><strong>Voice is optional but powerful.</strong> ElevenLabs integration (now native in OpenClaw 4.22) turns text responses into audio. For family or personal contexts, a voice clone adds significant realism. For business contexts, a professional but non-cloned voice is probably more appropriate.</li>
+      <li><strong>Start with low-stakes interactions.</strong> The family tech-support domain is perfect: low stakes, well-understood, easily corrected when wrong. Don't start a delegate agent on customer-facing business communication.</li>
+      <li><strong>Add heartbeat logging.</strong> Know what your agent is saying in your name. Read the heartbeat log. Review a sample of conversations weekly for the first month.</li>
+    </ol>
+
+    <h2>The Setup Gap</h2>
+
+    <p>The build described above took the developer several hours of configuration — SOUL.md tuning, ElevenLabs API integration, Python orchestration for the voice pipeline, VPS setup and gateway config. None of it is conceptually hard, but it requires navigating enough moving parts that most people who'd benefit from a setup like this never build it.</p>
+
+    <p>That's the gap ClawReady fills. We've set up agent stacks for a range of use cases — including voice-enabled Telegram bots, family-facing agents, and business communication delegates. The configuration is the hard part. The concept is straightforward.</p>
+
+    <div class="cta-box">
+      <h3>Want an Agent That Works the Way You Work?</h3>
+      <p>ClawReady builds custom OpenClaw setups — channel connections, voice integration, SOUL.md personality, memory architecture, and domain-specific skill configuration. You get an agent that actually sounds and acts like your specific use case, not a generic chatbot.</p>
+      <a href="https://clawreadynow.com/#pricing" class="btn">See What We Build →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2026 ClawReady · <a href="https://clawreadynow.com" style="color:var(--accent)">clawreadynow.com</a> · OpenClaw setup, audit, and managed services</p>
+  </div>
+</footer>
+</body>
+</html>
